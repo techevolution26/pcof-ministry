@@ -1,0 +1,4 @@
+[
+{ "id": "a1", "action": "church.create", "resource": "Church:c1", "createdAt": "2025-08-01T10:12:00Z" },
+{ "id": "a2", "action": "sermon.publish", "resource": "Sermon:s1", "createdAt": "2025-08-24T09:00:00Z" }
+]

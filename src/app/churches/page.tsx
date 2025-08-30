@@ -1,26 +1,28 @@
+// app/churches/page.tsx (Server component)
+import ChurchesList from '@/components/ChurchesList'
 import { fetchChurches } from '../../lib/api'
 
+export const revalidate = 60 // ISR: update once a minute
 
-export const revalidate = 60 // ISR: updates every minute
-// To switch to SSR: uncomment the next line
+// If you want true server-side search later, you can do:
 // export const dynamic = 'force-dynamic'
 
+export default async function ChurchesPage() {
+  const churches = await fetchChurches() || []
 
-export default async function ChurchesPage(){
-const churches = await fetchChurches()
+  return (
+    <section className="py-8">
+      <div className="container mx-auto">
+        <header className="mb-6">
+          <h1 className="text-3xl font-bold">Our Churches</h1>
+          <p className="text-sm text-slate-600 mt-2">
+            Find a PCOF church near you — browse by location, language, and service time.
+          </p>
+        </header>
 
-
-return (
-<section>
-<h2 className="text-2xl font-bold mb-4">Churches</h2>
-<ul className="space-y-3">
-{churches.map((c: any) => (
-<li key={c.id} className="p-3 border rounded">
-<h3 className="font-semibold">{c.name}</h3>
-<p className="text-sm">{c.address} — Pastor: {c.pastor}</p>
-</li>
-))}
-</ul>
-</section>
-)
+        {/* interactive client list */}
+        <ChurchesList initialChurches={churches} />
+      </div>
+    </section>
+  )
 }
