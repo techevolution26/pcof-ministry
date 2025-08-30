@@ -1,23 +1,29 @@
-import { fetchEvents } from '../../lib/api'
-export const revalidate = 120
+// app/events/page.tsx
+import EventsList from '@/components/EventsList'
+import { fetchEvents } from '@/lib/api'
 
+export const revalidate = 120 // ISR: update every 2 minutes
 
-export default async function EventsPage(){
-const events = await fetchEvents()
+export default async function EventsPage() {
+  const events = (await fetchEvents().catch(() => [])) || []
 
+  // normalize dates server-side for a consistent structure
+  const normalized = (events || []).map((e: any) => ({
+    ...e,
+    startsAt: e.startsAt ? new Date(e.startsAt).toISOString() : null,
+    endsAt: e.endsAt ? new Date(e.endsAt).toISOString() : null,
+  }))
 
-return (
-<section>
-<h2 className="text-2xl font-bold mb-4">Events</h2>
-<ul className="space-y-3">
-{events.map((e: any) => (
-<li key={e.id} className="p-3 border rounded">
-<strong>{e.title}</strong>
-<div className="text-sm">{new Date(e.startsAt).toLocaleString()}</div>
-<div className="text-sm">{e.location}</div>
-</li>
-))}
-</ul>
-</section>
-)
+  return (
+    <section className="py-8">
+      <div className="container mx-auto">
+        <header className="mb-6">
+          <h1 className="text-3xl font-bold">Events & Programs</h1>
+          <p className="text-sm text-slate-600 mt-2">Find upcoming services, Bible studies, outreach programs, and volunteer opportunities.</p>
+        </header>
+
+        <EventsList initialEvents={normalized} />
+      </div>
+    </section>
+  )
 }

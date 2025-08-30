@@ -1,0 +1,50 @@
+[
+    {
+        "id": "1",
+        "slug": "archbishop-Simon-Karisa",
+        "name": "Archbishop. Simon Karisa",
+        "title": "Archbishop",
+        "role": "President",
+        "photoUrl": "/images/leadership/john_mwangi.jpg",
+        "email": "archbishop@pcof.org",
+        "phone": "+254700111222",
+        "bio": "Archbishop  Simon Karisa has served the PCOF fellowship since 2010. He previously pastored several congregations and has a passion for church planting, pastoral training and community outreach.",
+        "startedAt": "2010-01-01"
+    },
+    {
+        "id": "2",
+        "slug": "Bishop-Folonzi-auma",
+        "name": "Bishop. Folonzi Auma",
+        "title": "General Secretary",
+        "role": "Vice-President",
+        "photoUrl": "/images/leadership/grace_auma.jpg",
+        "email": "gensec@pcof.org",
+        "phone": "+254700333444",
+        "bio": "Rev. Grace coordinates national operations, communications and training programs across our network of churches.",
+        "startedAt": "2015-06-01"
+    },
+    {
+        "id": "3",
+        "slug": "mr-sam-otieno",
+        "name": "Mr. Sam Otieno",
+        "title": "Treasurer",
+        "role": "Finance",
+        "photoUrl": "/images/leadership/sam_otieno.jpg",
+        "email": "treasurer@pcof.org",
+        "phone": "+254700555666",
+        "bio": "Sam oversees PCOF financial stewardship, donor reporting and compliance. He manages budgets for national programs and church support initiatives.",
+        "startedAt": "2018-03-15"
+    },
+    {
+        "id": "4",
+        "slug": "bishop-mary-kimani",
+        "name": "Bishop Mary Kimani",
+        "title": "Regional Bishop - Rift Valley",
+        "role": "Regional Leadership",
+        "photoUrl": "/images/leadership/mary_kimani.jpg",
+        "email": "region1@pcof.org",
+        "phone": "+254700777888",
+        "bio": "Bishop Mary supports pastors and local church leaders in the Rift Valley region, focusing on training and community development.",
+        "startedAt": "2016-09-01"
+    }
+]

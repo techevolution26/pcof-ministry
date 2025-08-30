@@ -8,6 +8,7 @@ type Church = {
   id: string
   name: string
   slug?: string
+  branch?: string
   address?: string
   pastor?: string
   phone?: string
@@ -20,7 +21,8 @@ type Church = {
 export default function ChurchesList({ initialChurches }: { initialChurches: Church[] }) {
   const [query, setQuery] = useState('')
   const [tag, setTag] = useState('all')
-  const [sort, setSort] = useState<'name' | 'recent'>('name')
+  const [selectedBranch, setSelectedBranch] = useState('all')
+  const [sort, setSort] = useState<'name' | 'recent' | 'branch'>('name')
   const [page, setPage] = useState(1)
   const perPage = 9
 
@@ -28,6 +30,15 @@ export default function ChurchesList({ initialChurches }: { initialChurches: Chu
   const tags = useMemo(() => {
     const s = new Set<string>()
     initialChurches.forEach(c => (c.tags || []).forEach(t => s.add(t)))
+    return ['all', ...Array.from(s)]
+  }, [initialChurches])
+
+  // derive branches available from data
+  const branches = useMemo(() => {
+    const s = new Set<string>()
+    initialChurches.forEach(c => {
+      if (c.branch) s.add(c.branch)
+    })
     return ['all', ...Array.from(s)]
   }, [initialChurches])
 
@@ -45,11 +56,23 @@ export default function ChurchesList({ initialChurches }: { initialChurches: Chu
     if (tag !== 'all') {
       arr = arr.filter(c => (c.tags || []).includes(tag))
     }
-    if (sort === 'name') {
-      arr.sort((a,b) => (a.name || '').localeCompare(b.name || ''))
+
+    if (selectedBranch !== 'all') {
+      arr = arr.filter(c => (c.branch || '') === selectedBranch)
     }
+
+    if (sort === 'name') {
+      arr.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+    } else if (sort === 'branch') {
+      // sort by branch, fall back to name for ties
+      arr.sort((a, b) => {
+        const byBranch = (a.branch || '').localeCompare(b.branch || '')
+        return byBranch !== 0 ? byBranch : (a.name || '').localeCompare(b.name || '')
+      })
+    }
+    // 'recent' keeps original order (assumes initialChurches is already in recent order)
     return arr
-  }, [initialChurches, query, tag, sort])
+  }, [initialChurches, query, tag, selectedBranch, sort])
 
   // pagination
   const total = filtered.length
@@ -72,23 +95,33 @@ export default function ChurchesList({ initialChurches }: { initialChurches: Chu
             className="px-3 py-2 border rounded-md w-72"
           />
 
-          <select
+          {/* <select
             value={tag}
             onChange={(e) => { setTag(e.target.value); setPage(1) }}
             className="px-3 py-2 border rounded-md"
             aria-label="Filter by tag"
           >
             {tags.map(t => <option key={t} value={t}>{t === 'all' ? 'All' : t}</option>)}
+          </select> */}
+
+          <select
+            value={selectedBranch}
+            onChange={(e) => { setSelectedBranch(e.target.value); setPage(1) }}
+            className="px-3 py-2 border rounded-md"
+            aria-label="Filter by branch"
+          >
+            {branches.map(b => <option key={b} value={b}>{b === 'all' ? 'All branches' : b}</option>)}
           </select>
 
           <select
             value={sort}
-            onChange={(e) => setSort(e.target.value as any)}
+            onChange={(e) => setSort(e.target.value as 'name' | 'recent' | 'branch')}
             className="px-3 py-2 border rounded-md"
             aria-label="Sort"
           >
             <option value="name">Sort: Name</option>
             <option value="recent">Sort: Recent</option>
+            <option value="branch">Sort: Branch</option>
           </select>
         </div>
 

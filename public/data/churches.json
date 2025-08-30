@@ -1,4 +1,482 @@
 [
-{ "id": "c1", "name": "Matsangoni PCOF", "slug": "Headquarters", "address": "Matsangoni", "pastor": "ArchBishop Simon Karisa" },
-{ "id": "c2", "name": "Eastside PCOF", "slug": "eastside", "address": "Machakos", "pastor": "Rev. Mary" }
+    {
+        "id": "c1",
+        "name": "Matsangoni PCOF",
+        "branch": "Kilifi",
+        "slug": "Headquarters",
+        "address": "Matsangoni",
+        "pastor": "ArchBishop Simon Karisa"
+    },
+    {
+        "id": "c2",
+        "name": "Eastside PCOF",
+        "branch": "Nairobi",
+        "slug": "eastside",
+        "address": "Machakos",
+        "pastor": "Rev. Mary"
+    },
+    {
+        "id": "c3",
+        "name": "Westside PCOF",
+        "branch": "Nairobi",
+        "slug": "westside",
+        "address": "Nairobi",
+        "pastor": "Rev. John"
+    },
+    {
+        "id": "c4",
+        "name": "Southside PCOF",
+        "branch": "Mombasa",
+        "slug": "southside",
+        "address": "Mombasa",
+        "pastor": "Rev. Alice"
+    },
+    {
+        "id": "c5",
+        "name": "Northside PCOF",
+        "branch": "Nakuru",
+        "slug": "northside",
+        "address": "Nakuru",
+        "pastor": "Rev. Peter"
+    },
+    {
+        "id": "c6",
+        "name": "Central PCOF",
+        "branch": "Kisumu",
+        "slug": "central",
+        "address": "Kisumu",
+        "pastor": "Rev. Grace"
+    },
+    {
+        "id": "c7",
+        "name": "Lakeside PCOF",
+        "branch": "Kisumu",
+        "slug": "lakeside",
+        "address": "Kisumu",
+        "pastor": "Rev. David"
+    },
+    {
+        "id": "c8",
+        "name": "Riverside PCOF",
+        "branch": "Eldoret",
+        "slug": "riverside",
+        "address": "Eldoret",
+        "pastor": "Rev. Susan"
+    },
+    {
+        "id": "c9",
+        "name": "Hillside PCOF",
+        "branch": "Nairobi",
+        "slug": "hillside",
+        "address": "Nairobi",
+        "pastor": "Rev. Michael"
+    },
+    {
+        "id": "c10",
+        "name": "Valley PCOF",
+        "branch": "Nakuru",
+        "slug": "valley",
+        "address": "Nakuru",
+        "pastor": "Rev. Linda"
+    },
+    {
+        "id": "c11",
+        "name": "Sunrise PCOF",
+        "branch": "Mombasa",
+        "slug": "sunrise",
+        "address": "Mombasa",
+        "pastor": "Rev. James"
+    },
+    {
+        "id": "c12",
+        "name": "Sunset PCOF",
+        "branch": "Kilifi",
+        "slug": "sunset",
+        "address": "Kilifi",
+        "pastor": "Rev. Rachel"
+    },
+    {
+        "id": "c13",
+        "name": "Garden PCOF",
+        "branch": "Nairobi",
+        "slug": "garden",
+        "address": "Nairobi",
+        "pastor": "Rev. Samuel"
+    },
+    {
+        "id": "c14",
+        "name": "Forest PCOF",
+        "branch": "Kisumu",
+        "slug": "forest",
+        "address": "Kisumu",
+        "pastor": "Rev. Esther"
+    },
+    {
+        "id": "c15",
+        "name": "Mountain PCOF",
+        "branch": "Eldoret",
+        "slug": "mountain",
+        "address": "Eldoret",
+        "pastor": "Rev. Paul"
+    },
+    {
+        "id": "c16",
+        "name": "Beachside PCOF",
+        "branch": "Mombasa",
+        "slug": "beachside",
+        "address": "Mombasa",
+        "pastor": "Rev. Angela"
+    },
+    {
+        "id": "c17",
+        "name": "City PCOF",
+        "branch": "Nairobi",
+        "slug": "city",
+        "address": "Nairobi",
+        "pastor": "Rev. Robert"
+    },
+    {
+        "id": "c18",
+        "name": "Suburban PCOF",
+        "branch": "Nairobi",
+        "slug": "suburban",
+        "address": "Nairobi",
+        "pastor": "Rev. Fiona"
+    },
+    {
+        "id": "c19",
+        "name": "Harbor PCOF",
+        "branch": "Mombasa",
+        "slug": "harbor",
+        "address": "Mombasa",
+        "pastor": "Rev. Charles"
+    },
+    {
+        "id": "c20",
+        "name": "Plains PCOF",
+        "branch": "Nakuru",
+        "slug": "plains",
+        "address": "Nakuru",
+        "pastor": "Rev. Olivia"
+    },
+    {
+        "id": "c21",
+        "name": "Cedar PCOF",
+        "branch": "Nairobi",
+        "slug": "cedar",
+        "address": "Nairobi",
+        "pastor": "Rev. Benjamin"
+    },
+    {
+        "id": "c22",
+        "name": "Maple PCOF",
+        "branch": "Kisumu",
+        "slug": "maple",
+        "address": "Kisumu",
+        "pastor": "Rev. Hannah"
+    },
+    {
+        "id": "c23",
+        "name": "Pine PCOF",
+        "branch": "Eldoret",
+        "slug": "pine",
+        "address": "Eldoret",
+        "pastor": "Rev. Anthony"
+    },
+    {
+        "id": "c24",
+        "name": "Oak PCOF",
+        "branch": "Nakuru",
+        "slug": "oak",
+        "address": "Nakuru",
+        "pastor": "Rev. Victoria"
+    },
+    {
+        "id": "c25",
+        "name": "Birch PCOF",
+        "branch": "Kilifi",
+        "slug": "birch",
+        "address": "Kilifi",
+        "pastor": "Rev. Daniel"
+    },
+    {
+        "id": "c26",
+        "name": "Willow PCOF",
+        "branch": "Mombasa",
+        "slug": "willow",
+        "address": "Mombasa",
+        "pastor": "Rev. Sophia"
+    },
+    {
+        "id": "c27",
+        "name": "Aspen PCOF",
+        "branch": "Nairobi",
+        "slug": "aspen",
+        "address": "Nairobi",
+        "pastor": "Rev. Matthew"
+    },
+    {
+        "id": "c28",
+        "name": "Cherry PCOF",
+        "branch": "Kisumu",
+        "slug": "cherry",
+        "address": "Kisumu",
+        "pastor": "Rev. Chloe"
+    },
+    {
+        "id": "c29",
+        "name": "Magnolia PCOF",
+        "branch": "Eldoret",
+        "slug": "magnolia",
+        "address": "Eldoret",
+        "pastor": "Rev. Joshua"
+    },
+    {
+        "id": "c30",
+        "name": "Palm PCOF",
+        "branch": "Nakuru",
+        "slug": "palm",
+        "address": "Nakuru",
+        "pastor": "Rev. Isabella"
+    },
+    {
+        "id": "c31",
+        "name": "Fir PCOF",
+        "branch": "Kilifi",
+        "slug": "fir",
+        "address": "Kilifi",
+        "pastor": "Rev. Elijah"
+    },
+    {
+        "id": "c32",
+        "name": "Spruce PCOF",
+        "branch": "Mombasa",
+        "slug": "spruce",
+        "address": "Mombasa",
+        "pastor": "Rev. Mia"
+    },
+    {
+        "id": "c33",
+        "name": "Cypress PCOF",
+        "branch": "Nairobi",
+        "slug": "cypress",
+        "address": "Nairobi",
+        "pastor": "Rev. Andrew"
+    },
+    {
+        "id": "c34",
+        "name": "Redwood PCOF",
+        "branch": "Kisumu",
+        "slug": "redwood",
+        "address": "Kisumu",
+        "pastor": "Rev. Ella"
+    },
+    {
+        "id": "c35",
+        "name": "Sequoia PCOF",
+        "branch": "Eldoret",
+        "slug": "sequoia",
+        "address": "Eldoret",
+        "pastor": "Rev. Gabriel"
+    },
+    {
+        "id": "c36",
+        "name": "Baobab PCOF",
+        "branch": "Nakuru",
+        "slug": "baobab",
+        "address": "Nakuru",
+        "pastor": "Rev. Aria"
+    },
+    {
+        "id": "c37",
+        "name": "Acacia PCOF",
+        "branch": "Kilifi",
+        "slug": "acacia",
+        "address": "Kilifi",
+        "pastor": "Rev. Samuel"
+    },
+    {
+        "id": "c38",
+        "name": "Eucalyptus PCOF",
+        "branch": "Mombasa",
+        "slug": "eucalyptus",
+        "address": "Mombasa",
+        "pastor": "Rev. Zoe"
+    },
+    {
+        "id": "c39",
+        "name": "Juniper PCOF",
+        "branch": "Nairobi",
+        "slug": "juniper",
+        "address": "Nairobi",
+        "pastor": "Rev. Ryan"
+    },
+    {
+        "id": "c40",
+        "name": "Larch PCOF",
+        "branch": "Kisumu",
+        "slug": "larch",
+        "address": "Kisumu",
+        "pastor": "Rev. Lily"
+    },
+    {
+        "id": "c41",
+        "name": "Yew PCOF",
+        "branch": "Eldoret",
+        "slug": "yew",
+        "address": "Eldoret",
+        "pastor": "Rev. Nathan"
+    },
+    {
+        "id": "c42",
+        "name": "Hawthorn PCOF",
+        "branch": "Nakuru",
+        "slug": "hawthorn",
+        "address": "Nakuru",
+        "pastor": "Rev. Nora"
+    },
+    {
+        "id": "c43",
+        "name": "Olive PCOF",
+        "branch": "Kilifi",
+        "slug": "olive",
+        "address": "Kilifi",
+        "pastor": "Rev. Caleb"
+    },
+    {
+        "id": "c44",
+        "name": "Fig PCOF",
+        "branch": "Mombasa",
+        "slug": "fig",
+        "address": "Mombasa",
+        "pastor": "Rev. Ruby"
+    },
+    {
+        "id": "c45",
+        "name": "Coconut PCOF",
+        "branch": "Nairobi",
+        "slug": "coconut",
+        "address": "Nairobi",
+        "pastor": "Rev. Adam"
+    },
+    {
+        "id": "c46",
+        "name": "Banana PCOF",
+        "branch": "Kisumu",
+        "slug": "banana",
+        "address": "Kisumu",
+        "pastor": "Rev. Eva"
+    },
+    {
+        "id": "c47",
+        "name": "Mango PCOF",
+        "branch": "Eldoret",
+        "slug": "mango",
+        "address": "Eldoret",
+        "pastor": "Rev. Isaac"
+    },
+    {
+        "id": "c48",
+        "name": "Papaya PCOF",
+        "branch": "Nakuru",
+        "slug": "papaya",
+        "address": "Nakuru",
+        "pastor": "Rev. Layla"
+    },
+    {
+        "id": "c49",
+        "name": "Guava PCOF",
+        "branch": "Kilifi",
+        "slug": "guava",
+        "address": "Kilifi",
+        "pastor": "Rev. Luke"
+    },
+    {
+        "id": "c50",
+        "name": "Pineapple PCOF",
+        "branch": "Mombasa",
+        "slug": "pineapple",
+        "address": "Mombasa",
+        "pastor": "Rev. Scarlett"
+    },
+    {
+        "id": "c51",
+        "name": "Dragonfruit PCOF",
+        "branch": "Nairobi",
+        "slug": "dragonfruit",
+        "address": "Nairobi",
+        "pastor": "Rev. Dylan"
+    },
+    {
+        "id": "c52",
+        "name": "Starfruit PCOF",
+        "branch": "Kisumu",
+        "slug": "starfruit",
+        "address": "Kisumu",
+        "pastor": "Rev. Penelope"
+    },
+    {
+        "id": "c53",
+        "name": "Passionfruit PCOF",
+        "branch": "Eldoret",
+        "slug": "passionfruit",
+        "address": "Eldoret",
+        "pastor": "Rev. Julian"
+    },
+    {
+        "id": "c54",
+        "name": "Cranberry PCOF",
+        "branch": "Nakuru",
+        "slug": "cranberry",
+        "address": "Nakuru",
+        "pastor": "Rev. Claire"
+    },
+    {
+        "id": "c55",
+        "name": "Blueberry PCOF",
+        "branch": "Kilifi",
+        "slug": "blueberry",
+        "address": "Kilifi",
+        "pastor": "Rev. Aaron"
+    },
+    {
+        "id": "c56",
+        "name": "Raspberry PCOF",
+        "branch": "Mombasa",
+        "slug": "raspberry",
+        "address": "Mombasa",
+        "pastor": "Rev. Sadie"
+    },
+    {
+        "id": "c57",
+        "name": "Blackberry PCOF",
+        "branch": "Nairobi",
+        "slug": "blackberry",
+        "address": "Nairobi",
+        "pastor": "Rev. Eli"
+    },
+    {
+        "id": "c58",
+        "name": "Strawberry PCOF",
+        "branch": "Kisumu",
+        "slug": "strawberry",
+        "address": "Kisumu",
+        "pastor": "Rev. Madeline"
+    },
+    {
+        "id": "c59",
+        "name": "Mulberry PCOF",
+        "branch": "Eldoret",
+        "slug": "mulberry",
+        "address": "Eldoret",
+        "pastor": "Rev. Thomas"
+    },
+    {
+        "id": "c60",
+        "name": "Gooseberry PCOF",
+        "branch": "Nakuru",
+        "slug": "gooseberry",
+        "address": "Nakuru",
+        "pastor": "Rev. Cora"
+    }
 ]

@@ -75,3 +75,28 @@ const res = await fetch('/data/events.json', { cache: 'force-cache' })
 if (!res.ok) throw new Error('Failed to load events')
 return res.json()
 }
+
+export async function fetchLeadership() {
+// server: read from file system (fast, reliable during SSR)
+if (typeof window === 'undefined') {
+const file = path.join(process.cwd(), 'public', 'data', 'leadership.json')
+try {
+const raw = await fs.promises.readFile(file, 'utf8')
+return JSON.parse(raw)
+} catch (err) {
+console.error('fetchLeadership error (server):', err)
+return []
+}
+}
+
+
+// client: fetch from the public folder
+try {
+const res = await fetch('/data/leadership.json', { cache: 'force-cache' })
+if (!res.ok) throw new Error('Failed to fetch leadership.json')
+return res.json()
+} catch (err) {
+console.error('fetchLeadership error (client):', err)
+return []
+}
+}

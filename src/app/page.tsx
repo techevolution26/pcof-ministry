@@ -1,5 +1,6 @@
 // app/page.tsx
 import Link from 'next/link'
+import SubscribeForm from '../components/SubscribeForm'
 import { fetchChurches, fetchSermons, fetchEvents } from '../lib/api'
 
 // ISR: still static but revalidates every hour (change as you need)
@@ -77,9 +78,9 @@ export default async function Home() {
         </div>
 
         <div className="p-4 border rounded">
-          <div className="text-sm text-gray-500">Programs</div>
+          <div className="text-sm text-gray-500">Upcoming Events & Programs</div>
           <div className="text-2xl font-semibold">{totalSermons}</div>
-          <p className="text-sm mt-2">Sermons and teachings available to stream or download.</p>
+          <p className="text-sm mt-2">Participate in Spiritual building programs.</p>
         </div>
 
         <div className="p-4 border rounded">
@@ -130,7 +131,7 @@ export default async function Home() {
       <section className="container mx-auto mb-12">
         <h2 className="text-xl font-bold mb-3">Stay updated</h2>
         <p className="text-sm text-gray-600 mb-3">Subscribe for weekly updates and event reminders.</p>
-        {/* <SubscribeForm /> */}
+        <SubscribeForm />
       </section>
     </section>
   )
