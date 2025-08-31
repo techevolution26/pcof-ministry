@@ -5,7 +5,7 @@ import React, { useState } from 'react'
 export default function RSVPForm({ eventId, capacity }: { eventId: string, capacity?: number }) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-  const [status, setStatus] = useState<'idle'|'sending'|'ok'|'error'>('idle')
+  const [status, setStatus] = useState<'idle' | 'sending' | 'ok' | 'error'>('idle')
   const [message, setMessage] = useState('')
 
   async function submit(e: React.FormEvent) {
@@ -30,26 +30,72 @@ export default function RSVPForm({ eventId, capacity }: { eventId: string, capac
   }
 
   return (
-    <form onSubmit={submit} className="max-w-md space-y-3">
-      <label className="block">
-        <span className="text-sm">Full name</span>
-        <input className="w-full p-2 border rounded" value={name} onChange={e => setName(e.target.value)} required />
-      </label>
+    <div className="bg-white rounded-2xl shadow-md p-6 border border-green-100">
+      <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+        <span className="text-sky-600">✅</span> Register for this Event
+      </h3>
 
-      <label className="block">
-        <span className="text-sm">Email</span>
-        <input type="email" className="w-full p-2 border rounded" value={email} onChange={e => setEmail(e.target.value)} required />
-      </label>
+      <form onSubmit={submit} className="space-y-4">
+        <label className="block">
+          <span className="text-sm font-medium text-slate-700 mb-1 flex items-center gap-1">
+            <span>👤</span> Full name
+          </span>
+          <input
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-300 focus:border-sky-300"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            required
+            placeholder="Enter your full name"
+          />
+        </label>
 
-      {capacity ? <div className="text-xs text-slate-500">Capacity: {capacity} — first come, first served</div> : null}
+        <label className="block">
+          <span className="text-sm font-medium text-slate-700 mb-1 flex items-center gap-1">
+            <span>✉️</span> Email
+          </span>
+          <input
+            type="email"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-300 focus:border-sky-300"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+            placeholder="your.email@example.com"
+          />
+        </label>
 
-      <div>
-        <button type="submit" className="px-4 py-2 bg-sky-600 text-white rounded" disabled={status === 'sending'}>
-          {status === 'sending' ? 'Registering…' : 'Register / RSVP'}
-        </button>
-      </div>
+        {capacity && (
+          <div className="text-sm text-slate-600 bg-green-50 p-3 rounded-lg flex items-center gap-2">
+            <span>🎫</span> Capacity: {capacity} — first come, first served
+          </div>
+        )}
 
-      {message && <div className={`text-sm mt-2 ${status === 'ok' ? 'text-green-600' : 'text-red-600'}`}>{message}</div>}
-    </form>
+        <div>
+          <button
+            type="submit"
+            className="px-6 py-3 bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+            disabled={status === 'sending'}
+          >
+            {status === 'sending' ? (
+              <>
+                <span className="animate-spin">⏳</span>
+                Registering…
+              </>
+            ) : (
+              <>
+                <span>✅</span>
+                Register / RSVP
+              </>
+            )}
+          </button>
+        </div>
+
+        {message && (
+          <div className={`p-3 rounded-lg text-sm mt-2 ${status === 'ok' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} flex items-center gap-2`}>
+            <span>{status === 'ok' ? '✅' : '❌'}</span>
+            {message}
+          </div>
+        )}
+      </form>
+    </div>
   )
 }

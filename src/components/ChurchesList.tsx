@@ -79,80 +79,82 @@ export default function ChurchesList({ initialChurches }: { initialChurches: Chu
   const totalPages = Math.max(1, Math.ceil(total / perPage))
   useEffect(() => { if (page > totalPages) setPage(1) }, [totalPages])
 
-  const pageItems = filtered.slice((page-1)*perPage, page*perPage)
+  const pageItems = filtered.slice((page - 1) * perPage, page * perPage)
 
   return (
     <div>
       {/* Controls */}
-      <div className="mb-6 flex flex-col md:flex-row gap-3 md:items-center justify-between">
-        <div className="flex gap-2 items-center">
-          <label htmlFor="search" className="sr-only">Search churches</label>
-          <input
-            id="search"
-            value={query}
-            onChange={(e) => { setQuery(e.target.value); setPage(1) }}
-            placeholder="Search by name, address or pastor"
-            className="px-3 py-2 border rounded-md w-72"
-          />
+      <div className="mb-8 p-6 bg-white rounded-2xl shadow-md border border-green-100">
+        <div className="flex flex-col md:flex-row gap-4 md:items-center justify-between">
+          <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
+            <label htmlFor="search" className="sr-only">Search churches</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
+              <input
+                id="search"
+                value={query}
+                onChange={(e) => { setQuery(e.target.value); setPage(1) }}
+                placeholder="Search by name, address or pastor"
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full md:w-72 focus:ring-2 focus:ring-sky-300 focus:border-sky-300"
+              />
+            </div>
 
-          {/* <select
-            value={tag}
-            onChange={(e) => { setTag(e.target.value); setPage(1) }}
-            className="px-3 py-2 border rounded-md"
-            aria-label="Filter by tag"
-          >
-            {tags.map(t => <option key={t} value={t}>{t === 'all' ? 'All' : t}</option>)}
-          </select> */}
+            <select
+              value={selectedBranch}
+              onChange={(e) => { setSelectedBranch(e.target.value); setPage(1) }}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-300 focus:border-sky-300"
+              aria-label="Filter by branch"
+            >
+              {branches.map(b => <option key={b} value={b}>{b === 'all' ? 'All branches' : b}</option>)}
+            </select>
 
-          <select
-            value={selectedBranch}
-            onChange={(e) => { setSelectedBranch(e.target.value); setPage(1) }}
-            className="px-3 py-2 border rounded-md"
-            aria-label="Filter by branch"
-          >
-            {branches.map(b => <option key={b} value={b}>{b === 'all' ? 'All branches' : b}</option>)}
-          </select>
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as 'name' | 'recent' | 'branch')}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-300 focus:border-sky-300"
+              aria-label="Sort"
+            >
+              <option value="name">Sort: Name</option>
+              <option value="recent">Sort: Recent</option>
+              <option value="branch">Sort: Branch</option>
+            </select>
+          </div>
 
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value as 'name' | 'recent' | 'branch')}
-            className="px-3 py-2 border rounded-md"
-            aria-label="Sort"
-          >
-            <option value="name">Sort: Name</option>
-            <option value="recent">Sort: Recent</option>
-            <option value="branch">Sort: Branch</option>
-          </select>
-        </div>
-
-        <div className="text-sm text-slate-600">
-          {total} church{total !== 1 ? 'es' : ''} found
+          <div className="text-sm text-slate-600 bg-green-50 px-3 py-2 rounded-lg">
+            {total} church{total !== 1 ? 'es' : ''} found
+          </div>
         </div>
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {pageItems.map(ch => <ChurchCard key={ch.id} church={ch} />)}
       </div>
 
       {/* Pagination */}
-      <div className="mt-6 flex items-center justify-center gap-2">
-        <button
-          className="px-3 py-1 border rounded disabled:opacity-50"
-          onClick={() => setPage(p => Math.max(1, p-1))}
-          disabled={page === 1}
-        >Prev</button>
+      {totalPages > 1 && (
+        <div className="mt-8 flex items-center justify-center gap-2">
+          <button
+            className="px-4 py-2 border border-gray-300 rounded-lg flex items-center gap-1 disabled:opacity-50 hover:bg-green-50 transition-colors"
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1}
+          >
+            <span>⬅️</span> Prev
+          </button>
 
-        <div className="px-3 py-1 border rounded">
-          Page {page} / {totalPages}
+          <div className="px-4 py-2 border border-gray-300 rounded-lg bg-white">
+            Page {page} of {totalPages}
+          </div>
+
+          <button
+            className="px-4 py-2 border border-gray-300 rounded-lg flex items-center gap-1 disabled:opacity-50 hover:bg-green-50 transition-colors"
+            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+          >
+            Next <span>➡️</span>
+          </button>
         </div>
-
-        <button
-          className="px-3 py-1 border rounded disabled:opacity-50"
-          onClick={() => setPage(p => Math.min(totalPages, p+1))}
-          disabled={page === totalPages}
-        >Next</button>
-      </div>
+      )}
     </div>
   )
 }

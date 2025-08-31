@@ -7,10 +7,8 @@ import AdminShell from "@/components/AdminShell"
 export const metadata = { title: "Admin — PCOF" }
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  // getServerSession needs the same authOptions used by the NextAuth route
   const session = await getServerSession(authOptions)
 
-  // if no session -> redirect to sign-in (NextAuth provides the page)
   if (!session || (session.user as any)?.role !== "ADMIN") {
     return redirect("/api/auth/signin?callbackUrl=/admin")
   }

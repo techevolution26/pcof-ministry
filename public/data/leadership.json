@@ -46,5 +46,65 @@
         "phone": "+254700777888",
         "bio": "Bishop Mary supports pastors and local church leaders in the Rift Valley region, focusing on training and community development.",
         "startedAt": "2016-09-01"
+    },
+    {
+        "id": "5",
+        "slug": "bishop-james-ndungu",
+        "name": "Bishop James Ndungu",
+        "title": "Regional Bishop - Central Kenya",
+        "role": "Regional Leadership",
+        "photoUrl": "/images/leadership/james_ndungu.jpg",
+        "email": " ",
+        "phone": "+254700999000",
+        "bio": "Bishop James provides oversight and support to churches in Central Kenya, promoting growth and discipleship.",
+        "startedAt": "2017-11-20"
+    },
+    {
+        "id": "6",
+        "slug": "bishop-anne-wanjiku",
+        "name": "Bishop Anne Wanjiku",
+        "title": "Regional Bishop - Western Kenya",
+        "role": "Regional Leadership",
+        "photoUrl": "/images/leadership/anne_wanjiku.jpg",
+        "email": " ",
+        "phone": "+254701111222",
+        "bio": "Bishop Anne leads church initiatives in Western Kenya, focusing on evangelism and social outreach programs.",
+        "startedAt": "2019-05-10"
+    },
+    {
+        "id": "7",
+        "slug": "bishop-john-mwangi",
+        "name": "Bishop John Mwangi",
+        "title": "Regional Bishop - Eastern Kenya",
+        "role": "Regional Leadership",
+        "photoUrl": "/images/leadership/john_mwangi.jpg",
+        "email": " ",
+        "phone": "+254701333444",
+        "bio": "Bishop John supports church growth and leadership development in Eastern Kenya, fostering community engagement.",
+        "startedAt": "2020-02-25"
+    },
+    {
+        "id": "8",
+        "slug": "bishop-lucy-nduta",
+        "name": "Bishop Lucy Nduta",
+        "title": "Regional Bishop - Nairobi",
+        "role": "Regional Leadership",
+        "photoUrl": "/images/leadership/lucy_nduta.jpg",
+        "email": " ",
+        "phone": "+254701555666",
+        "bio": "Bishop Lucy oversees church activities in Nairobi, emphasizing urban ministry and youth engagement.",
+        "startedAt": "2021-08-30"
+    },
+    {
+        "id": "9",
+        "slug": "bishop-paul-otieno",
+        "name": "Bishop Paul Otieno",
+        "title": "Regional Bishop - Coast",
+        "role": "Regional Leadership",
+        "photoUrl": "/images/leadership/paul_otieno.jpg",
+        "email": " ",
+        "phone": "+254701777888",
+        "bio": "Bishop Paul leads church efforts along the Coast region, focusing on cultural integration and community service.",
+        "startedAt": "2022-04-15"
     }
 ]

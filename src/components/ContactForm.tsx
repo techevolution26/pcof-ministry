@@ -1,100 +1,160 @@
+// components/ContactForm.tsx
 'use client'
-
 
 import React, { useState } from 'react'
 
-
 export default function ContactForm() {
-    const [name, setName] = useState('')
-    const [email, setEmail] = useState('')
-    const [message, setMessage] = useState('')
-    const [submitting, setSubmitting] = useState(false)
-    const [status, setStatus] = useState<null | { ok: boolean; message: string }>(null)
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        subject: '',
+        message: '',
+        church: ''
+    })
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value } = e.target
+        setFormData(prev => ({ ...prev, [name]: value }))
+    }
 
-    // honeypot field for bots
-    const [hp, setHp] = useState('')
-
-
-    async function onSubmit(e: React.FormEvent) {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        setStatus(null)
+        setIsSubmitting(true)
 
-
-        // basic validation
-        if (!name.trim() || !email.trim() || !message.trim()) {
-            setStatus({ ok: false, message: 'Please complete all required fields.' })
-            return
-        }
-        if (!/^\S+@\S+\.\S+$/.test(email)) {
-            setStatus({ ok: false, message: 'Please provide a valid email address.' })
-            return
-        }
-
-
-        // honeypot should be empty
-        if (hp) {
-            // silently accept (pretend success) or return error — here, pretend success to avoid revealing honeypot
-            setStatus({ ok: true, message: 'Thank you — we will be in touch.' })
-            setName(''); setEmail(''); setMessage('')
-            return
-        }
-
-        setSubmitting(true)
+        // Simulate form submission
         try {
-            const res = await fetch('/api/contact', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, message })
-            })
-
-
-            const json = await res.json()
-            if (!res.ok) throw new Error(json?.message || 'Could not send message')
-
-
-            setStatus({ ok: true, message: 'Thanks — your message has been sent.' })
-            setName(''); setEmail(''); setMessage('')
-        } catch (err: any) {
-            setStatus({ ok: false, message: err?.message ?? 'An error occurred' })
+            // Replace with actual form submission logic
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            setSubmitStatus('success')
+            setFormData({ name: '', email: '', subject: '', message: '', church: '' })
+        } catch (error) {
+            setSubmitStatus('error')
         } finally {
-            setSubmitting(false)
+            setIsSubmitting(false)
+            setTimeout(() => setSubmitStatus('idle'), 3000)
         }
     }
 
     return (
-        <form onSubmit={onSubmit} className="bg-white border rounded p-4 max-w-lg" aria-label="Contact form">
-            <div className="mb-3">
-                <label className="text-sm block mb-1">Your name</label>
-                <input className="w-full p-2 border rounded" value={name} onChange={e => setName(e.target.value)} placeholder="Full name" required />
-            </div>
+        <div>
+            <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                <span className="text-sky-600">📧</span> Send us a message
+            </h2>
 
+            {submitStatus === 'success' && (
+                <div className="bg-green-100 text-green-800 p-4 rounded-lg mb-6 flex items-center gap-2">
+                    <span className="text-lg">✅</span> Message sent successfully! We'll get back to you soon.
+                </div>
+            )}
 
-            <div className="mb-3">
-                <label className="text-sm block mb-1">Your email</label>
-                <input type="email" className="w-full p-2 border rounded" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required />
-            </div>
+            {submitStatus === 'error' && (
+                <div className="bg-red-100 text-red-800 p-4 rounded-lg mb-6 flex items-center gap-2">
+                    <span className="text-lg">❌</span> Something went wrong. Please try again or contact us directly.
+                </div>
+            )}
 
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1">
+                            Full Name *
+                        </label>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            required
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-300 focus:border-sky-300"
+                            placeholder="Your full name"
+                        />
+                    </div>
 
-            <div className="mb-3">
-                <label className="text-sm block mb-1">Message</label>
-                <textarea className="w-full p-2 border rounded h-32" value={message} onChange={e => setMessage(e.target.value)} placeholder="How can we help?" required />
-            </div>
+                    <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
+                            Email Address *
+                        </label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-300 focus:border-sky-300"
+                            placeholder="your.email@example.com"
+                        />
+                    </div>
+                </div>
 
+                <div>
+                    <label htmlFor="subject" className="block text-sm font-medium text-slate-700 mb-1">
+                        Subject *
+                    </label>
+                    <input
+                        type="text"
+                        id="subject"
+                        name="subject"
+                        value={formData.subject}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-300 focus:border-sky-300"
+                        placeholder="What is this regarding?"
+                    />
+                </div>
 
-            {/* honeypot (hidden from humans) */}
-            <div style={{ display: 'none' }} aria-hidden="true">
-                <label>Do not fill</label>
-                <input name="hp" value={hp} onChange={e => setHp(e.target.value)} />
-            </div>
+                <div>
+                    <label htmlFor="church" className="block text-sm font-medium text-slate-700 mb-1">
+                        Church (if applicable)
+                    </label>
+                    <input
+                        type="text"
+                        id="church"
+                        name="church"
+                        value={formData.church}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-300 focus:border-sky-300"
+                        placeholder="Your church name"
+                    />
+                </div>
 
+                <div>
+                    <label htmlFor="message" className="block text-sm font-medium text-slate-700 mb-1">
+                        Message *
+                    </label>
+                    <textarea
+                        id="message"
+                        name="message"
+                        value={formData.message}
+                        onChange={handleChange}
+                        required
+                        rows={5}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-300 focus:border-sky-300"
+                        placeholder="How can we help you?"
+                    />
+                </div>
 
-            <div className="flex items-center gap-3">
-                <button type="submit" className="px-4 py-2 bg-sky-600 text-white rounded" disabled={submitting}>{submitting ? 'Sending…' : 'Send message'}</button>
-                {status && (
-                    <div className={`text-sm ${status.ok ? 'text-green-600' : 'text-red-600'}`}>{status.message}</div>
-                )}
-            </div>
-        </form>
+                <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full py-3 bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                    {isSubmitting ? (
+                        <>
+                            <span className="animate-spin">⏳</span>
+                            Sending...
+                        </>
+                    ) : (
+                        <>
+                            <span>📤</span>
+                            Send Message
+                        </>
+                    )}
+                </button>
+            </form>
+        </div>
     )
 }

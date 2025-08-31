@@ -19,14 +19,13 @@ export default function Header() {
     const [open, setOpen] = useState(false)
 
     return (
-        <header className="bg-white border-b shadow-sm">
+        <header className="bg-white border-b shadow-md sticky top-0 z-50">
             <div className="container mx-auto px-4 md:px-6">
                 <div className="flex items-center justify-between h-16">
                     {/* Left: logo + brand */}
                     <div className="flex items-center gap-3">
-                        <Link href="/" className="flex items-center gap-3">
-                            {/* Logo image: put a file at /public/logo.png or change src */}
-                            <div className="relative w-10 h-10 rounded-full overflow-hidden bg-sky-100 flex-shrink-0">
+                        <Link href="/" className="flex items-center gap-3 group">
+                            <div className="relative w-10 h-10 rounded-full overflow-hidden bg-sky-100 flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
                                 <Image
                                     src="/pcof.jpeg"
                                     alt="PCOF logo"
@@ -37,7 +36,7 @@ export default function Header() {
                             </div>
 
                             <div className="flex flex-col leading-tight">
-                                <span className="text-lg font-semibold text-slate-900">PCOF</span>
+                                <span className="text-lg font-semibold text-slate-900 group-hover:text-sky-600 transition-colors">PCOF</span>
                                 <span className="text-xs text-slate-500 -mt-0.5">Pentecostal Church One Faith</span>
                             </div>
                         </Link>
@@ -49,7 +48,7 @@ export default function Header() {
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className="text-sm text-slate-700 hover:text-sky-600 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-sky-300"
+                                className="text-sm text-slate-700 hover:text-sky-600 px-3 py-2 rounded-lg font-medium transition-all duration-300 hover:bg-green-50"
                             >
                                 {item.label}
                             </Link>
@@ -60,9 +59,9 @@ export default function Header() {
                     <div className="flex items-center gap-3">
                         <Link
                             href="/donate"
-                            className="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg font-medium shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-300"
+                            className="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg font-medium shadow-md hover:bg-sky-700 transition-all duration-300 transform hover:-translate-y-0.5"
                         >
-                            Donate
+                            <span className="text-lg">💝</span> Donate
                         </Link>
 
                         {/* Mobile menu button */}
@@ -71,7 +70,7 @@ export default function Header() {
                             aria-label="Toggle menu"
                             aria-expanded={open}
                             onClick={() => setOpen((v) => !v)}
-                            className="inline-flex items-center justify-center p-2 rounded-md text-slate-700 hover:bg-slate-100 md:hidden focus:outline-none focus:ring-2 focus:ring-sky-300"
+                            className="inline-flex items-center justify-center p-2 rounded-md text-slate-700 hover:bg-green-50 md:hidden focus:outline-none focus:ring-2 focus:ring-sky-300 transition-colors"
                         >
                             <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 {open ? (
@@ -87,7 +86,7 @@ export default function Header() {
 
             {/* Mobile menu (collapsible) */}
             <div
-                className={`md:hidden border-t bg-white transition-max-h duration-200 overflow-hidden ${open ? 'max-h-[400px] py-3' : 'max-h-0'}`}
+                className={`md:hidden border-t bg-white transition-all duration-300 overflow-hidden ${open ? 'max-h-[400px] py-3' : 'max-h-0'}`}
                 role="region"
                 aria-hidden={!open}
             >
@@ -97,7 +96,7 @@ export default function Header() {
                             key={item.href}
                             href={item.href}
                             onClick={() => setOpen(false)}
-                            className="block px-3 py-2 rounded text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-300"
+                            className="block px-4 py-3 rounded-lg text-slate-700 hover:bg-green-50 transition-colors font-medium"
                         >
                             {item.label}
                         </Link>
@@ -107,9 +106,9 @@ export default function Header() {
                         <Link
                             href="/donate"
                             onClick={() => setOpen(false)}
-                            className="block w-full text-center px-4 py-2 bg-sky-600 text-white rounded-lg font-medium"
+                            className="flex items-center justify-center gap-2 w-full text-center px-4 py-3 bg-sky-600 text-white rounded-lg font-medium transition-transform hover:scale-[1.02]"
                         >
-                            Donate
+                            <span className="text-lg">💝</span> Donate
                         </Link>
                     </div>
                 </div>
