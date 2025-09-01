@@ -157,6 +157,7 @@ export default async function Home() {
               <div className="mt-3">
                 <div className="font-bold text-white text-lg">{upcoming.title}</div>
                 <div className="text-sm text-white/90 mt-1 flex items-center gap-1">
+
                   <span>⏰</span> {upcoming.startsAt ? upcoming.startsAt.toLocaleString() : 'TBD'}
                 </div>
                 {upcoming.location && (

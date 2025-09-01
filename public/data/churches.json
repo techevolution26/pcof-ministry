@@ -3,7 +3,7 @@
         "id": "c1",
         "name": "Matsangoni PCOF",
         "branch": "Malindi",
-        "slug": "matsangoni-zone",
+        "slug": "matsangoni",
         "address": "Matsangoni",
         "pastor": "Eunice Mngoma"
     },
@@ -11,7 +11,7 @@
         "id": "c2",
         "name": "Mgumoni PCOF",
         "branch": "Kilifi",
-        "slug": "kilifi-zone",
+        "slug": "Mgumoni",
         "address": "Kilifi",
         "pastor": "Rev. Mary"
     },
@@ -19,7 +19,7 @@
         "id": "c3",
         "name": "Kibarani Rivers of Life ",
         "branch": "Kilifi",
-        "slug": "kilifizone",
+        "slug": "rivers-of-life",
         "address": "Kilifi",
         "pastor": "Rev. John"
     },
@@ -27,7 +27,7 @@
         "id": "c4",
         "name": "Bethsaida PCOF",
         "branch": "Kilifi",
-        "slug": "kilifizone",
+        "slug": "bethsaida-tezo",
         "address": "Tezo",
         "pastor": "Rev. Alice"
     },
@@ -35,7 +35,7 @@
         "id": "c5",
         "name": "Tezo Central PCOF",
         "branch": "Kilifi",
-        "slug": "kilifizone",
+        "slug": "tezo-central",
         "address": "Tezo",
         "pastor": "Rev. Peter"
     },
@@ -43,7 +43,7 @@
         "id": "c6",
         "name": "Upendo1 PCOF",
         "branch": "Kilifi",
-        "slug": "kilifi-zone",
+        "slug": "Upendo1",
         "address": "Kilifi",
         "pastor": "Rev. Grace"
     },
@@ -51,7 +51,7 @@
         "id": "c7",
         "name": "Bethphage Community Church ",
         "branch": "Kilifi",
-        "slug": "kilifi-zone",
+        "slug": "bethphage",
         "address": "Kilifi",
         "logoUrl": "/data/BCC.jpg",
         "pastor": "Apst. Nicodemus Karisa"
@@ -60,15 +60,15 @@
         "id": "c8",
         "name": "Rehoboth PCOF",
         "branch": "Kilifi",
-        "slug": "kilifi-zone",
-        "address": "Eldoret",
+        "slug": "rehoboth-kilifi",
+        "address": "Kilifi",
         "pastor": "Rev. Susan"
     },
     {
         "id": "c9",
         "name": "Mthezo-Mwemwa PCOF",
         "branch": "Kilifi",
-        "slug": "kilifi-zone",
+        "slug": "Mthezo-tezo",
         "address": "Tezo",
         "pastor": "Rev. Michael"
     },
@@ -76,7 +76,7 @@
         "id": "c10",
         "name": "Upendo2 PCOF",
         "branch": "Kilifi",
-        "slug": "kilifi-zone",
+        "slug": "Upendo2",
         "address": "Kilifi",
         "pastor": "Rev. Linda"
     },
@@ -84,7 +84,7 @@
         "id": "c11",
         "name": "Full Joy PCOF",
         "branch": "Kilifi",
-        "slug": "kilifi-zone",
+        "slug": "Full Joy-kilifi",
         "address": "Kilifi",
         "pastor": "Rev. James"
     },
@@ -92,7 +92,7 @@
         "id": "c12",
         "name": "New Jerusalem PCOF",
         "branch": "Kilifi",
-        "slug": "kilifi-zone",
+        "slug": "New Jerusalem-kilifi",
         "address": "Kilifi",
         "pastor": "Rev. Rachel"
     },
@@ -188,7 +188,7 @@
         "id": "c24",
         "name": "Garithe Assembly PCOF",
         "branch": "unknown",
-        "slug": "oak",
+        "slug": "Garithe",
         "address": "unknown",
         "pastor": "Rev. Victoria"
     },
@@ -204,7 +204,7 @@
         "id": "c26",
         "name": "Githabai Assembly PCOF",
         "branch": "unknown",
-        "slug": "willow",
+        "slug": "Githabai",
         "address": "unknown",
         "pastor": "Rev. Sophia"
     },
@@ -212,7 +212,7 @@
         "id": "c27",
         "name": "LIKONI PCOF",
         "branch": "Mombasa",
-        "slug": "mombasa-zone",
+        "slug": "likoni",
         "address": "Likoni",
         "pastor": "Rev. Matthew"
     },
@@ -268,7 +268,7 @@
         "id": "c34",
         "name": "Horebu Assembly",
         "branch": "unknown",
-        "slug": "redwood",
+        "slug": "Horebu",
         "address": "unknown",
         "pastor": "Rev. Ella"
     },
@@ -284,7 +284,7 @@
         "id": "c36",
         "name": "Jericho-2 Assembly ",
         "branch": "unknown",
-        "slug": "Jericho",
+        "slug": "Jericho2",
         "address": "unknown",
         "pastor": "Rev. Aria"
     },
@@ -298,9 +298,9 @@
     },
     {
         "id": "c38",
-        "name": "Eucalyptus PCOF",
+        "name": "Faithfuly PCOF",
         "branch": "Mombasa",
-        "slug": "eucalyptus",
+        "slug": "faithfuly",
         "address": "Mombasa",
         "pastor": "Rev. Zoe"
     },
@@ -324,7 +324,7 @@
         "id": "c41",
         "name": "Kakoneni Assembly",
         "branch": "Eldoret",
-        "slug": "yew",
+        "slug": "Kakoneni",
         "address": "Eldoret",
         "pastor": "Rev. Nathan"
     },
@@ -364,7 +364,7 @@
         "id": "c46",
         "name": "Madzeni Assembly PCOF",
         "branch": "unknown",
-        "slug": "banana",
+        "slug": "Madzeni",
         "address": "unknown",
         "pastor": "Rev. Eva"
     },
@@ -428,7 +428,7 @@
         "id": "c54",
         "name": "Msamaha Assembly",
         "branch": "unknown",
-        "slug": "cranberry",
+        "slug": "Msamaha",
         "address": "unknown",
         "pastor": "Rev. Claire"
     },
@@ -460,7 +460,7 @@
         "id": "c58",
         "name": "Bofa Jerusalem Assembly",
         "branch": "Kilifi",
-        "slug": "kilifi-zone",
+        "slug": "bofa-Jerusalem",
         "address": "unknown",
         "pastor": "Rev. Madeline"
     },
@@ -468,7 +468,7 @@
         "id": "c59",
         "name": "Mwezamoyo Assembly",
         "branch": "unknown",
-        "slug": "Mwezamoyo",
+        "slug": "mwezamoyo",
         "address": "unknown",
         "pastor": "Rev. Thomas"
     },
@@ -476,7 +476,7 @@
         "id": "c60",
         "name": "Nazareth Assembly",
         "branch": "unknown",
-        "slug": "Nazareth",
+        "slug": "Nazarethan",
         "address": "unknown",
         "pastor": "Rev. Cora"
     },
@@ -500,7 +500,7 @@
         "id": "c63",
         "name": "Nyari Assembly",
         "branch": "unknown",
-        "slug": "Nyari",
+        "slug": "nyari",
         "address": "unknown",
         "pastor": "Rev. Dominic"
     },
@@ -508,7 +508,7 @@
         "id": "c64",
         "name": "Nyali PCOF",
         "branch": "Mombasa",
-        "slug": "mombasa-zone",
+        "slug": "nyali",
         "address": "Nyali",
         "pastor": "Rev. Faith"
     },
@@ -516,7 +516,7 @@
         "id": "c65",
         "name": "Patmos Assembly",
         "branch": "unknown",
-        "slug": "Patmos",
+        "slug": "patmos",
         "address": "unknown",
         "pastor": "Rev. George"
     },
@@ -532,7 +532,7 @@
         "id": "c67",
         "name": "Ruiru Assembly",
         "branch": "unknown",
-        "slug": "Ruiru",
+        "slug": "ruiru",
         "address": "unknown",
         "pastor": "Rev. Victor"
     },
@@ -548,7 +548,7 @@
         "id": "c69",
         "name": "Samaria Assembly",
         "branch": "unknown",
-        "slug": "",
+        "slug": "samarian",
         "address": "",
         "pastor": ""
     },
@@ -556,7 +556,7 @@
         "id": "c70",
         "name": "Sayuni Sabaki Assembly",
         "branch": "unknown",
-        "slug": "Sabaki",
+        "slug": "Sabakini",
         "address": "unknown",
         "pastor": ""
     },
@@ -636,7 +636,7 @@
         "id": "c80",
         "name": "Ushindi Varavo Assembly",
         "branch": "unknown",
-        "slug": "Varavo",
+        "slug": "varavo",
         "address": "unknown",
         "pastor": ""
     },
@@ -652,7 +652,7 @@
         "id": "c82",
         "name": " Uzima Assembly",
         "branch": "unknown",
-        "slug": "Uzima",
+        "slug": "uzima",
         "address": "unknown",
         "pastor": ""
     },
@@ -660,7 +660,7 @@
         "id": "c83",
         "name": "Vipingoni Assembly",
         "branch": "unknown",
-        "slug": "Vipingoni",
+        "slug": "Vipingonin",
         "address": "unknown",
         "pastor": ""
     },
@@ -668,7 +668,7 @@
         "id": "c84",
         "name": " Voice Of Hope Assembly",
         "branch": "unknown",
-        "slug": "Hope",
+        "slug": "hope",
         "address": "unknown",
         "pastor": ""
     },
@@ -676,7 +676,7 @@
         "id": "c85",
         "name": "Wakimbo Assembly",
         "branch": "unknown",
-        "slug": "Wakimbo",
+        "slug": "Wakimbon",
         "address": "unknown",
         "pastor": ""
     },
