@@ -7,9 +7,15 @@ type Props = {
   currency?: string // e.g., 'KES', 'USD'
 }
 
+type CheckoutResponse = {
+  url?: string
+  message?: string
+  [k: string]: unknown
+}
+
 export default function DonateForm({ currency = 'KES' }: Props) {
   const [amount, setAmount] = useState<number | ''>(1000) // default KES 1000
-  const [frequency, setFrequency] = useState<'one_time'|'monthly'>('one_time')
+  const [frequency, setFrequency] = useState<'one_time' | 'monthly'>('one_time')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [processing, setProcessing] = useState(false)
@@ -17,7 +23,7 @@ export default function DonateForm({ currency = 'KES' }: Props) {
 
   const suggested = [500, 1000, 5000]
 
-  function formatAmount(val:number) {
+  function formatAmount(val: number) {
     // display with currency; adjust if you store cents server-side
     return `${val.toLocaleString()} ${currency}`
   }
@@ -51,16 +57,41 @@ export default function DonateForm({ currency = 'KES' }: Props) {
           description: `Donation by ${name || email}`,
         }),
       })
-      const json = await res.json()
-      if (!res.ok) throw new Error(json?.message || 'Failed to create checkout session')
-      // redirect to Stripe Checkout
-      if (json.url) {
-        window.location.href = json.url
+
+      // parse JSON defensively (response may not be JSON)
+      let parsed: unknown = {}
+      try {
+        parsed = await res.json()
+      } catch {
+        parsed = {}
+      }
+      const body = parsed as CheckoutResponse
+
+      if (!res.ok) {
+        // prefer server-provided message
+        throw new Error(typeof body.message === 'string' ? body.message : 'Failed to create checkout session')
+      }
+
+      // ensure we have a usable URL
+      if (body.url && typeof body.url === 'string') {
+        try {
+          const u = new URL(body.url)
+          // optional: enforce https
+          if (u.protocol === 'http:' || u.protocol === 'https:') {
+            window.location.href = u.toString()
+          } else {
+            setError('Invalid checkout URL returned.')
+          }
+        } catch {
+          setError('Invalid checkout URL returned.')
+        }
       } else {
         setError('No checkout URL returned.')
       }
-    } catch (err: any) {
-      setError(err?.message || 'An error occurred')
+    } catch (err: unknown) {
+      // narrow unknown to extract a message safely
+      const message = err instanceof Error ? err.message : String(err ?? 'An error occurred')
+      setError(message)
     } finally {
       setProcessing(false)
     }
@@ -71,21 +102,20 @@ export default function DonateForm({ currency = 'KES' }: Props) {
       <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
         <span className="text-sky-600">💝</span> Make a Donation
       </h3>
-      
+
       {/* Amount Selection */}
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-3">Amount ({currency})</label>
         <div className="grid grid-cols-3 gap-2 mb-3">
-          {suggested.map(s => (
+          {suggested.map((s) => (
             <button
               key={s}
               type="button"
               onClick={() => setAmount(s)}
-              className={`px-4 py-2 rounded-lg border text-sm transition-colors ${
-                amount === s 
-                  ? 'bg-sky-600 text-white border-sky-600' 
+              className={`px-4 py-2 rounded-lg border text-sm transition-colors ${amount === s
+                  ? 'bg-sky-600 text-white border-sky-600'
                   : 'border-gray-300 hover:bg-green-50'
-              }`}
+                }`}
             >
               {formatAmount(s)}
             </button>
@@ -98,8 +128,11 @@ export default function DonateForm({ currency = 'KES' }: Props) {
             type="number"
             min={1}
             step={1}
-            value={amount as any}
-            onChange={e => setAmount(e.target.value === '' ? '' : Number(e.target.value))}
+            // controlled input must be string | number — render '' when amount is empty
+            value={amount === '' ? '' : amount}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setAmount(e.target.value === '' ? '' : Number(e.target.value))
+            }
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-300 focus:border-sky-300"
             aria-label="Custom donation amount"
           />
@@ -110,34 +143,32 @@ export default function DonateForm({ currency = 'KES' }: Props) {
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-3">Frequency</label>
         <div className="grid grid-cols-2 gap-3">
-          <label className={`flex items-center justify-center p-3 border rounded-lg cursor-pointer transition-colors ${
-            frequency === 'one_time' 
-              ? 'bg-sky-600 text-white border-sky-600' 
+          <label className={`flex items-center justify-center p-3 border rounded-lg cursor-pointer transition-colors ${frequency === 'one_time'
+              ? 'bg-sky-600 text-white border-sky-600'
               : 'border-gray-300 hover:bg-green-50'
-          }`}>
-            <input 
-              type="radio" 
-              name="freq" 
-              className="sr-only" 
-              checked={frequency === 'one_time'} 
-              onChange={() => setFrequency('one_time')} 
+            }`}>
+            <input
+              type="radio"
+              name="freq"
+              className="sr-only"
+              checked={frequency === 'one_time'}
+              onChange={() => setFrequency('one_time')}
             />
             <span className="flex items-center gap-2">
               <span>💳</span> One-time
             </span>
           </label>
 
-          <label className={`flex items-center justify-center p-3 border rounded-lg cursor-pointer transition-colors ${
-            frequency === 'monthly' 
-              ? 'bg-sky-600 text-white border-sky-600' 
+          <label className={`flex items-center justify-center p-3 border rounded-lg cursor-pointer transition-colors ${frequency === 'monthly'
+              ? 'bg-sky-600 text-white border-sky-600'
               : 'border-gray-300 hover:bg-green-50'
-          }`}>
-            <input 
-              type="radio" 
-              name="freq" 
-              className="sr-only" 
-              checked={frequency === 'monthly'} 
-              onChange={() => setFrequency('monthly')} 
+            }`}>
+            <input
+              type="radio"
+              name="freq"
+              className="sr-only"
+              checked={frequency === 'monthly'}
+              onChange={() => setFrequency('monthly')}
             />
             <span className="flex items-center gap-2">
               <span>🔄</span> Monthly
@@ -150,22 +181,22 @@ export default function DonateForm({ currency = 'KES' }: Props) {
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">Name (optional)</label>
-          <input 
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-300 focus:border-sky-300" 
-            value={name} 
-            onChange={e => setName(e.target.value)} 
-            placeholder="Full name" 
+          <input
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-300 focus:border-sky-300"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder="Full name"
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
-          <input 
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-300 focus:border-sky-300" 
-            value={email} 
-            onChange={e => setEmail(e.target.value)} 
-            placeholder="you@example.com" 
-            required 
+          <input
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-300 focus:border-sky-300"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            required
           />
         </div>
       </div>
@@ -176,10 +207,10 @@ export default function DonateForm({ currency = 'KES' }: Props) {
           <span className="text-green-600">🔒</span>
           <span>Secure payments by Stripe</span>
         </div>
-        
-        <button 
-          type="submit" 
-          className="px-6 py-3 bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700 transition-colors disabled:opacity-50 flex items-center gap-2" 
+
+        <button
+          type="submit"
+          className="px-6 py-3 bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700 transition-colors disabled:opacity-50 flex items-center gap-2"
           disabled={processing}
         >
           {processing ? (

@@ -1,6 +1,8 @@
-// components/RSVPForm.tsx
+// src/components/RSVPForm.tsx
 'use client'
 import React, { useState } from 'react'
+
+type RSVPResponse = { message?: string }
 
 export default function RSVPForm({ eventId, capacity }: { eventId: string, capacity?: number }) {
   const [name, setName] = useState('')
@@ -12,20 +14,36 @@ export default function RSVPForm({ eventId, capacity }: { eventId: string, capac
     e.preventDefault()
     if (!email || !name) { setMessage('Please provide name and email.'); return }
     setStatus('sending')
+    setMessage('')
+
     try {
-      const res = await fetch(`/api/events/${eventId}/rsvp`, {
+      const res = await fetch(`/api/events/${encodeURIComponent(eventId)}/rsvp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email }),
       })
-      const json = await res.json()
-      if (!res.ok) throw new Error(json?.message || 'Failed')
+
+      // parse JSON defensively — the response might not be JSON
+      let parsed: unknown = {}
+      try {
+        parsed = await res.json()
+      } catch {
+        parsed = {}
+      }
+      const body = parsed as RSVPResponse
+
+      if (!res.ok) {
+        throw new Error(body.message ?? 'Failed to register')
+      }
+
       setStatus('ok')
       setMessage('Thanks — your registration is confirmed.')
-      setName(''); setEmail('')
-    } catch (err: any) {
+      setName('')
+      setEmail('')
+    } catch (err: unknown) {
       setStatus('error')
-      setMessage(err?.message || 'Could not register.')
+      const errMsg = err instanceof Error ? err.message : String(err ?? 'Could not register.')
+      setMessage(errMsg)
     }
   }
 

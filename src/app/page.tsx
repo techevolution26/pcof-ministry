@@ -1,27 +1,129 @@
-// app/page.tsx
+// src/app/page.tsx
 import Link from 'next/link'
 import SubscribeForm from '../components/SubscribeForm'
 import { fetchChurches, fetchSermons, fetchEvents } from '../lib/api'
+import type { EventItem, Sermon, Church } from '@/types'
 
-// ISR: still static but revalidates every hour (change as you need)
-export const revalidate = 3600
+export const revalidate = 3600 // ISR: still static but revalidates every hour
+
+function toDateOrNull(value: unknown): Date | null {
+  if (value == null) return null
+  const d = new Date(String(value))
+  return isNaN(d.getTime()) ? null : d
+}
+
+function normalizeEvent(raw: unknown): EventItem | null {
+  if (!raw || typeof raw !== 'object') return null
+  const obj = raw as Record<string, unknown>
+
+  const idCandidate = obj.id ?? obj._id ?? obj.uid ?? obj.slug
+  const id = idCandidate != null ? String(idCandidate) : ''
+  if (!id) return null
+
+  const title = obj.title ?? obj.name ?? 'Untitled Event'
+  const description = typeof obj.description === 'string' ? obj.description : undefined
+  const imageUrl = typeof (obj.imageUrl ?? obj.image ?? obj.thumbnail) === 'string'
+    ? String(obj.imageUrl ?? obj.image ?? obj.thumbnail)
+    : undefined
+  const slug = typeof obj.slug === 'string' ? obj.slug : undefined
+  const location = typeof (obj.location ?? obj.venue) === 'string'
+    ? String(obj.location ?? obj.venue)
+    : undefined
+
+  // if you have a helper `toDateOrNull`, use it; otherwise parse directly
+  const startsDate = obj.startsAt ? new Date(String(obj.startsAt)) : null
+  const endsDate = obj.endsAt ? new Date(String(obj.endsAt)) : null
+  const startsAt = startsDate && !isNaN(startsDate.getTime()) ? startsDate.toISOString() : undefined
+  const endsAt = endsDate && !isNaN(endsDate.getTime()) ? endsDate.toISOString() : undefined
+
+  return {
+    id: String(id),
+    title: String(title),
+    slug,
+    description,
+    imageUrl,
+    location,
+    startsAt,
+    endsAt,
+  }
+}
+
+
+function normalizeSermon(raw: unknown): Sermon | null {
+  if (!raw || typeof raw !== 'object') return null
+  const obj = raw as Record<string, unknown>
+  const idCandidate = obj.id ?? obj._id ?? obj.uid
+  const id = idCandidate != null ? String(idCandidate) : ''
+  if (!id) return null
+  return {
+    id,
+    title: typeof obj.title === 'string' ? obj.title : String(obj.title ?? 'Untitled Sermon'),
+    speaker: typeof obj.speaker === 'string' ? obj.speaker : undefined,
+    date: typeof obj.date === 'string' ? obj.date : typeof obj.date === 'number' ? new Date(obj.date).toISOString() : undefined,
+    summary: typeof obj.summary === 'string' ? obj.summary : undefined,
+    mediaUrl: typeof obj.mediaUrl === 'string' ? obj.mediaUrl : undefined,
+  }
+}
+
+function normalizeChurch(raw: unknown): Church | null {
+  if (!raw || typeof raw !== 'object') return null
+  const obj = raw as Record<string, unknown>
+  const idCandidate = obj.id ?? obj._id ?? obj.uid
+  const id = idCandidate != null ? String(idCandidate) : ''
+  if (!id) return null
+  return {
+    id,
+    name: typeof obj.name === 'string' ? obj.name : 'Unnamed Church',
+    slug: typeof obj.slug === 'string' ? obj.slug : undefined,
+    address: typeof obj.address === 'string' ? obj.address : undefined,
+    pastor: typeof obj.pastor === 'string' ? obj.pastor : undefined,
+  }
+}
 
 export default async function Home() {
-  const [churches, sermons, events] = await Promise.all([
-    fetchChurches(),
-    fetchSermons(),
-    fetchEvents(),
-  ])
+  // fetches may return unknown shapes; handle defensively
+  const [rawChurches, rawSermons, rawEvents] = await Promise.all([
+    fetchChurches().catch(() => []),
+    fetchSermons().catch(() => []),
+    fetchEvents().catch(() => []),
+  ] as unknown[])
 
-  const totalChurches = Array.isArray(churches) ? churches.length : 0
-  const totalSermons = Array.isArray(sermons) ? sermons.length : 0
+  const churches: Church[] = Array.isArray(rawChurches)
+    ? rawChurches.map(normalizeChurch).filter((c): c is Church => c !== null)
+    : []
 
-  const upcoming = (Array.isArray(events) ? events : [])
-    .map((e: any) => ({ ...e, startsAt: new Date(e.startsAt) }))
-    .filter((e: any) => e.startsAt > new Date())
-    .sort((a: any, b: any) => a.startsAt - b.startsAt)[0] ?? events?.[0]
+  const sermons: Sermon[] = Array.isArray(rawSermons)
+    ? rawSermons.map(normalizeSermon).filter((s): s is Sermon => s !== null)
+    : []
 
-  const featuredSermons = (Array.isArray(sermons) ? sermons : []).slice(0, 3)
+  const eventsNormalized: EventItem[] = Array.isArray(rawEvents)
+    ? rawEvents.map(normalizeEvent).filter((ev): ev is EventItem => ev !== null)
+    : []
+
+  const totalChurches = churches.length
+  // totalSermons is not used in UI currently; keep computed if needed later
+  const totalSermons = sermons.length
+
+  // find upcoming event: startsAt must be a Date and in the future
+  const now = Date.now()
+
+  // convert each event's startsAt to a Date for sorting/filtering (but keep the original array)
+  const futureEvents = eventsNormalized
+    .map(ev => ({
+      ev,
+      startsAtDate: toDateOrNull(ev.startsAt)
+    }))
+    // keep only those with a valid Date in the future
+    .filter(({ startsAtDate }) => startsAtDate !== null && startsAtDate.getTime() > now)
+
+  // pick the earliest future event (if any)
+  const upcoming = futureEvents.length > 0
+    ? // sort by the Date value
+    futureEvents.sort((a, b) => (a.startsAtDate!.getTime() - b.startsAtDate!.getTime()))[0].ev
+    : // fallback to the first event in the normalized list (or null)
+    eventsNormalized[0] ?? null
+
+  const featuredSermons = sermons.slice(0, 3)
 
   return (
     <section>
@@ -33,7 +135,7 @@ export default async function Home() {
               Pentecostal Church One Faith Ministry— PCOF
             </h1>
             <p className="mt-4 text-lg max-w-2xl">
-              We gather in Compassion, Love & Service. Join a local fellowship, watch a sermon, or partner with us to serve the community.
+              We gather in Compassion, Love &amp; Service. Join a local fellowship, watch a sermons, or partner with us to serve the community.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
@@ -49,13 +151,13 @@ export default async function Home() {
 
           <div className="w-full md:w-80 bg-white/20 p-6 rounded-2xl backdrop-blur-sm border border-white/30 shadow-md">
             <div className="text-sm text-white/90 font-semibold flex items-center gap-2">
-              <span className="text-lg">📅</span> Next Meeting
+              <span className="text-lg">📅</span> Next Event
             </div>
             {upcoming ? (
               <div className="mt-3">
                 <div className="font-bold text-white text-lg">{upcoming.title}</div>
                 <div className="text-sm text-white/90 mt-1 flex items-center gap-1">
-                  <span>⏰</span> {new Date(upcoming.startsAt).toLocaleString()}
+                  <span>⏰</span> {upcoming.startsAt ? upcoming.startsAt.toLocaleString() : 'TBD'}
                 </div>
                 {upcoming.location && (
                   <div className="text-sm text-white/80 mt-2 flex items-center gap-1">
@@ -82,8 +184,8 @@ export default async function Home() {
         </div>
 
         <div className="p-6 bg-white rounded-2xl shadow-md border border-green-100 hover:shadow-lg transition-shadow">
-          <div className="text-sm text-gray-500 mb-2">📅 Upcoming Events & Programs</div>
-          <div className="text-3xl font-bold text-sky-700">{Array.isArray(events) ? events.length : 0}</div>
+          <div className="text-sm text-gray-500 mb-2">📅 Upcoming Events &amp; Programs</div>
+          <div className="text-3xl font-bold text-sky-700">{eventsNormalized.length}</div>
           <p className="text-sm mt-3 text-gray-600">Participate in Spiritual building programs.</p>
         </div>
 
@@ -105,25 +207,28 @@ export default async function Home() {
               No sermons published yet.
             </div>
           )}
-          {featuredSermons.map((s: any) => (
-            <article key={s.id} className="bg-white rounded-2xl shadow-md p-5 border border-green-100 hover:shadow-lg transition-all duration-300">
-              <h3 className="font-bold text-lg text-slate-800">{s.title}</h3>
-              <div className="text-sm text-gray-600 mt-2 flex items-center gap-1">
-                <span>🎤</span> {s.speaker} — {new Date(s.date).toLocaleDateString()}
-              </div>
-              <p className="text-sm mt-3 text-gray-700 line-clamp-3">{s.summary ?? ''}</p>
-              <div className="mt-4 flex gap-3">
-                <Link href={`/sermons/${s.id}`} className="text-sm text-sky-600 hover:text-sky-700 font-medium flex items-center gap-1">
-                  <span>👁️</span> View
-                </Link>
-                {s.mediaUrl && (
-                  <a href={s.mediaUrl} className="text-sm text-sky-600 hover:text-sky-700 font-medium flex items-center gap-1">
-                    <span>▶️</span> Play
-                  </a>
-                )}
-              </div>
-            </article>
-          ))}
+          {featuredSermons.map((s) => {
+            const sermonDate = toDateOrNull(s.date)
+            return (
+              <article key={s.id} className="bg-white rounded-2xl shadow-md p-5 border border-green-100 hover:shadow-lg transition-all duration-300">
+                <h3 className="font-bold text-lg text-slate-800">{s.title}</h3>
+                <div className="text-sm text-gray-600 mt-2 flex items-center gap-1">
+                  <span>🎤</span> {s.speaker ?? 'PCOF'} — {sermonDate ? sermonDate.toLocaleDateString() : 'TBD'}
+                </div>
+                <p className="text-sm mt-3 text-gray-700 line-clamp-3">{s.summary ?? ''}</p>
+                <div className="mt-4 flex gap-3">
+                  <Link href={`/sermons/${s.id}`} className="text-sm text-sky-600 hover:text-sky-700 font-medium flex items-center gap-1">
+                    <span>👁️</span> View
+                  </Link>
+                  {s.mediaUrl && (
+                    <a href={s.mediaUrl} className="text-sm text-sky-600 hover:text-sky-700 font-medium flex items-center gap-1">
+                      <span>▶️</span> Play
+                    </a>
+                  )}
+                </div>
+              </article>
+            )
+          })}
         </div>
       </section>
 
@@ -133,11 +238,11 @@ export default async function Home() {
           <span className="text-sky-600">⛪</span> Our Churches
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {(Array.isArray(churches) ? churches : []).slice(0, 6).map((c: any) => (
+          {churches.slice(0, 6).map((c) => (
             <div key={c.id} className="bg-white rounded-2xl shadow-md p-5 border border-green-100 hover:shadow-lg transition-all duration-300">
-              <div className="font-bold text-slate-800 text-lg">{c.name}</div>
+              <div className="font-bold text-slate-800 text-lg">{c.name ?? '—'}</div>
               <div className="text-sm text-gray-600 mt-2 flex items-center gap-1">
-                <span>📍</span> {c.address}
+                <span>📍</span> {c.address ?? '—'}
               </div>
               <div className="text-sm text-gray-500 mt-3 flex items-center gap-1">
                 <span>👨‍💼</span> Pastor: {c.pastor ?? '—'}

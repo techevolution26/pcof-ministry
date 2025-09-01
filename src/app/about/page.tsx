@@ -3,6 +3,7 @@ import Link from 'next/link'
 import LeaderCard from '@/components/LeaderCard'
 import LeaderGrid from '@/components/LeaderGrid'
 import { fetchLeadership } from '@/lib/api'
+import Image from 'next/image'
 
 export const revalidate = 3600 // refresh every hour
 
@@ -14,8 +15,13 @@ export default async function AboutPage() {
             <div className="container mx-auto px-4">
                 {/* HERO */}
                 <header className="mb-12 text-center">
+                     <div className="flex justify-center mb-4">
+                                <div className="w-16 h-16 flex items-center justify-center bg-green-50 rounded-full border border-green-100">
+                                  <Image src="/pcof.jpeg" alt="PCOF Logo" width={60} height={60} className="rounded-full" />
+                                </div>
+                              </div>
                     <h1 className="text-4xl font-bold text-slate-800 mb-4 flex items-center justify-center gap-2">
-                        <span className="text-sky-600">⛪</span> About Pentecostal Church One Faith (PCOF)
+                        <span className="text-sky-600">⛪</span> About Pentecostal Church One Faith (PCOF) 
                     </h1>
                     <p className="text-lg text-slate-600 max-w-3xl mx-auto">
                         PCOF is a fellowship of churches united to proclaim the Gospel, serve communities, and disciple believers through worship, teaching and outreach.
@@ -169,8 +175,8 @@ export default async function AboutPage() {
                             <p className="flex items-start gap-2">
                                 <span className="text-sky-600 mt-1">📍</span>
                                 PCOF Headquarters<br />
-                                123 Faith Avenue<br />
-                                Nairobi, Kenya
+                                B8 Kilifi-Malindi Road<br />
+                                Matsangoni,Kenya
                             </p>
                             <p className="flex items-start gap-2">
                                 <span className="text-sky-600 mt-1">✉️</span>

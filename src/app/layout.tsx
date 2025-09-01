@@ -3,6 +3,7 @@ import './globals.css'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import CogMaintenance from '@/components/CogMaintenance'
+import {Analytics} from '@vercel/analytics/react'
 
 export const metadata = {
   title: 'PCOF - Pentecostal Church One Faith',
@@ -13,6 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="h-full">
       <body className="min-h-screen h-full bg-gradient-to-b from-green-50 via-green-100 to-green-200 text-slate-900">
+        <Analytics />
         <div className="min-h-screen flex flex-col">
           <Header />
 

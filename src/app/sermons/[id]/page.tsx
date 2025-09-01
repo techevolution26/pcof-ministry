@@ -17,7 +17,7 @@ export default function SermonsMaintenancePage() {
         </h1>
 
         <p className="text-slate-600 text-lg">
-          We're doing some improvements to our sermons library to make it faster and easier to find teachings.
+          We&apos;re doing some improvements to our sermons library to make it faster and easier to find teachings.
           Sorry for the inconvenience — we expect to be back shortly.
         </p>
 

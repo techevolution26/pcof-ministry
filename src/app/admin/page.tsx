@@ -1,22 +1,57 @@
-// app/admin/dashboard-ui.tsx
+// src/app/admin/dashboard-ui.tsx
 import Link from 'next/link'
 import Image from 'next/image'
 import { fetchChurches, fetchSermons, fetchEvents } from '@/lib/api'
 
 export const revalidate = 60
 
-export default async function AdminDashboardUI() {
-  const [churches, sermons, events] = await Promise.all([
-    fetchChurches().catch(() => []),
-    fetchSermons().catch(() => []),
-    fetchEvents().catch(() => []),
-  ])
+// local minimal types for admin dashboard usage
+type Church = {
+  id: string
+  name: string
+  address?: string
+  pastor?: string
+  logoUrl?: string
+  [key: string]: unknown
+}
 
-  let audits: any[] = []
+type Sermon = {
+  id: string
+  title?: string
+  date?: string
+  [key: string]: unknown
+}
+
+type EventItem = {
+  id: string
+  title?: string
+  startsAt?: string
+  [key: string]: unknown
+}
+
+type Audit = {
+  id: string
+  action?: string
+  resource?: string
+  createdAt?: string
+  [key: string]: unknown
+}
+
+export default async function AdminDashboardUI() {
+  // fetch typed lists (fall back to empty arrays)
+  const churches = (await fetchChurches().catch(() => [])) as Church[]
+  const sermons = (await fetchSermons().catch(() => [])) as Sermon[]
+  const events = (await fetchEvents().catch(() => [])) as EventItem[]
+
+  // read optional audit log (dev-only JSON)
+  let audits: Audit[] = []
   try {
     const res = await fetch('/data/audit.json')
-    if (res.ok) audits = await res.json()
-  } catch (e) {
+    if (res.ok) {
+      const json = await res.json().catch(() => [])
+      if (Array.isArray(json)) audits = json as Audit[]
+    }
+  } catch {
     audits = []
   }
 
@@ -24,8 +59,8 @@ export default async function AdminDashboardUI() {
   const totalSermons = Array.isArray(sermons) ? sermons.length : 0
   const totalEvents = Array.isArray(events) ? events.length : 0
 
-  const recentChurches = (churches || []).slice(0, 6)
-  const recentAudits = audits.slice(0, 8)
+  const recentChurches = (Array.isArray(churches) ? churches : []).slice(0, 6)
+  const recentAudits = (Array.isArray(audits) ? audits : []).slice(0, 8)
 
   return (
     <div className="space-y-6">
@@ -35,10 +70,16 @@ export default async function AdminDashboardUI() {
           <p className="text-sm text-slate-600 mt-1">Overview of recent activity and quick actions.</p>
         </div>
         <div className="flex items-center gap-3">
-          <Link href="/admin/churches/new" className="px-4 py-2 bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700 transition-colors flex items-center gap-1">
+          <Link
+            href="/admin/churches/new"
+            className="px-4 py-2 bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700 transition-colors flex items-center gap-1"
+          >
             <span>➕</span> Create Church
           </Link>
-          <Link href="/admin/churches" className="px-4 py-2 border border-gray-300 rounded-lg font-medium hover:bg-green-50 transition-colors flex items-center gap-1">
+          <Link
+            href="/admin/churches"
+            className="px-4 py-2 border border-gray-300 rounded-lg font-medium hover:bg-green-50 transition-colors flex items-center gap-1"
+          >
             <span>🏢</span> Manage Churches
           </Link>
         </div>
@@ -78,24 +119,33 @@ export default async function AdminDashboardUI() {
             <span className="text-sky-600">🏢</span> Recent Churches
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {recentChurches.map((c: any) => (
-              <div key={c.id} className="p-4 border border-gray-200 rounded-lg flex gap-4 items-center hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 rounded-xl overflow-hidden bg-sky-100 flex items-center justify-center text-sm text-sky-600 font-medium flex-shrink-0">
-                  {c.logoUrl ? (
-                    <Image src={c.logoUrl} alt={c.name} width={48} height={48} style={{ objectFit: 'cover' }} />
-                  ) : (
-                    <span>{(c.name || '').split(' ').map((s: string) => s[0]).slice(0, 2).join('')}</span>
-                  )}
+            {recentChurches.map((c: Church) => {
+              // guard: ensure required fields exist
+              const name = c.name ?? '—'
+              const address = typeof c.address === 'string' ? c.address : '—'
+              return (
+                <div
+                  key={c.id}
+                  className="p-4 border border-gray-200 rounded-lg flex gap-4 items-center hover:shadow-md transition-shadow"
+                >
+                  <div className="w-12 h-12 rounded-xl overflow-hidden bg-sky-100 flex items-center justify-center text-sm text-sky-600 font-medium flex-shrink-0">
+                    {c.logoUrl ? (
+                      // Next/Image is recommended; keep alt text
+                      <Image src={String(c.logoUrl)} alt={name} width={48} height={48} style={{ objectFit: 'cover' }} />
+                    ) : (
+                      <span>{String(name).split(' ').map(s => (s ? s[0] : '')).slice(0, 2).join('')}</span>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium text-slate-800">{name}</div>
+                    <div className="text-xs text-slate-500">{address}</div>
+                  </div>
+                  <div>
+                    <Link href={`/admin/churches/${c.id}`} className="text-sm text-sky-600 hover:text-sky-700 font-medium">Edit</Link>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <div className="font-medium text-slate-800">{c.name}</div>
-                  <div className="text-xs text-slate-500">{c.address ?? '—'}</div>
-                </div>
-                <div>
-                  <Link href={`/admin/churches/${c.id}`} className="text-sm text-sky-600 hover:text-sky-700 font-medium">Edit</Link>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
 
@@ -107,10 +157,10 @@ export default async function AdminDashboardUI() {
             <div className="text-sm text-slate-500 p-4 bg-green-50 rounded-lg">No activity yet.</div>
           ) : (
             <ul className="space-y-3">
-              {recentAudits.map(a => (
-                <li key={a.id} className="flex justify-between items-center p-2 border-b border-green-100 last:border-b-0">
-                  <div className="text-sm text-slate-700 truncate pr-2">{a.action} — {a.resource}</div>
-                  <div className="text-xs text-slate-500 whitespace-nowrap">{new Date(a.createdAt).toLocaleString()}</div>
+              {recentAudits.map((a: Audit) => (
+                <li key={String(a.id)} className="flex justify-between items-center p-2 border-b border-green-100 last:border-b-0">
+                  <div className="text-sm text-slate-700 truncate pr-2">{String(a.action ?? '')} — {String(a.resource ?? '')}</div>
+                  <div className="text-xs text-slate-500 whitespace-nowrap">{a.createdAt ? new Date(a.createdAt).toLocaleString() : ''}</div>
                 </li>
               ))}
             </ul>
@@ -134,7 +184,7 @@ export default async function AdminDashboardUI() {
               </tr>
             </thead>
             <tbody>
-              {(churches || []).map((c: any) => (
+              {(Array.isArray(churches) ? churches : []).map((c: Church) => (
                 <tr key={c.id} className="border-b border-green-100 last:border-b-0 hover:bg-green-50">
                   <td className="p-3 font-medium text-slate-800">{c.name}</td>
                   <td className="p-3 text-slate-700">{c.pastor ?? '—'}</td>
@@ -142,7 +192,7 @@ export default async function AdminDashboardUI() {
                   <td className="p-3">
                     <div className="flex gap-3">
                       <Link href={`/admin/churches/${c.id}`} className="text-sky-600 hover:text-sky-700 font-medium">Edit</Link>
-                      <button className="text-red-600 hover:text-red-700 font-medium">Deactivate</button>
+                      <button type="button" className="text-red-600 hover:text-red-700 font-medium">Deactivate</button>
                     </div>
                   </td>
                 </tr>

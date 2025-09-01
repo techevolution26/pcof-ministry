@@ -13,7 +13,7 @@ export default function ContactPage() {
                         <span className="text-sky-600">📞</span> Contact PCOF
                     </h1>
                     <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-                        We'd love to hear from you — whether you're asking about a local church, an event, volunteering or how to partner with us.
+                        We&apos;d love to hear from you — whether you&apos;re asking about a local church, an event, volunteering or how to partner with us.
                     </p>
                 </header>
 

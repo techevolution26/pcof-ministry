@@ -45,7 +45,7 @@ export default function ContactForm() {
 
             {submitStatus === 'success' && (
                 <div className="bg-green-100 text-green-800 p-4 rounded-lg mb-6 flex items-center gap-2">
-                    <span className="text-lg">✅</span> Message sent successfully! We'll get back to you soon.
+                    <span className="text-lg">✅</span> Message sent successfully! We&apos;ll get back to you soon.
                 </div>
             )}
 

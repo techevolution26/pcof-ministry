@@ -65,7 +65,7 @@ export default async function DonatePage() {
                     <div className="text-sm text-slate-600">KES 500 / 1,000 / 5,000</div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
                   <span className="text-sky-600">🎯</span>
                   <div>
@@ -93,7 +93,7 @@ export default async function DonatePage() {
             <span className="text-sky-600">🏦</span> Bank Transfer Option
           </h3>
           <p className="text-slate-600 mb-6">
-            You can also give directly to our bank account. Please include your name and "DONATION" in the payment reference and email a screenshot to{" "}
+            You can also give directly to our bank account. Please include your name and &quot;DONATION&quot; in the payment reference and email a screenshot to{" "}
             <a href="mailto:office@pcof.org" className="text-sky-600 hover:text-sky-700 font-medium">office@pcof.org</a> so we can issue a receipt.
           </p>
 
@@ -129,7 +129,7 @@ export default async function DonatePage() {
               <ul className="space-y-2 text-slate-700">
                 <li className="flex items-start gap-2">
                   <span className="text-sky-600 mt-1">•</span>
-                  Include "DONATION" in the reference
+                  Include &quot;DONATION&quot; in the reference
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-sky-600 mt-1">•</span>

@@ -1,8 +1,9 @@
-// app/churches/[slug]/page.tsx
+// src/app/churches/[slug]/page.tsx
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { fetchChurches, fetchSermons, fetchEvents } from '@/lib/api'
+import type { Church, Sermon, EventItem } from '@/types'
 
 export const revalidate = 60 // ISR: refresh every minute
 
@@ -11,9 +12,9 @@ type Props = {
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const all = await fetchChurches()
+  const all = (await fetchChurches().catch(() => [])) as Church[]
   const awaitedParams = await params
-  const church = (all || []).find((c: any) => c.slug === awaitedParams.slug || c.id === awaitedParams.slug)
+  const church = (all || []).find(c => c.slug === awaitedParams.slug || c.id === awaitedParams.slug)
   if (!church) return { title: 'Church — PCOF' }
 
   return {
@@ -23,38 +24,63 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       title: `${church.name} — PCOF`,
       description: church.description || '',
       images: church.logoUrl ? [church.logoUrl] : undefined,
-    }
+    },
   }
 }
 
 export default async function ChurchPage({ params }: Props) {
   const { slug } = await params
-  const churches = (await fetchChurches()) || []
-  const church = churches.find((c: any) => c.slug === slug || c.id === slug)
+
+  const churches = (await fetchChurches().catch(() => [])) as Church[]
+  const church = churches.find(c => c.slug === slug || c.id === slug)
 
   if (!church) {
     notFound()
   }
 
-  const allSermons = (await fetchSermons()) || []
-  const allEvents = (await fetchEvents()) || []
+  const allSermons = (await fetchSermons().catch(() => [])) as Sermon[]
+  const allEvents = (await fetchEvents().catch(() => [])) as EventItem[]
 
-  const sermons = allSermons.filter((s: any) =>
-    s.churchId === church.id || s.churchSlug === church.slug || (s.church && (s.church === church.name))
+  // Sermons associated with this church (defensive)
+  const sermons = allSermons.filter(s =>
+    String(s.churchId ?? '') === String(church?.id ?? '') ||
+    String(s.churchSlug ?? '') === String(church?.slug ?? '') ||
+    String(s.church ?? '') === String(church?.name ?? '')
   )
 
-  const upcomingEvents = allEvents
-    .map((e: any) => ({ ...e, startsAt: e.startsAt ? new Date(e.startsAt) : null }))
-    .filter((e: any) => {
-      if (e.churchId && e.churchId === church.id) return true
-      if (e.churchSlug && e.churchSlug === church.slug) return true
-      if (e.church && e.church === church.name) return true
+  // Normalize events to Date objects for comparison
+  type EventWithDate = EventItem & { startsAtDate?: Date | null }
+  const upcomingEvents = (allEvents || [])
+    .map((e): EventWithDate => {
+      const startsAtDate = e.startsAt ? new Date(e.startsAt) : null
+      return { ...e, startsAtDate }
+    })
+    .filter(e => {
+      // filter to events that belong to this church
+      if (e.churchId && String(e.churchId) === String(church?.id)) return true
+      if (e.churchSlug && String(e.churchSlug) === String(church?.slug)) return true
+      if (e.church && String(e.church) === String(church?.name)) return true
       return false
     })
-    .filter((e: any) => !e.startsAt || e.startsAt > new Date())
-    .sort((a: any, b: any) => (a.startsAt ? a.startsAt.getTime() : 0) - (b.startsAt ? b.startsAt.getTime() : 0))
+    .filter(e => {
+      // upcoming only
+      const now = Date.now()
+      if (!e.startsAtDate) return true // keep undated events
+      return e.startsAtDate.getTime() >= now
+    })
+    .sort((a, b) => {
+      const A = a.startsAtDate ? a.startsAtDate.getTime() : 0
+      const B = b.startsAtDate ? b.startsAtDate.getTime() : 0
+      return A - B
+    })
 
-  const initials = (church.name || '').split(' ').map((s: string) => s[0]).slice(0, 2).join('')
+  const initials = String(church?.name ?? '')
+    .split(' ')
+    .map(s => (s ? s[0] : ''))
+    .slice(0, 2)
+    .join('')
+
+  const churchSlugOrId = church?.slug ?? church?.id ?? ''
 
   return (
     <article className="py-8">
@@ -62,32 +88,41 @@ export default async function ChurchPage({ params }: Props) {
         {/* Hero / header */}
         <section className="bg-white rounded-2xl shadow-md p-8 mb-8 flex flex-col md:flex-row gap-8 items-start border border-green-100">
           <div className="flex-shrink-0 w-32 h-32 rounded-xl overflow-hidden bg-sky-100 flex items-center justify-center">
-            {church.logoUrl ? (
-              <Image src={church.logoUrl} alt={`${church.name} logo`} width={128} height={128} style={{ objectFit: 'cover' }} />
+            {church?.logoUrl ? (
+              <Image
+                src={String(church.logoUrl)}
+                alt={`${church.name} logo`}
+                width={128}
+                height={128}
+                style={{ objectFit: 'cover' }}
+              />
             ) : (
               <div className="text-3xl font-bold text-sky-600">{initials}</div>
             )}
           </div>
 
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-slate-800">{church.name}</h1>
-            {church.tagline && <p className="text-slate-600 mt-2 text-lg">{church.tagline}</p>}
+            <h1 className="text-3xl font-bold text-slate-800">{church?.name}</h1>
+            {church?.tagline && <p className="text-slate-600 mt-2 text-lg">{church.tagline}</p>}
 
             <div className="mt-6 flex flex-wrap gap-3 items-center">
-              <Link href={`/churches/${church.slug}/about`} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-green-50 transition-colors flex items-center gap-1">
+              <Link href={`/churches/${churchSlugOrId}/about`} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-green-50 transition-colors flex items-center gap-1">
                 <span>ℹ️</span> About
               </Link>
-              <Link href={`/churches/${church.slug}/ministries`} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-green-50 transition-colors flex items-center gap-1">
+              <Link href={`/churches/${churchSlugOrId}/ministries`} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-green-50 transition-colors flex items-center gap-1">
                 <span>👥</span> Ministers
               </Link>
-              <Link href={`/churches/${church.slug}/sermons`} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-green-50 transition-colors flex items-center gap-1">
+              <Link href={`/churches/${churchSlugOrId}/sermons`} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-green-50 transition-colors flex items-center gap-1">
                 <span>📖</span> Sermons
               </Link>
-              <Link href={`/donate?church=${church.slug}`} className="px-4 py-2 bg-sky-600 text-white rounded-lg text-sm hover:bg-sky-700 transition-colors flex items-center gap-1">
+              <Link href={`/donate?church=${encodeURIComponent(churchSlugOrId)}`} className="px-4 py-2 bg-sky-600 text-white rounded-lg text-sm hover:bg-sky-700 transition-colors flex items-center gap-1">
                 <span>💝</span> Give
               </Link>
               <a
-                href={church.locationUrl ?? (church.address ? `https://www.google.com/maps/search/${encodeURIComponent(church.address)}` : '#')}
+                href={
+                  church?.locationUrl ??
+                  (church?.address ? `https://www.google.com/maps/search/${encodeURIComponent(String(church.address))}` : '#')
+                }
                 target="_blank"
                 rel="noreferrer"
                 className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-green-50 transition-colors flex items-center gap-1"
@@ -101,21 +136,21 @@ export default async function ChurchPage({ params }: Props) {
                 <div className="text-xs text-slate-500 flex items-center gap-1">
                   <span>👨‍💼</span> Pastor
                 </div>
-                <div className="font-medium mt-1">{church.pastor ?? '—'}</div>
+                <div className="font-medium mt-1">{church?.pastor ?? '—'}</div>
               </div>
 
               <div className="bg-green-50 p-3 rounded-lg">
                 <div className="text-xs text-slate-500 flex items-center gap-1">
                   <span>📍</span> Location
                 </div>
-                <div className="font-medium mt-1">{church.address ?? '—'}</div>
+                <div className="font-medium mt-1">{church?.address ?? '—'}</div>
               </div>
 
               <div className="bg-green-50 p-3 rounded-lg">
                 <div className="text-xs text-slate-500 flex items-center gap-1">
                   <span>⏰</span> Service Times
                 </div>
-                <div className="font-medium mt-1">{church.serviceTimes ?? 'See events'}</div>
+                <div className="font-medium mt-1">{church?.serviceTimes ?? 'See events'}</div>
               </div>
             </div>
           </div>
@@ -127,9 +162,9 @@ export default async function ChurchPage({ params }: Props) {
             {/* About */}
             <section className="bg-white p-6 rounded-2xl shadow-md border border-green-100">
               <h2 className="text-xl font-bold mb-4 text-slate-800 flex items-center gap-2">
-                <span className="text-sky-600">ℹ️</span> About {church.name}
+                <span className="text-sky-600">ℹ️</span> About {church?.name}
               </h2>
-              <p className="text-slate-700 leading-relaxed">{church.description ?? 'No description yet.'}</p>
+              <p className="text-slate-700 leading-relaxed">{church?.description ?? 'No description yet.'}</p>
             </section>
 
             {/* Upcoming Events */}
@@ -141,8 +176,8 @@ export default async function ChurchPage({ params }: Props) {
                 <div className="text-slate-600 bg-green-50 p-4 rounded-lg">No upcoming events listed.</div>
               ) : (
                 <ul className="space-y-4">
-                  {upcomingEvents.slice(0, 6).map((e: any) => (
-                    <li key={e.id} className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                  {upcomingEvents.slice(0, 6).map(e => (
+                    <li key={String(e.id)} className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
                       <div className="flex items-start justify-between">
                         <div>
                           <div className="font-semibold text-lg">{e.title}</div>
@@ -151,9 +186,9 @@ export default async function ChurchPage({ params }: Props) {
                               <span>📍</span> {e.location}
                             </div>
                           )}
-                          {e.startsAt && (
+                          {e.startsAtDate && (
                             <div className="text-sm text-slate-500 mt-1 flex items-center gap-1">
-                              <span>⏰</span> {new Date(e.startsAt).toLocaleString()}
+                              <span>⏰</span> {e.startsAtDate.toLocaleString()}
                             </div>
                           )}
                         </div>
@@ -178,8 +213,8 @@ export default async function ChurchPage({ params }: Props) {
                 <div className="text-slate-600 bg-green-50 p-4 rounded-lg">No sermons linked to this church yet.</div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {sermons.slice(0, 6).map((s: any) => (
-                    <article key={s.id} className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow flex flex-col">
+                  {sermons.slice(0, 6).map(s => (
+                    <article key={String(s.id)} className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow flex flex-col">
                       <div className="font-semibold text-lg">{s.title}</div>
                       <div className="text-sm text-slate-500 mt-1 flex items-center gap-1">
                         <span>🎤</span> {s.speaker ?? ''} — {s.date ? new Date(s.date).toLocaleDateString() : ''}
@@ -209,19 +244,19 @@ export default async function ChurchPage({ params }: Props) {
                 <span className="text-sky-600">📞</span> Contact
               </h3>
               <div className="text-slate-700 space-y-3">
-                {church.phone && (
+                {church?.phone && (
                   <div className="flex items-center gap-2">
                     <span className="text-lg">📱</span>
                     <a href={`tel:${church.phone}`} className="underline hover:text-sky-600">{church.phone}</a>
                   </div>
                 )}
-                {church.email && (
+                {church?.email && (
                   <div className="flex items-center gap-2">
                     <span className="text-lg">✉️</span>
                     <a href={`mailto:${church.email}`} className="underline hover:text-sky-600">{church.email}</a>
                   </div>
                 )}
-                {church.website && (
+                {church?.website && (
                   <div className="flex items-center gap-2">
                     <span className="text-lg">🌐</span>
                     <a href={church.website} target="_blank" rel="noreferrer" className="underline hover:text-sky-600">Visit Website</a>
@@ -229,7 +264,7 @@ export default async function ChurchPage({ params }: Props) {
                 )}
 
                 <div className="mt-4 pt-3 border-t border-green-100">
-                  <Link href={`/churches/${church.slug}/contact`} className="inline-flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg text-sm hover:bg-sky-700 transition-colors">
+                  <Link href={`/churches/${churchSlugOrId}/contact`} className="inline-flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg text-sm hover:bg-sky-700 transition-colors">
                     <span>✉️</span> Send a message
                   </Link>
                 </div>
@@ -242,7 +277,7 @@ export default async function ChurchPage({ params }: Props) {
               </h3>
               <div className="text-slate-700 mb-4">Interested in volunteering or joining a ministry? Contact the church leadership to learn how to get involved.</div>
               <div className="mt-3">
-                <Link href={`/churches/${church.slug}/volunteer`} className="inline-flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg text-sm hover:bg-sky-700 transition-colors">
+                <Link href={`/churches/${churchSlugOrId}/volunteer`} className="inline-flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg text-sm hover:bg-sky-700 transition-colors">
                   <span>👥</span> Volunteer
                 </Link>
               </div>
@@ -253,13 +288,13 @@ export default async function ChurchPage({ params }: Props) {
                 <span className="text-sky-600">⚡</span> Quick Actions
               </h3>
               <div className="space-y-3">
-                <Link href={`/donate?church=${church.slug}`} className="flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700 transition-colors">
+                <Link href={`/donate?church=${encodeURIComponent(churchSlugOrId)}`} className="flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700 transition-colors">
                   <span>💝</span> Give to this church
                 </Link>
-                <Link href={`/churches/${church.slug}/ministries`} className="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg text-sm hover:bg-green-50 transition-colors">
+                <Link href={`/churches/${churchSlugOrId}/ministries`} className="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg text-sm hover:bg-green-50 transition-colors">
                   <span>👥</span> See ministries
                 </Link>
-                <Link href={`/churches/${church.slug}/events`} className="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg text-sm hover:bg-green-50 transition-colors">
+                <Link href={`/churches/${churchSlugOrId}/events`} className="flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg text-sm hover:bg-green-50 transition-colors">
                   <span>📅</span> All events
                 </Link>
               </div>

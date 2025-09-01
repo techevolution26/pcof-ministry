@@ -1,27 +1,53 @@
-// components/ChurchCard.tsx
 'use client'
 
 import Link from 'next/link'
 import Image from 'next/image'
 
-export default function ChurchCard({ church }: { church: any }) {
+type Church = {
+  id: string | number
+  slug?: string
+  name?: string
+  logoUrl?: string
+  address?: string
+  pastor?: string
+  serviceTimes?: string
+  tags?: string[]
+  locationUrl?: string
+  phone?: string
+}
+
+export default function ChurchCard({ church }: { church: Church }) {
+  const initials = (church.name ?? '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((s: string) => s[0])
+    .slice(0, 2)
+    .join('')
+
   return (
     <article className="bg-white rounded-2xl shadow-md p-6 border border-green-100 hover:shadow-lg transition-all duration-300 h-full flex flex-col">
       <div className="flex items-start gap-4 mb-4">
         <div className="w-16 h-16 rounded-xl overflow-hidden bg-sky-100 flex-shrink-0 flex items-center justify-center">
           {church.logoUrl ? (
-            <Image src={church.logoUrl} alt={`${church.name} logo`} width={64} height={64} style={{ objectFit: 'cover' }} />
+            <Image
+              src={church.logoUrl}
+              alt={`${church.name ?? 'church'} logo`}
+              width={64}
+              height={64}
+              style={{ objectFit: 'cover' }}
+            />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-sky-600 font-semibold text-lg">
-              {church.name?.split(' ').map(s => s[0]).slice(0, 2).join('')}
+              {initials || '—'}
             </div>
           )}
         </div>
 
         <div className="flex-1">
-          <h3 className="text-xl font-bold text-slate-800">{church.name}</h3>
+          <h3 className="text-xl font-bold text-slate-800">{church.name ?? '—'}</h3>
           <div className="text-sm text-slate-600 mt-1 flex items-center gap-1">
-            <span>📍</span> {church.address}
+            <span>📍</span> {church.address ?? '—'}
           </div>
           <div className="text-sm text-slate-500 mt-2 flex items-center gap-1">
             <span>👨‍💼</span> Pastor: {church.pastor ?? '—'}

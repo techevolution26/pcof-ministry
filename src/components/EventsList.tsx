@@ -4,22 +4,9 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import EventCard from './EventCard'
 import Link from 'next/link'
+import type { EventItem } from '@/types'
 
-type Event = {
-  id: string
-  title: string
-  startsAt?: string | null
-  endsAt?: string | null
-  location?: string
-  locationUrl?: string
-  host?: string
-  tags?: string[] | null
-  online?: boolean
-  capacity?: number
-  description?: string
-}
-
-export default function EventsList({ initialEvents }: { initialEvents?: Event[] }) {
+export default function EventsList({ initialEvents }: { initialEvents?: EventItem[] }) {
   const [query, setQuery] = useState('')
   const [tag, setTag] = useState('all')
   const [upcomingOnly, setUpcomingOnly] = useState(true)
@@ -35,7 +22,7 @@ export default function EventsList({ initialEvents }: { initialEvents?: Event[] 
     for (const e of eventsArr) {
       if (Array.isArray(e.tags)) {
         for (const t of e.tags) {
-          if (t) s.add(String(t))
+          if (typeof t === 'string' && t.trim()) s.add(t)
         }
       }
     }
@@ -45,21 +32,34 @@ export default function EventsList({ initialEvents }: { initialEvents?: Event[] 
   const filtered = useMemo(() => {
     const now = Date.now()
     let arr = eventsArr.slice()
+
     if (query.trim()) {
       const q = query.toLowerCase()
       arr = arr.filter(e =>
-        (e.title || '').toLowerCase().includes(q) ||
-        (e.host || '').toLowerCase().includes(q) ||
-        (e.description || '').toLowerCase().includes(q)
+        (e.title ?? '').toLowerCase().includes(q) ||
+        (e.host ?? '').toLowerCase().includes(q) ||
+        (e.description ?? '').toLowerCase().includes(q)
       )
     }
-    if (tag !== 'all') arr = arr.filter(e => Array.isArray(e.tags) && e.tags.includes(tag))
-    if (upcomingOnly) arr = arr.filter(e => !e.startsAt || new Date(e.startsAt).getTime() >= now)
+
+    if (tag !== 'all') {
+      arr = arr.filter(e => Array.isArray(e.tags) && e.tags.includes(tag))
+    }
+
+    if (upcomingOnly) {
+      arr = arr.filter(e => {
+        if (!e.startsAt) return true // keep undated events
+        const t = Date.parse(String(e.startsAt))
+        return !isNaN(t) && t >= now
+      })
+    }
+
     arr.sort((a, b) => {
-      const A = a.startsAt ? new Date(a.startsAt).getTime() : 0
-      const B = b.startsAt ? new Date(b.startsAt).getTime() : 0
+      const A = a.startsAt ? Date.parse(String(a.startsAt)) : 0
+      const B = b.startsAt ? Date.parse(String(b.startsAt)) : 0
       return A - B
     })
+
     return arr
   }, [initialEvents, query, tag, upcomingOnly])
 
@@ -114,7 +114,10 @@ export default function EventsList({ initialEvents }: { initialEvents?: Event[] 
 
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {pageItems.map(e => <EventCard key={e.id} event={e} />)}
+        {pageItems.map(e => (
+          // `e` is `EventItem` so it matches EventCard's expected prop type
+          <EventCard key={e.id} event={e} />
+        ))}
       </div>
 
       {/* Pagination */}
