@@ -1,4 +1,20 @@
 [
-{ "id": "e1", "title": "Sunday Service", "startsAt": "2025-09-07T09:00:00Z", "location": "Central Hall" },
-{ "id": "e2", "title": "Youth Outreach", "startsAt": "2025-09-14T14:00:00Z", "location": "Eastside Grounds" }
+    {
+        "id": "e1",
+        "title": "National Youth Conference",
+        "startsAt": "2025-09-07T09:00:00Z",
+        "location": "Sokoke Secondary School"
+    },
+      {
+        "id": "e2",
+        "title": "National Mens Conference",
+        "startsAt": "2025-09-14T14:00:00Z",
+        "location": "Mirage Villa Hotel, Malindi"
+    },
+    {
+        "id": "e3",
+        "title": "National Women Conference",
+        "startsAt": "2025-09-21T10:00:00Z",
+        "location": "PCEA Church, Kilifi"
+    }
 ]

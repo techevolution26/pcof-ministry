@@ -78,7 +78,7 @@ export default async function ChurchPage({ params }: Props) {
                 <span>ℹ️</span> About
               </Link>
               <Link href={`/churches/${church.slug}/ministries`} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-green-50 transition-colors flex items-center gap-1">
-                <span>👥</span> Ministries
+                <span>👥</span> Ministers
               </Link>
               <Link href={`/churches/${church.slug}/sermons`} className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-green-50 transition-colors flex items-center gap-1">
                 <span>📖</span> Sermons

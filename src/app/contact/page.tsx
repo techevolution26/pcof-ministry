@@ -33,8 +33,8 @@ export default function ContactPage() {
                                 <p className="flex items-start gap-2">
                                     <span className="text-sky-600 mt-1">📍</span>
                                     PCOF Headquarters<br />
-                                    123 Faith Avenue<br />
-                                    Nairobi, Kenya
+                                    B8 Kilifi-Malindi Road<br />
+                                    Matsangoni, Kenya
                                 </p>
                                 <p className="flex items-start gap-2">
                                     <span className="text-sky-600 mt-1">✉️</span>
