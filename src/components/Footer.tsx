@@ -12,7 +12,7 @@ export default function Footer() {
                         <span className="text-red-500">❤️</span>
                         <span>by</span>
                         <a
-                            href="https://techresolute.com"
+                            href="https://tech-resolute.vercel.app/"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-sky-600 hover:text-sky-700 font-medium transition-colors"
