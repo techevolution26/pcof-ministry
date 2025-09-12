@@ -135,8 +135,9 @@ export default async function Home() {
               Pentecostal Church One Faith Ministry— PCOF
             </h1>
             <p className="mt-4 text-lg max-w-2xl">
-              We gather in Compassion, Love &amp; Service. Join a local fellowship, watch a sermons, or partner with us to serve the community.
-            </p>
+              Rooted in Scripture and united in Spirit, Pentecostal Church One Faith (PCOF) is a cooperative fellowship of Spirit-baptized believers committed to building the body of Christ (Ephesians 4:5).
+              We gather for worship, teaching, mutual encouragement, and the exercise of spiritual gifts — sending out evangelists and missionaries,
+              supporting pastoral oversight, and serving our communities with compassion </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
               <Link href="/churches" className="inline-block px-4 py-2 bg-white text-sky-700 rounded-full shadow-md font-medium transition-transform hover:-translate-y-0.5">

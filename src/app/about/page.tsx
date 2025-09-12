@@ -15,13 +15,13 @@ export default async function AboutPage() {
             <div className="container mx-auto px-4">
                 {/* HERO */}
                 <header className="mb-12 text-center">
-                     <div className="flex justify-center mb-4">
-                                <div className="w-16 h-16 flex items-center justify-center bg-green-50 rounded-full border border-green-100">
-                                  <Image src="/pcof.jpeg" alt="PCOF Logo" width={60} height={60} className="rounded-full" />
-                                </div>
-                              </div>
+                    <div className="flex justify-center mb-4">
+                        <div className="w-16 h-16 flex items-center justify-center bg-green-50 rounded-full border border-green-100">
+                            <Image src="/pcof.jpeg" alt="PCOF Logo" width={60} height={60} className="rounded-full" />
+                        </div>
+                    </div>
                     <h1 className="text-4xl font-bold text-slate-800 mb-4 flex items-center justify-center gap-2">
-                        <span className="text-sky-600">⛪</span> About Pentecostal Church One Faith (PCOF) 
+                        <span className="text-sky-600">⛪</span> About Pentecostal Church One Faith (PCOF)
                     </h1>
                     <p className="text-lg text-slate-600 max-w-3xl mx-auto">
                         PCOF is a fellowship of churches united to proclaim the Gospel, serve communities, and disciple believers through worship, teaching and outreach.
@@ -43,7 +43,8 @@ export default async function AboutPage() {
                             <span>🎯</span> Mission
                         </div>
                         <div className="font-bold text-lg text-slate-800 mb-3">Make disciples & serve the community</div>
-                        <p className="text-slate-600">We are committed to evangelism, discipleship and compassionate outreach.</p>
+                        <p className="text-slate-600">Our mission is to make a difference in the lives of people by connecting them with a transforming
+                            experience of the Grace of Jesus Christ through worship, evangelism, discipleship and fellowship.</p>
                     </div>
 
                     <div className="bg-white rounded-2xl shadow-md p-6 border border-green-100">
@@ -51,7 +52,8 @@ export default async function AboutPage() {
                             <span>👁️</span> Vision
                         </div>
                         <div className="font-bold text-lg text-slate-800 mb-3">A unified, Spirit-filled movement</div>
-                        <p className="text-slate-600">To see transformed lives, flourishing churches and renewed communities.</p>
+                        <p className="text-slate-600">To be truly Apostolic in our love towards Jesus Christ and His Word with a sincere burden for others
+                            in principals, practice, power and purpose.</p>
                     </div>
 
                     <div className="bg-white rounded-2xl shadow-md p-6 border border-green-100">
@@ -184,7 +186,7 @@ export default async function AboutPage() {
                             </p>
                             <p className="flex items-start gap-2">
                                 <span className="text-sky-600 mt-1">📱</span>
-                                Phone: <a href="tel:+254700000000" className="text-sky-600 hover:text-sky-700 underline">+254 700 000 000</a>
+                                Phone: <a href="tel:+254700000000" className="text-sky-600 hover:text-sky-700 underline">+254 722 880 683/ 0711808071</a>
                             </p>
                         </div>
                     </div>
