@@ -1,88 +1,42 @@
-// src/types/index.ts
-export type ID = string
-
-export type Church = {
-  id: ID
-  slug?: string
-  name: string
-  tagline?: string
-  address?: string
-  location?: string
-  locationUrl?: string
-  website?: string
-  serviceTimes?: string
-  description?: string
-  pastor?: string
-  logoUrl?: string
-  phone?: string
+export type User = {
+  id: number | string
+  name?: string
   email?: string
-  createdAt?: string
-  [key: string]: unknown
-
+  role?: string
 }
 
-export type Sermon = {
-  id: ID
-  title: string
-  speaker?: string
-  date?: string
-  mediaUrl?: string
-  summary?: string
-  description?: string
-  transcript?: string
-  tags?: string[]
-  [key: string]: unknown
+export type Church = {
+  id: string | number
+  name: string
+  slug?: string
+  address?: string
+  pastor?: string
+  email?: string
+  phone?: string
+  logoUrl?: string
+  serviceTimes?: string[] | null
+  description?: string | null
 }
 
 export type EventItem = {
-  id: ID
+  id: string | number
   title: string
-  startsAt?: string
-  endsAt?: string
-  address?: string
-  location?: string
-  locationUrl?: string
-  host?: string
-  tags?: string[]
-  online?: boolean
-  capacity?: number
-  description?: string
-  [key: string]: unknown
+  startsAt?: string | null
+  endsAt?: string | null
+  location?: string | null
+  locationUrl?: string | null
+  host?: string | null
+  tags?: string[] | null
+  image?: string | null
+  capacity?: number | null
+  description?: string | null
 }
 
-export type Leader = {
-  id: ID
-  name: string
+export type Sermon = {
+  id: string | number
   title?: string
-  bio?: string
-  photo?: string
-  contact?: { email?: string; phone?: string }
-  [key: string]: unknown
-}
-
-export type Audit = {
-  id: ID
-  action?: string
-  resource?: string
-  createdAt?: string
-  [key: string]: unknown
-}
-
-export type DonationRecord = {
-  id: ID
-  customer_email?: string
-  amount_total?: number
-  currency?: string
-  metadata?: Record<string, string>
-  payment_status?: string
-  createdAt?: string
-  [key: string]: unknown
-}
-
-export type RSVP = {
-  id: ID
-  name: string
-  email: string
-  createdAt?: string
-  [key: string]: unknown
+  speaker?: string
+  date?: string
+  summary?: string
+  mediaUrl?: string
 }

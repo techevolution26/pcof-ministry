@@ -1,73 +1,34 @@
 // src/lib/api.ts
-import fs from 'fs'
-import path from 'path'
+const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1'
 
-
-async function readJsonFromPublic(filename: string) {
-    const file = path.join(process.cwd(), 'public', 'data', filename)
-    const raw = await fs.promises.readFile(file, 'utf8')
-    return JSON.parse(raw)
+async function safeJson(res: Response){
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
 }
 
-
-export async function fetchChurches() {
-    // Server (Node) can read directly from the filesystem.
-    if (typeof window === 'undefined') {
-        return await readJsonFromPublic('churches.json')
-    }
-
-
-    // Client fallback: fetch from the public URL (cacheable)
-    const res = await fetch('/data/churches.json', { cache: 'force-cache' })
-    if (!res.ok) throw new Error('Failed to load churches')
-    return res.json()
+export async function fetchChurches(query = '') {
+  const q = query ? `?q=${encodeURIComponent(query)}` : ''
+  const res = await fetch(`${BASE}/churches${q}`, { cache: 'force-cache' })
+  return safeJson(res)
 }
 
-
-export async function fetchSermons() {
-    if (typeof window === 'undefined') {
-        return await readJsonFromPublic('sermons.json')
-    }
-
-
-    const res = await fetch('/data/sermons.json', { cache: 'force-cache' })
-    if (!res.ok) throw new Error('Failed to load sermons')
-    return res.json()
+export async function fetchChurch(id: string) {
+  const res = await fetch(`${BASE}/churches/${id}`, { cache: 'force-cache' })
+  return safeJson(res)
 }
-
 
 export async function fetchEvents() {
-    if (typeof window === 'undefined') {
-        return await readJsonFromPublic('events.json')
-    }
+  const res = await fetch(`${BASE}/events`, { cache: 'force-cache' })
+  return safeJson(res)
+}
 
-
-    const res = await fetch('/data/events.json', { cache: 'force-cache' })
-    if (!res.ok) throw new Error('Failed to load events')
-    return res.json()
+export async function fetchSermons() {
+  const res = await fetch(`${BASE}/sermons`, { cache: 'force-cache' })
+  return safeJson(res)
 }
 
 export async function fetchLeadership() {
-    // server: read from file system (fast, reliable during SSR)
-    if (typeof window === 'undefined') {
-        const file = path.join(process.cwd(), 'public', 'data', 'leadership.json')
-        try {
-            const raw = await fs.promises.readFile(file, 'utf8')
-            return JSON.parse(raw)
-        } catch (err) {
-            console.error('fetchLeadership error (server):', err)
-            return []
-        }
-    }
-
-
-    // client: fetch from the public folder
-    try {
-        const res = await fetch('/data/leadership.json', { cache: 'force-cache' })
-        if (!res.ok) throw new Error('Failed to fetch leadership.json')
-        return res.json()
-    } catch (err) {
-        console.error('fetchLeadership error (client):', err)
-        return []
-    }
+  // if leadership is stored as part of DB, expose via /churches or a /leadership endpoint.
+  const res = await fetch(`${BASE}/leadership`, { cache: 'force-cache' }).catch(() => null)
+  return res ? safeJson(res) : []
 }
