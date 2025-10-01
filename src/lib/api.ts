@@ -1,34 +1,19 @@
-// src/lib/api.ts
-const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api/v1'
+// src/lib/api.ts (SERVER only; used from Server Components)
+const BACKEND = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000';
 
-async function safeJson(res: Response){
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  return res.json()
+async function serverFetch<T>(path: string, revalidateSeconds = 60): Promise<T> {
+  const url = path.startsWith('http') ? path : `${BACKEND}${path.startsWith('/') ? path : `/${path}`}`;
+  const res = await fetch(url, { headers: { Accept: 'application/json' }, next: { revalidate: revalidateSeconds } });
+  if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`);
+  return (await res.json()) as T;
 }
 
-export async function fetchChurches(query = '') {
-  const q = query ? `?q=${encodeURIComponent(query)}` : ''
-  const res = await fetch(`${BASE}/churches${q}`, { cache: 'force-cache' })
-  return safeJson(res)
-}
-
-export async function fetchChurch(id: string) {
-  const res = await fetch(`${BASE}/churches/${id}`, { cache: 'force-cache' })
-  return safeJson(res)
-}
-
-export async function fetchEvents() {
-  const res = await fetch(`${BASE}/events`, { cache: 'force-cache' })
-  return safeJson(res)
-}
-
-export async function fetchSermons() {
-  const res = await fetch(`${BASE}/sermons`, { cache: 'force-cache' })
-  return safeJson(res)
-}
-
-export async function fetchLeadership() {
-  // if leadership is stored as part of DB, expose via /churches or a /leadership endpoint.
-  const res = await fetch(`${BASE}/leadership`, { cache: 'force-cache' }).catch(() => null)
-  return res ? safeJson(res) : []
-}
+export async function fetchChurches() { return serverFetch<any[]>('/api/admin/churches', 60); }
+export async function fetchSermons() { return serverFetch<any[]>('/api/admin/sermons', 60); }
+export async function fetchEvents() { return serverFetch<any[]>('/api/admin/events', 60); }
+export async function fetchMembers() { return serverFetch<any[]>('/api/admin/members', 60); }
+export async function fetchMember(id: string | number) { return serverFetch<any>(`/api/admin/members/${id}`, 60); }
+export async function fetchFinanceSummary() { return serverFetch<any>('/api/admin/finance/summary', 300); }
+export async function fetchAdminSummary() { return serverFetch<any>('/api/admin/summary', 300); }  //here
+export async function fetchAdminUserProfile() { return serverFetch<any>('/api/admin/profile', 300); }
+export async function fetchAdminUsers(filter = 'all') { return serverFetch<any[]>(`/api/admin/users?filter=${filter}`, 60); }
