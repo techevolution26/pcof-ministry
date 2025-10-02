@@ -163,6 +163,10 @@ export async function apiDelete(path: string) {
 export async function fetchChurchById(id: string | number) {
   return apiGet(`/api/admin/churches/${id}`);
 }
+export async function fetchChurches() {
+
+  return apiGet('/api/admin/churches');
+}
 export async function createChurch(payload: any) {
   return apiPost(`/api/admin/churches`, payload);
 }
@@ -242,5 +246,170 @@ export async function createRole(payload: any) { return apiPost('/api/admin/role
 export async function updateRole(id: string | number, payload: any) { return apiPut(`/api/admin/roles/${id}`, payload); }
 export async function deleteRole(id: string | number) { return apiDelete(`/api/admin/roles/${id}`); }
 
+/* Events */
+// export async function fetchAdminEvents(params: { q?: string; church_id?: string | number; page?: number } = {}) {
+//   const qs = new URLSearchParams()
+//   if (params.q) qs.set('q', String(params.q))
+//   if (params.church_id) qs.set('church_id', String(params.church_id))
+//   if (params.page) qs.set('page', String(params.page))
+//   const path = `/api/admin/events${qs.toString() ? `?${qs.toString()}` : ''}`
+//   return apiGet(path)
+// }
 
-export default { getAdminToken, setAdminToken, clearAdminToken, getAdminUser, setAdminUser, verifyAdmin, login, register, logout, apiGet, apiPost, apiPut };
+// export async function fetchAdminEventById(id: string | number) {
+//   return apiGet(`/api/admin/events/${id}`)
+// }
+
+// export async function createAdminEvent(payload: any) {
+//   // file upload suppor different implementation using FormData.
+//   return apiPost('/api/admin/events', payload)
+// }
+
+// export async function updateAdminEvent(id: string | number, payload: any) {
+//   return apiPut(`/api/admin/events/${id}`, payload)
+// }
+
+// export async function deleteAdminEvent(id: string | number) {
+//   return apiDelete(`/api/admin/events/${id}`)
+// }
+
+// Events (JSON and FormData flows)
+export async function fetchAdminEvents(params: { q?: string; church_id?: string | number; page?: number } = {}) {
+  const qs = new URLSearchParams()
+  if (params.q) qs.set('q', String(params.q))
+  if (params.church_id) qs.set('church_id', String(params.church_id))
+  if (params.page) qs.set('page', String(params.page))
+  const path = `/api/admin/events${qs.toString() ? `?${qs.toString()}` : ''}`
+  return apiGet(path)
+}
+
+export async function fetchAdminEventById(id: string | number) {
+  return apiGet(`/api/admin/events/${id}`)
+}
+
+export async function deleteAdminEvent(id: string | number) {
+  return fetchWithAuth(`/api/admin/events/${id}`, { method: 'DELETE' })
+}
+
+/**
+ * Create event using JSON (no image)
+ */
+export async function createAdminEvent(payload: any) {
+  return apiPost('/api/admin/events', payload)
+}
+
+/**
+ * Update event using JSON (no image)
+ */
+export async function updateAdminEvent(id: string | number, payload: any) {
+  return apiPut(`/api/admin/events/${id}`, payload)
+}
+
+/**
+ * Create event with FormData (supports file).
+ * If file present, use this; otherwise you can call createAdminEvent.
+ */
+export async function createAdminEventFormData(form: Record<string, any>, imageFile?: File | null) {
+  const fd = new FormData()
+  Object.entries(form).forEach(([k, v]) => {
+    // Skip undefined, null or empty strings — Laravel's nullable|exists can fail on ''.
+    if (v === undefined || v === null) return
+    if (typeof v === 'string' && v.trim() === '') return
+
+    // Normalize booleans to '1'/'0' (Laravel accepts these easily)
+    if (typeof v === 'boolean') {
+      fd.append(k, v ? '1' : '0')
+      return
+    }
+
+    // Objects (not File/Array) -> JSON
+    if (typeof v === 'object' && !(v instanceof File) && !Array.isArray(v)) {
+      try {
+        fd.append(k, JSON.stringify(v))
+      } catch {
+        // fallback to string
+        fd.append(k, String(v))
+      }
+      return
+    }
+
+    // Arrays -> append each value with key[] so Laravel can accept them
+    if (Array.isArray(v)) {
+      v.forEach(item => fd.append(`${k}[]`, typeof item === 'object' ? JSON.stringify(item) : String(item)))
+      return
+    }
+
+    fd.append(k, String(v))
+  })
+  if (imageFile) fd.append('image', imageFile)
+  // don't set headers so browser sets multipart/form-data
+  return fetchWithAuth('/api/admin/events', { method: 'POST', body: fd })
+}
+
+/**
+ * Update event with FormData. Laravel prefers PUT for the route; when sending multipart
+ * we use POST + _method=PUT for compatibility.
+ */
+export async function updateAdminEventFormData(id: string | number, form: Record<string, any>, imageFile?: File | null) {
+  const fd = new FormData()
+  Object.entries(form).forEach(([k, v]) => {
+    if (v === undefined || v === null) return
+    if (typeof v === 'string' && v.trim() === '') return
+
+    if (typeof v === 'boolean') {
+      fd.append(k, v ? '1' : '0')
+      return
+    }
+
+    if (typeof v === 'object' && !(v instanceof File) && !Array.isArray(v)) {
+      try {
+        fd.append(k, JSON.stringify(v))
+      } catch {
+        fd.append(k, String(v))
+      }
+      return
+    }
+
+    if (Array.isArray(v)) {
+      v.forEach(item => fd.append(`${k}[]`, typeof item === 'object' ? JSON.stringify(item) : String(item)))
+      return
+    }
+
+    fd.append(k, String(v))
+  })
+  if (imageFile) fd.append('image', imageFile)
+  // use POST + _method=PUT for compatibility with multipart PUTs
+  fd.append('_method', 'PUT')
+  return fetchWithAuth(`/api/admin/events/${id}`, { method: 'POST', body: fd })
+}
+
+
+
+/* Assemblies */
+export async function fetchAssemblies(params: { q?: string; church_id?: string | number } = {}) {
+  const qs = new URLSearchParams()
+  if (params.q) qs.set('q', String(params.q))
+  if (params.church_id) qs.set('church_id', String(params.church_id))
+  const path = `/api/admin/assemblies${qs.toString() ? `?${qs.toString()}` : ''}`
+  return apiGet(path)
+}
+
+export async function fetchAssemblyById(id: string | number) {
+  return apiGet(`/api/admin/assemblies/${id}`)
+}
+
+export async function createAssembly(payload: any) {
+  return apiPost('/api/admin/assemblies', payload)
+}
+
+export async function updateAssembly(id: string | number, payload: any) {
+  return apiPut(`/api/admin/assemblies/${id}`, payload)
+}
+
+export async function deleteAssembly(id: string | number) {
+  return apiDelete(`/api/admin/assemblies/${id}`)
+}
+
+
+const adminApi = { getAdminToken, setAdminToken, clearAdminToken, getAdminUser, setAdminUser, verifyAdmin, login, register, logout, apiGet, apiPost, apiPut };
+export default adminApi;

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAdminAuth } from '@/hooks/useAdminAuth' // your hook from earlier
 import DashboardWidgets from './dashboard-widgets'
+import AdminEventsMini from '@/components/AdminEventsMini'
 
 export default function AdminHome() {
   const router = useRouter()
@@ -54,6 +55,9 @@ export default function AdminHome() {
 
         <section className="mb-6">
           <DashboardWidgets key={user.id} />
+        </section>
+        <section className="mb-6">
+          <AdminEventsMini />
         </section>
 
         <section>

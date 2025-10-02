@@ -136,6 +136,20 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           >
             Finance
           </Link>
+          <Link
+            href="/admin/events"
+            className="flex items-center gap-2 p-2 rounded-md text-slate-700 hover:bg-slate-50 transition-colors"
+            onClick={() => setSidebarOpen(false)}
+          >
+            Events
+          </Link>
+          <Link
+            href="/admin/assemblies"
+            className="flex items-center gap-2 p-2 rounded-md text-slate-700 hover:bg-slate-50 transition-colors"
+            onClick={() => setSidebarOpen(false)}
+          >
+            Assemblies
+          </Link>
 
           <Link
             href="/admin/users"
