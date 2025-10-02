@@ -137,6 +137,21 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             Finance
           </Link>
 
+          <Link
+            href="/admin/users"
+            className="flex items-center gap-2 p-2 rounded-md text-slate-700 hover:bg-slate-50 transition-colors"
+            onClick={() => setSidebarOpen(false)}
+          >
+            Users
+          </Link>
+          <Link
+            href="/admin/roles"
+            className="flex items-center gap-2 p-2 rounded-md text-slate-700 hover:bg-slate-50 transition-colors"
+            onClick={() => setSidebarOpen(false)}
+          >
+            Roles
+          </Link>
+
           {/* sign out for desktop is in header, but keep here for larger tap targets */}
           <button
             onClick={() => {

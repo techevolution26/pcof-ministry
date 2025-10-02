@@ -217,4 +217,30 @@ export async function fetchChurchFinanceSummary(churchId: string | number) {
   return apiGet(`/api/admin/finance/summary?church_id=${churchId}`);
 }
 
+export async function fetchAdminUsers(filter = 'all') {
+  return apiGet(`/api/admin/users?filter=${encodeURIComponent(filter)}`);
+}
+export async function fetchAdminUser(id: string | number) {
+  return apiGet(`/api/admin/users/${id}`);
+}
+export async function approveUser(id: string | number) {
+  return apiPost(`/api/admin/users/${id}/approve`);
+}
+export async function revokeUser(id: string | number) {
+  return apiPost(`/api/admin/users/${id}/revoke`);
+}
+export async function assignRoleToUser(userId: string | number, role: string) {
+  return apiPost(`/api/admin/users/${userId}/roles`, { role });
+}
+export async function removeRoleFromUser(userId: string | number, role: string) {
+  return apiDelete(`/api/admin/users/${userId}/roles/${encodeURIComponent(role)}`);
+}
+
+/* Roles endpoints */
+export async function fetchRoles() { return apiGet('/api/admin/roles'); }
+export async function createRole(payload: any) { return apiPost('/api/admin/roles', payload); }
+export async function updateRole(id: string | number, payload: any) { return apiPut(`/api/admin/roles/${id}`, payload); }
+export async function deleteRole(id: string | number) { return apiDelete(`/api/admin/roles/${id}`); }
+
+
 export default { getAdminToken, setAdminToken, clearAdminToken, getAdminUser, setAdminUser, verifyAdmin, login, register, logout, apiGet, apiPost, apiPut };
