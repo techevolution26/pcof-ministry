@@ -155,4 +155,66 @@ export async function fetchAdminFinanceSummary(): Promise<any> {
   return apiGet('/api/admin/finance/summary');
 }
 
+export async function apiDelete(path: string) {
+  return fetchWithAuth(path, { method: 'DELETE' });
+}
+
+/** Churches */
+export async function fetchChurchById(id: string | number) {
+  return apiGet(`/api/admin/churches/${id}`);
+}
+export async function createChurch(payload: any) {
+  return apiPost(`/api/admin/churches`, payload);
+}
+export async function updateChurch(id: string | number, payload: any) {
+  return apiPut(`/api/admin/churches/${id}`, payload);
+}
+export async function deleteChurch(id: string | number) {
+  return apiDelete(`/api/admin/churches/${id}`);
+}
+
+/** Members */
+export async function fetchMemberById(id: string | number) {
+  return apiGet(`/api/admin/members/${id}`);
+}
+export async function createMember(payload: any) {
+  return apiPost(`/api/admin/members`, payload);
+}
+export async function updateMember(id: string | number, payload: any) {
+  return apiPut(`/api/admin/members/${id}`, payload);
+}
+export async function deleteMember(id: string | number) {
+  return apiDelete(`/api/admin/members/${id}`);
+}
+export async function fetchChurchesList() {
+  const body = await apiGet('/api/admin/churches?per_page=100');
+  // backend often returns { data: [...] } when paginated
+  return Array.isArray(body) ? body : (body?.data ?? []);
+}
+
+// export async function fetchChurchById(id: string | number) {
+//   return apiGet(`/api/admin/churches/${id}`);
+// }
+
+/** Lists filtered by church_id. Many admin endpoints return paginated { data: [...] } or array. */
+export async function fetchChurchMembers(churchId: string | number) {
+  return apiGet(`/api/admin/members?church_id=${churchId}`);
+}
+export async function fetchChurchAssets(churchId: string | number) {
+  return apiGet(`/api/admin/assets?church_id=${churchId}`);
+}
+export async function fetchChurchEvents(churchId: string | number) {
+  return apiGet(`/api/admin/events?church_id=${churchId}`);
+}
+
+/** Payments / collections endpoints (list + summary) */
+export async function fetchChurchPayments(churchId: string | number) {
+  // backend: FinanceController::payments(Request $r) -> probably /api/admin/finance/payments
+  return apiGet(`/api/admin/payments?church_id=${churchId}`);
+}
+export async function fetchChurchFinanceSummary(churchId: string | number) {
+  // backend: FinanceController::adminSummary or summary -> we used /api/admin/finance/summary earlier
+  return apiGet(`/api/admin/finance/summary?church_id=${churchId}`);
+}
+
 export default { getAdminToken, setAdminToken, clearAdminToken, getAdminUser, setAdminUser, verifyAdmin, login, register, logout, apiGet, apiPost, apiPut };

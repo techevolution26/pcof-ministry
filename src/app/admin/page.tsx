@@ -20,24 +20,15 @@ export default function AdminHome() {
   // show loader while verifying (avoid flash)
   if (isLoading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
+      <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="text-center">
           <div
-            className="mb-3 mx-auto"
-            style={{
-              width: 36,
-              height: 36,
-              border: '3px solid rgba(0,0,0,0.08)',
-              borderTopColor: '#6366f1',
-              borderRadius: '50%',
-              animation: 'spin 0.8s linear infinite'
-            }}
+            role="status"
+            aria-live="polite"
+            className="mx-auto mb-3 w-9 h-9 rounded-full border-4 border-gray-200 border-t-indigo-600 animate-spin"
           />
-          <div className="text-sm text-gray-500">Verifying admin session…</div>
-
-          <style>{`
-            @keyframes spin { to { transform: rotate(360deg) } }
-          `}</style>
+          <div className="text-sm text-gray-500 dark:text-gray-400">Verifying admin session…</div>
+          <span className="sr-only">Loading</span>
         </div>
       </div>
     )
@@ -48,26 +39,71 @@ export default function AdminHome() {
 
   // authenticated UI
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Admin dashboard</h1>
-      <DashboardWidgets
-        key={user.id} // reset if user changes (login/logout/switch)
-      />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Link href="/admin/churches" className="p-6 bg-white rounded-2xl shadow-sm hover:shadow-md">
-          <div className="text-sm text-gray-500">Churches</div>
-          <div className="mt-2 text-2xl font-semibold">Manage churches</div>
-        </Link>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-gray-100">
+              Admin dashboard
+            </h1>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Manage churches, members and finances
+            </p>
+          </div>
+        </header>
 
-        <Link href="/admin/members" className="p-6 bg-white rounded-2xl shadow-sm hover:shadow-md">
-          <div className="text-sm text-gray-500">Members</div>
-          <div className="mt-2 text-2xl font-semibold">Manage members</div>
-        </Link>
+        <section className="mb-6">
+          <DashboardWidgets key={user.id} />
+        </section>
 
-        <Link href="/admin/finance" className="p-6 bg-white rounded-2xl shadow-sm hover:shadow-md">
-          <div className="text-sm text-gray-500">Finance</div>
-          <div className="mt-2 text-2xl font-semibold">Collections & Tithes</div>
-        </Link>
+        <section>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
+            <Link
+              href="/admin/churches"
+              className="group block p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-200 border border-transparent hover:border-gray-100 dark:hover:border-gray-700"
+            >
+              <div className="flex flex-col h-full">
+                <div className="text-sm text-gray-500 dark:text-gray-400">Churches</div>
+                <div className="mt-3 text-2xl font-semibold text-gray-900 dark:text-gray-100">Manage churches</div>
+                <div className="mt-auto pt-4">
+                  <span className="inline-flex items-center text-indigo-600 dark:text-indigo-400 text-sm font-medium group-hover:underline">
+                    Open
+                  </span>
+                </div>
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/members"
+              className="group block p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-200 border border-transparent hover:border-gray-100 dark:hover:border-gray-700"
+            >
+              <div className="flex flex-col h-full">
+                <div className="text-sm text-gray-500 dark:text-gray-400">Members</div>
+                <div className="mt-3 text-2xl font-semibold text-gray-900 dark:text-gray-100">Manage members</div>
+                <div className="mt-auto pt-4">
+                  <span className="inline-flex items-center text-indigo-600 dark:text-indigo-400 text-sm font-medium group-hover:underline">
+                    Open
+                  </span>
+                </div>
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/finance"
+              className="group block p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-200 border border-transparent hover:border-gray-100 dark:hover:border-gray-700"
+            >
+              <div className="flex flex-col h-full">
+                <div className="text-sm text-gray-500 dark:text-gray-400">Finance</div>
+                <div className="mt-3 text-2xl font-semibold text-gray-900 dark:text-gray-100">Collections &amp; Tithes</div>
+                <div className="mt-auto pt-4">
+                  <span className="inline-flex items-center text-indigo-600 dark:text-indigo-400 text-sm font-medium group-hover:underline">
+                    Open
+                  </span>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </section>
       </div>
     </div>
   )

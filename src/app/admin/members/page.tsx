@@ -2,7 +2,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { apiGet } from '@/lib/adminApi'
+import { apiGet, deleteMember } from '@/lib/adminApi'
 
 export default function AdminMembersPage() {
   const [members, setMembers] = useState<any[]>([])
@@ -29,6 +29,16 @@ export default function AdminMembersPage() {
     return () => { mounted = false }
   }, [])
 
+  async function handleDelete(id: number | string) {
+    if (!confirm('Delete this member?')) return
+    try {
+      await deleteMember(id)
+      setMembers(prev => prev.filter(m => String(m.id) !== String(id)))
+    } catch (err: any) {
+      alert(err?.message ?? 'Delete failed')
+    }
+  }
+
   if (loading) return <div>Loading members…</div>
   if (error) return <div className="text-red-600">{error}</div>
 
@@ -49,8 +59,9 @@ export default function AdminMembersPage() {
               <th className="p-3">#</th>
               <th className="p-3">Name</th>
               <th className="p-3">Phone</th>
-              <th className="p-3">Assembly</th>
+              <th className="p-3">Church</th>
               <th className="p-3">Status</th>
+              <th className="p-3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -59,11 +70,17 @@ export default function AdminMembersPage() {
                 <td className="p-3">{m.member_number ?? m.id}</td>
                 <td className="p-3">{m.first_name} {m.last_name}</td>
                 <td className="p-3">{m.phone}</td>
-                <td className="p-3">{m.assembly_id ?? '—'}</td>
+                <td className="p-3">{m.church?.name ?? '—'}</td>
                 <td className="p-3">{m.is_active ? 'Active' : 'Inactive'}</td>
+                <td className="p-3">
+                  <div className="flex gap-2">
+                    <Link href={`/admin/members/${m.id}/edit`} className="text-sky-600">Edit</Link>
+                    <button onClick={() => handleDelete(m.id)} className="text-red-600">Delete</button>
+                  </div>
+                </td>
               </tr>
             ))}
-            {members.length === 0 && <tr><td colSpan={5} className="p-4 text-gray-500">No members yet.</td></tr>}
+            {members.length === 0 && <tr><td colSpan={6} className="p-4 text-gray-500">No members yet.</td></tr>}
           </tbody>
         </table>
       </div>
