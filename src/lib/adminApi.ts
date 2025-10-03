@@ -147,12 +147,12 @@ export async function apiPut(path: string, body?: any) { return fetchWithAuth(pa
 
 export async function fetchAdminSummary(): Promise<any> {
   // returns whatever /api/admin/summary returns (object)
-  return apiGet('/api/admin/summary');
+  return apiGet('/api/admin/summarized');
 }
 
 export async function fetchAdminFinanceSummary(): Promise<any> {
   // returns whatever /api/admin/finance/summary returns (object)
-  return apiGet('/api/admin/finance/summary');
+  return apiGet('/api/admin/finance');
 }
 
 export async function apiDelete(path: string) {
