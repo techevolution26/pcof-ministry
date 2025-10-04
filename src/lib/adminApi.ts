@@ -410,6 +410,65 @@ export async function deleteAssembly(id: string | number) {
   return apiDelete(`/api/admin/assemblies/${id}`)
 }
 
+// Departments
+export async function fetchDepartments(params: { q?: string; church_id?: string | number; page?: number } = {}) {
+  const qs = new URLSearchParams()
+  if (params.q) qs.set('q', String(params.q))
+  if (params.church_id) qs.set('church_id', String(params.church_id))
+  if (params.page) qs.set('page', String(params.page))
+  const path = `/api/admin/departments${qs.toString() ? `?${qs.toString()}` : ''}`
+  return apiGet(path)
+}
+export async function fetchDepartmentById(id: string | number) { return apiGet(`/api/admin/departments/${id}`) }
+export async function createDepartment(payload: any) { return apiPost('/api/admin/departments', payload) }
+export async function updateDepartment(id: string | number, payload: any) { return apiPut(`/api/admin/departments/${id}`, payload) }
+export async function deleteDepartment(id: string | number) { return apiDelete(`/api/admin/departments/${id}`) }
+
+// Designations
+export async function fetchDesignations() { return apiGet('/api/admin/designations') }
+export async function fetchDesignationById(id: string | number) { return apiGet(`/api/admin/designations/${id}`) }
+export async function createDesignation(payload: any) { return apiPost('/api/admin/designations', payload) }
+export async function updateDesignation(id: string | number, payload: any) { return apiPut(`/api/admin/designations/${id}`, payload) }
+export async function deleteDesignation(id: string | number) { return apiDelete(`/api/admin/designations/${id}`) }
+
+export async function fetchDesignationsList() {
+  const body = await apiGet('/api/admin/designations?per_page=100');
+  return Array.isArray(body) ? body : (body?.data ?? []);
+}
+
+// Ministers
+export async function fetchMinisters(params: { q?: string; church_id?: string | number; department_id?: string | number, page?: number } = {}) {
+  const qs = new URLSearchParams()
+  if (params.q) qs.set('q', String(params.q))
+  if (params.church_id) qs.set('church_id', String(params.church_id))
+  if (params.department_id) qs.set('department_id', String(params.department_id))
+  if (params.page) qs.set('page', String(params.page))
+  return apiGet(`/api/admin/ministers${qs.toString() ? `?${qs.toString()}` : ''}`)
+}
+export async function fetchMinisterById(id: string | number) { return apiGet(`/api/admin/ministers/${id}`) }
+export async function createMinister(payload: any) { return apiPost('/api/admin/ministers', payload) }
+export async function updateMinister(id: string | number, payload: any) { return apiPut(`/api/admin/ministers/${id}`, payload) }
+export async function deleteMinister(id: string | number) { return apiDelete(`/api/admin/ministers/${id}`) }
+
+/* Members search for typeahead */
+export async function searchMembers(q = '', per_page = 10) {
+  const qs = new URLSearchParams();
+  if (q) qs.set('q', String(q));
+  qs.set('per_page', String(per_page));
+  const path = `/api/admin/members${qs.toString() ? `?${qs.toString()}` : ''}`;
+  const body = await apiGet(path);
+  // paginated backend returns { data: [...] }
+  return Array.isArray(body) ? body : (body?.data ?? []);
+}
+
+export async function searchMembersByQuery(q: string, limit = 10) {
+  // adjust the backend endpoint to support q param, e.g. /api/admin/members/search?q=...
+  const res = await apiGet(`/api/admin/members?per_page=${limit}&q=${encodeURIComponent(q)}`)
+  // backend returns paginated { data: [...] } — normalize to array
+  return Array.isArray(res) ? res : (res?.data ?? [])
+}
+
+
 
 const adminApi = { getAdminToken, setAdminToken, clearAdminToken, getAdminUser, setAdminUser, verifyAdmin, login, register, logout, apiGet, apiPost, apiPut };
 export default adminApi;

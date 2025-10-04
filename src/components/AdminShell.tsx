@@ -150,6 +150,27 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           >
             Assemblies
           </Link>
+          <Link
+            href="/admin/departments"
+            className="flex items-center gap-2 p-2 rounded-md text-slate-700 hover:bg-slate-50 transition-colors"
+            onClick={() => setSidebarOpen(false)}
+          >
+            Departments
+          </Link>
+          <Link
+            href="/admin/designations"
+            className="flex items-center gap-2 p-2 rounded-md text-slate-700 hover:bg-slate-50 transition-colors"
+            onClick={() => setSidebarOpen(false)}
+          >
+            Designations
+          </Link>
+          <Link
+            href="/admin/ministers"
+            className="flex items-center gap-2 p-2 rounded-md text-slate-700 hover:bg-slate-50 transition-colors"
+            onClick={() => setSidebarOpen(false)}
+          >
+            Ministers
+          </Link>
 
           <Link
             href="/admin/users"
