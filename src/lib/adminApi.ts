@@ -419,6 +419,18 @@ export async function fetchDepartments(params: { q?: string; church_id?: string 
   const path = `/api/admin/departments${qs.toString() ? `?${qs.toString()}` : ''}`
   return apiGet(path)
 }
+
+export async function fetchDepartmentsList(params?: { church_id?: string | number }) {
+  const qs = new URLSearchParams();
+  qs.set('per_page', '100');
+  if (params?.church_id) {
+    qs.set('church_id', String(params.church_id));
+  }
+  const url = `/api/admin/departments?${qs.toString()}`;
+  const body = await apiGet(url);
+  return Array.isArray(body) ? body : (body?.data ?? []);
+}
+
 export async function fetchDepartmentById(id: string | number) { return apiGet(`/api/admin/departments/${id}`) }
 export async function createDepartment(payload: any) { return apiPost('/api/admin/departments', payload) }
 export async function updateDepartment(id: string | number, payload: any) { return apiPut(`/api/admin/departments/${id}`, payload) }
@@ -466,6 +478,22 @@ export async function searchMembersByQuery(q: string, limit = 10) {
   const res = await apiGet(`/api/admin/members?per_page=${limit}&q=${encodeURIComponent(q)}`)
   // backend returns paginated { data: [...] } — normalize to array
   return Array.isArray(res) ? res : (res?.data ?? [])
+}
+
+/** Public (no-auth) API: fetch churches for typeahead (not admin-only) */
+export async function fetchPublicChurches(params: { q?: string; limit?: number } = {}) {
+  const qs = new URLSearchParams();
+  if (params.q) qs.set('q', String(params.q));
+  if (params.limit) qs.set('limit', String(params.limit));
+  const url = `/api/churches${qs.toString() ? `?${qs.toString()}` : ''}`;
+  // NOTE: use native fetch without auth so it hits public endpoint
+  const res = await fetch((url.startsWith('http') ? url : `${BASE}${url.startsWith('/') ? url : `/${url}`}`), {
+    headers: { Accept: 'application/json' },
+    credentials: 'same-origin',
+  });
+  const body = await parseJsonSafe(res);
+  if (!res.ok) throw { status: res.status, message: body?.message ?? res.statusText, response: body };
+  return Array.isArray(body) ? body : (body?.data ?? []);
 }
 
 

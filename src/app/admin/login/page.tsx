@@ -1,10 +1,9 @@
-// src/app/admin/login/page.tsx
 'use client'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { login } from '@/lib/adminApi'
 import Link from 'next/link'
-import { setAdminToken } from '@/lib/adminApi'
+import { login, verifyAdmin as apiVerifyAdmin } from '@/lib/adminApi'
+import { setAdminUser } from '@/lib/adminApi'
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -13,29 +12,43 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // in your admin login page (client component)
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setLoading(true);
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
     try {
-      const res = await login(email, password); // login from adminApi (await)
-      if (!res?.token) {
-        postMessage('Account created or inactive — awaiting approval.');
-        return;
+      // login() will save token on success (your adminApi.login should call setAdminToken)
+      const res = await login(email, password)
+      // if server issued token, verify and hydrate user before navigating
+      if (res?.token) {
+        try {
+          const verified = await apiVerifyAdmin()
+          if (verified) {
+            // optional: set local storage user if your verify returns user
+            try { setAdminUser(verified) } catch { }
+            router.replace('/admin')
+            return
+          }
+        } catch (err) {
+          // verification failed; fallthrough to error display
+          setError('Verification failed after login.')
+          return
+        }
       }
-      // token already saved by login(); now redirect
-      router.replace('/admin');
-    } catch (err) {
-      // handle errors
+
+      // If login returned no token (e.g. pending approval), show message
+      setError(res?.message ?? 'Login did not return a token. Account may be pending approval.')
+    } catch (err: any) {
+      setError(err?.message ?? 'Sign in failed')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
-
   return (
-    <div className="min-h-[70vh] flex items-center justify-center">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+    <div className="min-h-[70vh] flex items-center justify-center bg-slate-50">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow p-8">
         <h1 className="text-2xl font-bold mb-1">Admin sign in</h1>
         <p className="text-sm text-gray-500 mb-6">Sign in with your admin credentials.</p>
 
@@ -56,7 +69,7 @@ export default function AdminLoginPage() {
             <button type="submit" disabled={loading} className="flex-1 px-4 py-3 rounded-2xl bg-indigo-600 text-white">
               {loading ? 'Signing in…' : 'Sign in'}
             </button>
-            <Link href="/" className="text-sm text-gray-600">Back</Link>
+            <Link href="/admin/register" className="text-sm text-gray-600">Register</Link>
           </div>
         </form>
       </div>

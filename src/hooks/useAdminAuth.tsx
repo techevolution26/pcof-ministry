@@ -2,19 +2,17 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { getAdminUser, setAdminUser, getAdminToken, verifyAdmin as apiVerifyAdmin, logout as apiLogout } from '@/lib/adminApi'
+import { getAdminUser, setAdminUser, verifyAdmin as apiVerifyAdmin, logout as apiLogout } from '@/lib/adminApi'
 
-export function useAdminAuth(options?: { redirectTo?: string, requireRole?: string }) {
-  const router = useRouter()
-  const redirectTo = options?.redirectTo ?? '/admin/login'
+export function useAdminAuth(options?: { requireRole?: string }) {
   const requireRole = options?.requireRole
+  const router = useRouter()
 
-  // initial user from localStorage if any — this prevents flicker of null -> user on the client,
-  // but we still verify on mount.
+  // hydrate from localStorage to avoid flash
   const [user, setUser] = useState<any | null>(() => {
     try { return typeof window !== 'undefined' ? getAdminUser() : null } catch { return null }
   })
-  const [isLoading, setIsLoading] = useState<boolean>(user ? true : true) // always verify once
+  const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
     let mounted = true
@@ -23,19 +21,16 @@ export function useAdminAuth(options?: { redirectTo?: string, requireRole?: stri
       try {
         const verified = await apiVerifyAdmin()
         if (!mounted) return
-        // verified is the user object if token ok, null otherwise
         if (!verified) {
           setUser(null)
+          setAdminUser(null)
           setIsLoading(false)
-          // redirect to login
-          router.replace(redirectTo)
           return
         }
-        if (requireRole && verified.role && verified.role !== requireRole) {
-          // not allowed
+        if (requireRole && verified.role !== requireRole) {
           setUser(null)
+          setAdminUser(null)
           setIsLoading(false)
-          router.replace(redirectTo)
           return
         }
         setUser(verified)
@@ -44,19 +39,19 @@ export function useAdminAuth(options?: { redirectTo?: string, requireRole?: stri
       } catch (err) {
         if (!mounted) return
         setUser(null)
+        setAdminUser(null)
         setIsLoading(false)
-        router.replace(redirectTo)
       }
     }
     init()
     return () => { mounted = false }
-  }, [redirectTo, requireRole, router])
+  }, [requireRole])
 
   const logout = useCallback(async () => {
-    try { await apiLogout() } catch { }
-    // clear client state
+    try { await apiLogout() } catch { /* ignore */ }
     setUser(null)
     try { setAdminUser(null) } catch { }
+    // let the caller decide navigation; but we can default to login
     router.push('/admin/login')
   }, [router])
 
