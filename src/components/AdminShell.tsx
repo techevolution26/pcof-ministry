@@ -73,6 +73,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             <Link href="/admin/departments" className="block p-2 rounded hover:bg-slate-50">Departments</Link>
             <Link href="/admin/designations" className="block p-2 rounded hover:bg-slate-50">Designations</Link>
             <Link href="/admin/ministers" className="block p-2 rounded hover:bg-slate-50">Ministers</Link>
+            <Link href="/admin/finance" className="block p-2 rounded hover:bg-slate-50">Finance</Link>
+            <Link href="/admin/assets" className="block p-2 rounded hover:bg-slate-50">Assets</Link>
             <Link href="/admin/users" className="block p-2 rounded hover:bg-slate-50">Users</Link>
             <Link href="/admin/roles" className="block p-2 rounded hover:bg-slate-50">Roles</Link>
 

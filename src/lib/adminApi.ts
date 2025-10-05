@@ -470,6 +470,63 @@ export async function fetchPublicChurches(params: { q?: string; limit?: number }
   return Array.isArray(body) ? body : (body?.data ?? []);
 }
 
+/** Assets */
+export async function fetchAssets(params: { q?: string; church_id?: string | number; page?: number; per_page?: number } = {}) {
+  const qs = new URLSearchParams();
+  if (params.q) qs.set('q', String(params.q));
+  if (params.church_id) qs.set('church_id', String(params.church_id));
+  if (params.page) qs.set('page', String(params.page));
+  if (params.per_page) qs.set('per_page', String(params.per_page));
+  const path = `/api/admin/assets${qs.toString() ? `?${qs.toString()}` : ''}`;
+  return apiGet(path);
+}
+
+export async function fetchAssetById(id: string | number) {
+  return apiGet(`/api/admin/assets/${id}`);
+}
+
+export async function deleteAsset(id: string | number) {
+  return apiDelete(`/api/admin/assets/${id}`);
+}
+
+// JSON (no file)
+export async function createAdminAsset(payload: any) {
+  return apiPost('/api/admin/assets', payload);
+}
+export async function updateAdminAsset(id: string | number, payload: any) {
+  return apiPut(`/api/admin/assets/${id}`, payload);
+}
+
+// FormData flows (file support)
+export async function createAdminAssetFormData(form: Record<string, any>, file?: File | null) {
+  const fd = new FormData();
+  Object.entries(form).forEach(([k, v]) => {
+    if (v === undefined || v === null) return;
+    if (typeof v === 'object' && !(v instanceof File) && !Array.isArray(v)) {
+      fd.append(k, JSON.stringify(v));
+    } else {
+      fd.append(k, String(v));
+    }
+  });
+  if (file) fd.append('file', file);
+  return fetchWithAuth('/api/admin/assets', { method: 'POST', body: fd });
+}
+
+export async function updateAdminAssetFormData(id: string | number, form: Record<string, any>, file?: File | null) {
+  const fd = new FormData();
+  Object.entries(form).forEach(([k, v]) => {
+    if (v === undefined || v === null) return;
+    if (typeof v === 'object' && !(v instanceof File) && !Array.isArray(v)) {
+      fd.append(k, JSON.stringify(v));
+    } else {
+      fd.append(k, String(v));
+    }
+  });
+  if (file) fd.append('file', file);
+  fd.append('_method', 'PUT');
+  return fetchWithAuth(`/api/admin/assets/${id}`, { method: 'POST', body: fd });
+}
+
 
 
 const adminApi = { getAdminToken, setAdminToken, clearAdminToken, getAdminUser, setAdminUser, verifyAdmin, login, register, logout, apiGet, apiPost, apiPut };
