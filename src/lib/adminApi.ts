@@ -246,32 +246,6 @@ export async function createRole(payload: any) { return apiPost('/api/admin/role
 export async function updateRole(id: string | number, payload: any) { return apiPut(`/api/admin/roles/${id}`, payload); }
 export async function deleteRole(id: string | number) { return apiDelete(`/api/admin/roles/${id}`); }
 
-/* Events */
-// export async function fetchAdminEvents(params: { q?: string; church_id?: string | number; page?: number } = {}) {
-//   const qs = new URLSearchParams()
-//   if (params.q) qs.set('q', String(params.q))
-//   if (params.church_id) qs.set('church_id', String(params.church_id))
-//   if (params.page) qs.set('page', String(params.page))
-//   const path = `/api/admin/events${qs.toString() ? `?${qs.toString()}` : ''}`
-//   return apiGet(path)
-// }
-
-// export async function fetchAdminEventById(id: string | number) {
-//   return apiGet(`/api/admin/events/${id}`)
-// }
-
-// export async function createAdminEvent(payload: any) {
-//   // file upload suppor different implementation using FormData.
-//   return apiPost('/api/admin/events', payload)
-// }
-
-// export async function updateAdminEvent(id: string | number, payload: any) {
-//   return apiPut(`/api/admin/events/${id}`, payload)
-// }
-
-// export async function deleteAdminEvent(id: string | number) {
-//   return apiDelete(`/api/admin/events/${id}`)
-// }
 
 // Events (JSON and FormData flows)
 export async function fetchAdminEvents(params: { q?: string; church_id?: string | number; page?: number } = {}) {
