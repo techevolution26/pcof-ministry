@@ -150,10 +150,10 @@ export async function fetchAdminSummary(): Promise<any> {
   return apiGet('/api/admin/summarized');
 }
 
-export async function fetchAdminFinanceSummary(): Promise<any> {
-  // returns whatever /api/admin/finance/summary returns (object)
-  return apiGet('/api/admin/finance');
-}
+// export async function fetchAdminFinanceSummary(): Promise<any> {
+//   // returns whatever /api/admin/finance/summary returns (object)
+//   return apiGet('/api/admin/finance');
+// }
 
 export async function apiDelete(path: string) {
   return fetchWithAuth(path, { method: 'DELETE' });
@@ -525,6 +525,44 @@ export async function updateAdminAssetFormData(id: string | number, form: Record
   if (file) fd.append('file', file);
   fd.append('_method', 'PUT');
   return fetchWithAuth(`/api/admin/assets/${id}`, { method: 'POST', body: fd });
+}
+
+/* Finance (frontend helpers) */
+
+// list payments (paginated)
+export async function fetchPayments(params: { q?: string; church_id?: string | number; page?: number; per_page?: number } = {}) {
+  const qs = new URLSearchParams();
+  if (params.q) qs.set('q', String(params.q));
+  if (params.church_id) qs.set('church_id', String(params.church_id));
+  if (params.page) qs.set('page', String(params.page));
+  if (params.per_page) qs.set('per_page', String(params.per_page ?? 30));
+  const path = `/api/admin/finance/payments${qs.toString() ? `?${qs.toString()}` : ''}`;
+  return apiGet(path);
+}
+
+export async function createPayment(payload: any) {
+  // payload: { church_id, member_id, type, amount, currency, status, reference, metadata }
+  return apiPost('/api/admin/finance/payments', payload);
+}
+
+// tithes
+export async function fetchTithes(params: { church_id?: string | number; page?: number; per_page?: number } = {}) {
+  const qs = new URLSearchParams();
+  if (params.church_id) qs.set('church_id', String(params.church_id));
+  if (params.page) qs.set('page', String(params.page));
+  if (params.per_page) qs.set('per_page', String(params.per_page ?? 30));
+  const path = `/api/admin/finance/tithes${qs.toString() ? `?${qs.toString()}` : ''}`;
+  return apiGet(path);
+}
+export async function createTithe(payload: any) {
+  return apiPost('/api/admin/finance/tithes', payload);
+}
+
+// finance summary
+export async function fetchAdminFinanceSummary(churchId?: string | number) {
+  const qs = new URLSearchParams();
+  if (churchId) qs.set('church_id', String(churchId));
+  return apiGet(`/api/admin/finance/summary${qs.toString() ? `?${qs.toString()}` : ''}`);
 }
 
 

@@ -6,16 +6,14 @@ export type ToastProps = {
     show: boolean
     message?: string
     type?: 'success' | 'error' | 'info'
-    duration?: number // ms
+    duration?: number
     onClose?: () => void
 }
 
 export default function Toast({ show, message = '', type = 'success', duration = 3500, onClose }: ToastProps) {
     useEffect(() => {
         if (!show) return
-        const t = setTimeout(() => {
-            onClose?.()
-        }, duration)
+        const t = setTimeout(() => onClose?.(), duration)
         return () => clearTimeout(t)
     }, [show, duration, onClose])
 
@@ -27,14 +25,8 @@ export default function Toast({ show, message = '', type = 'success', duration =
                 'bg-sky-600'
 
     return (
-        <div
-            role="status"
-            aria-live="polite"
-            className={`fixed right-4 bottom-6 z-50 max-w-xs w-[min(95%,320px)] ${bg} text-white px-4 py-3 rounded-lg shadow-lg`}
-        >
-            <div className="text-sm">
-                {message}
-            </div>
+        <div role="status" aria-live="polite" className={`fixed right-4 bottom-6 z-50 max-w-xs w-[min(95%,320px)] ${bg} text-white px-4 py-3 rounded-lg shadow-lg`}>
+            <div className="text-sm">{message}</div>
         </div>
     )
 }
