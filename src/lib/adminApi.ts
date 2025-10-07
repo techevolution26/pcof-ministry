@@ -200,10 +200,10 @@ export async function fetchChurchesList() {
 //   return apiGet(`/api/admin/churches/${id}`);
 // }
 
-/** Lists filtered by church_id. Many admin endpoints return paginated { data: [...] } or array. */
-export async function fetchChurchMembers(churchId: string | number) {
-  return apiGet(`/api/admin/members?church_id=${churchId}`);
-}
+// /** Lists filtered by church_id. Many admin endpoints return paginated { data: [...] } or array. */        <<<<<<<  >>>>>>
+// export async function fetchChurchMembers(churchId: string | number) {
+//   return apiGet(`/api/admin/members?church_id=${churchId}`);
+// }
 export async function fetchChurchAssets(churchId: string | number) {
   return apiGet(`/api/admin/assets?church_id=${churchId}`);
 }
@@ -563,6 +563,35 @@ export async function fetchAdminFinanceSummary(churchId?: string | number) {
   const qs = new URLSearchParams();
   if (churchId) qs.set('church_id', String(churchId));
   return apiGet(`/api/admin/finance/summary${qs.toString() ? `?${qs.toString()}` : ''}`);
+}
+
+/** Fetch church-specific summary */
+export async function fetchChurchSummary(churchId: string | number, params: { days?: number } = {}) {
+  const qs = new URLSearchParams();
+  if (params.days) qs.set('days', String(params.days));
+  const path = `/api/admin/churches/${churchId}/summary${qs.toString() ? `?${qs.toString()}` : ''}`;
+  return apiGet(path);
+}
+
+/** Ministers (simple list; backend should support ?church_id & q) */
+export async function fetchMinistersList(params: { q?: string; church_id?: string | number; per_page?: number } = {}) {
+  const qs = new URLSearchParams();
+  qs.set('per_page', String(params.per_page ?? 100));
+  if (params.q) qs.set('q', String(params.q));
+  if (params.church_id) qs.set('church_id', String(params.church_id));
+  const body = await apiGet(`/api/admin/ministers?${qs.toString()}`);
+  return Array.isArray(body) ? body : (body?.data ?? []);
+}
+
+/** Members (paginated, scoped by church_id optionally) */
+export async function fetchChurchMembers(params: { church_id?: string | number; q?: string; page?: number; per_page?: number } = {}) {
+  const qs = new URLSearchParams();
+  if (params.church_id) qs.set('church_id', String(params.church_id));
+  if (params.q) qs.set('q', String(params.q));
+  if (params.page) qs.set('page', String(params.page));
+  if (params.per_page) qs.set('per_page', String(params.per_page ?? 25));
+  const path = `/api/admin/members${qs.toString() ? `?${qs.toString()}` : ''}`;
+  return apiGet(path);
 }
 
 

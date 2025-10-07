@@ -55,5 +55,9 @@ export function useAdminAuth(options?: { requireRole?: string }) {
     router.push('/admin/login')
   }, [router])
 
-  return { user, isLoading, logout, setUser }
+  // at end of function
+  const isSuperadmin = Boolean(user?.role === 'superadmin')
+  const isChurchAdmin = Boolean(user?.role === 'church_admin')
+
+  return { user, isLoading, logout, setUser, isSuperadmin, isChurchAdmin }
 }

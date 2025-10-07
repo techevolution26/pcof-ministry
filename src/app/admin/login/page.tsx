@@ -1,8 +1,10 @@
+//app/admin/login/page.tsx
 'use client'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { login, verifyAdmin as apiVerifyAdmin } from '@/lib/adminApi'
+import { login } from '@/lib/adminApi'
+import { verifyAdmin as apiVerifyAdmin } from '@/lib/adminApi'
 import { setAdminUser } from '@/lib/adminApi'
 
 export default function AdminLoginPage() {
@@ -18,27 +20,37 @@ export default function AdminLoginPage() {
     setError(null)
 
     try {
-      // login() will save token on success (your adminApi.login should call setAdminToken)
       const res = await login(email, password)
-      // if server issued token, verify and hydrate user before navigating
+      // If backend returns a token we should verify to get the user
       if (res?.token) {
-        try {
-          const verified = await apiVerifyAdmin()
-          if (verified) {
-            // optional: set local storage user if your verify returns user
-            try { setAdminUser(verified) } catch { }
-            router.replace('/admin')
-            return
-          }
-        } catch (err) {
-          // verification failed; fallthrough to error display
+        const verified = await apiVerifyAdmin()
+        if (!verified) {
           setError('Verification failed after login.')
+          setLoading(false)
           return
         }
+        // persist a lightweight user for immediate UI use
+        try { setAdminUser(verified) } catch { /* ignore */ }
+
+        // role-based redirect:
+        // - superadmin -> admin dashboard
+        // - church_admin -> their church dashboard or church list
+        // - viewer or other -> generic admin home
+        if (verified.role === 'superadmin') {
+          router.replace('/admin'); // full admin console
+          return;
+        }
+        if (verified.role === 'church_admin') {
+          // Redirect church_admin into the church-admin console
+          router.replace('/admin/church'); // new church area
+          return;
+        }
+        router.replace('/admin');
+        return
       }
 
-      // If login returned no token (e.g. pending approval), show message
-      setError(res?.message ?? 'Login did not return a token. Account may be pending approval.')
+      // token not returned — e.g. registration pending approval
+      setError(res?.message ?? 'Account awaiting approval.')
     } catch (err: any) {
       setError(err?.message ?? 'Sign in failed')
     } finally {
