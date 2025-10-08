@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import MinisterForm from '@/components/MinisterForm'
+import ChurchMinisterForm from '@/components/ChurchMinisterForm'
 import { fetchMinisterById } from '@/lib/adminApi'
 
 export default function EditMinisterPage() {
@@ -31,7 +31,7 @@ export default function EditMinisterPage() {
     return (
         <div>
             <h1 className="text-2xl font-semibold mb-4">Edit minister</h1>
-            <MinisterForm ministerId={id} initial={initial} />
+            <ChurchMinisterForm ministerId={id} initial={initial} />
         </div>
     )
 }

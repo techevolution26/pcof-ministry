@@ -14,7 +14,7 @@ type Member = {
   email?: string | null
   assembly?: any
   designation?: any
-  department_id?: number | null
+  department?: any
   [k: string]: any
 }
 
@@ -180,7 +180,7 @@ export default function ChurchMembersPage() {
               <th className="p-2">#</th>
               <th className="p-2">Name</th>
               <th className="p-2">Phone</th>
-              <th className="p-2">Assembly</th>
+              <th className="p-2">Department</th>
               <th className="p-2">Designation</th>
               <th className="p-2 text-right">Actions</th>
             </tr>
@@ -188,31 +188,63 @@ export default function ChurchMembersPage() {
 
           <tbody>
             {loading ? (
-              <tr><td colSpan={6} className="p-6 text-center text-gray-500">Loading…</td></tr>
-            ) : (
-              members.map(m => (
-                <tr key={m.id} className="border-t">
-                  <td className="p-2 align-top w-24">{m.member_number ?? m.id}</td>
-                  <td className="p-2">{[m.first_name, m.last_name].filter(Boolean).join(' ')}</td>
-                  <td className="p-2">{m.phone ?? '—'}</td>
-                  <td className="p-2">{m.assembly?.name ?? m.assembly_id ?? '—'}</td>
-                  <td className="p-2">{m.designation?.name ?? (m.designation_id ?? '—')}</td>
-                  <td className="p-2 text-right">
-                    <div className="inline-flex items-center gap-2">
-                      <Link href={`/admin/church/members/${m.id}`} className="text-sky-600 text-sm">View</Link>
-                      <Link href={`/admin/church/members/${m.id}/edit`} className="text-gray-700 text-sm">Edit</Link>
-                      <button
-                        onClick={() => handleDelete(m)}
-                        disabled={deletingId === m.id}
-                        className="text-sm text-red-600 hover:underline disabled:opacity-50"
-                      >
-                        {deletingId === m.id ? 'Deleting…' : 'Delete'}
-                      </button>
-                    </div>
+              // skeleton rows
+              Array.from({ length: 6 }).map((_, idx) => (
+                <tr key={`skeleton-${idx}`} className="border-t">
+                  <td className="p-4"><div className="h-4 bg-gray-200 rounded w-20 animate-pulse" /></td>
+                  <td className="p-4">
+                    <div className="h-4 bg-gray-200 rounded w-40 animate-pulse mb-2" />
+                    <div className="h-3 bg-gray-100 rounded w-36 animate-pulse" />
                   </td>
+                  <td className="p-4"><div className="h-4 bg-gray-200 rounded w-24 animate-pulse" /></td>
+                  <td className="p-4"><div className="h-4 bg-gray-200 rounded w-24 animate-pulse" /></td>
+                  <td className="p-4"><div className="h-4 bg-gray-200 rounded w-24 animate-pulse" /></td>
+                  <td className="p-2" />
                 </tr>
               ))
+            ) : (
+              members.map(m => {
+                const fullName = [m.first_name, m.last_name].filter(Boolean).join(' ')
+                return (
+                  <tr
+                    key={m.id}
+                    className="border-t hover:bg-slate-50 transition-colors"
+                    // clickable row -> open view page
+                    onClick={() => { window.location.href = `/admin/church/members/${m.id}` }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <td className="p-2 align-top w-28">{m.member_number ?? m.id}</td>
+
+                    <td className="p-2">
+                      <div className="font-medium">{fullName || '—'}</div>
+                      <div className="text-xs text-gray-500">{m.email ?? ''}</div>
+                    </td>
+
+                    <td className="p-2">{m.phone ?? '—'}</td>
+
+                    <td className="p-2">{m.department?.name ?? (m.department_id ? String(m.department_id) : '—')}</td>
+
+                    <td className="p-2">{m.designation?.name ?? (m.designation_id ? String(m.designation_id) : '—')}</td>
+
+                    <td className="p-2 text-right" onClick={(e) => e.stopPropagation()}>
+                      <div className="inline-flex items-center gap-3">
+                        <Link href={`/admin/church/members/${m.id}`} className="text-sky-600 text-sm">View</Link>
+                        <Link href={`/admin/church/members/${m.id}/edit`} className="text-gray-700 text-sm">Edit</Link>
+                        <button
+                          onClick={() => handleDelete(m)}
+                          disabled={deletingId === m.id}
+                          className="text-sm text-red-600 hover:underline disabled:opacity-50"
+                          aria-disabled={deletingId === m.id}
+                        >
+                          {deletingId === m.id ? 'Deleting…' : 'Delete'}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })
             )}
+
             {!loading && members.length === 0 && (
               <tr><td colSpan={6} className="p-4 text-center text-gray-500">No members found.</td></tr>
             )}

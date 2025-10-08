@@ -12,7 +12,7 @@ type Props = {
     onSaved?: (dep: any) => void
 }
 
-export default function DepartmentForm({ departmentId = null, initial = {}, onSaved }: Props) {
+export default function ChurchDepartmentForm({ departmentId = null, initial = {}, onSaved }: Props) {
     const { user, isLoading } = useAdminAuth()
     const churchId = user?.church_id
     const [form, setForm] = useState<any>({ name: initial.name ?? '', description: initial.description ?? '', church_id: initial.church_id ?? churchId ?? '' })

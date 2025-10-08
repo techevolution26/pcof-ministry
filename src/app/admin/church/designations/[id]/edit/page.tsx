@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import DesignationForm from '@/components/DesignationForm'
+import ChurchDesignationForm from '@/components/ChurchDesignationForm'
 import { fetchDesignationById } from '@/lib/adminApi'
 
 export default function EditDesignationPage() {
@@ -31,7 +31,7 @@ export default function EditDesignationPage() {
     return (
         <div>
             <h1 className="text-2xl font-semibold mb-4">Edit designation</h1>
-            <DesignationForm designationId={id} initial={initial} />
+            <ChurchDesignationForm designationId={id} initial={initial} />
         </div>
     )
 }

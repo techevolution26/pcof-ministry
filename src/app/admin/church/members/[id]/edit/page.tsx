@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useParams } from 'next/navigation'
-import MemberForm from '@/components/MemberForm'
+import ChurchMemberForm from '@/components/ChurchMemberForm'
 import { useAdminAuth } from '@/hooks/useAdminAuth'
 
 export default function MemberEditPage() {
@@ -21,7 +21,7 @@ export default function MemberEditPage() {
     return (
         <div>
             <h1 className="text-lg font-semibold mb-4">Edit member</h1>
-            <MemberForm memberId={id} />
+            <ChurchMemberForm memberId={id} />
         </div>
     )
 }

@@ -13,10 +13,11 @@ export default function AdminHome() {
 
   // when verification completes and there's no user, redirect to login
   useEffect(() => {
-    if (!isLoading && !user) {
-      router.replace('/admin/login')
+    if (!isLoading && !user || user.role !== 'superadmin') {
+      router.replace('/admin/church')
     }
   }, [isLoading, user, router])
+
 
   // show loader while verifying (avoid flash)
   if (isLoading) {
