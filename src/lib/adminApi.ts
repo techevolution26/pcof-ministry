@@ -594,6 +594,64 @@ export async function fetchChurchMembers(params: { church_id?: string | number; 
   return apiGet(path);
 }
 
+/* adminApi.ts additions — place near existing finance helpers */
+
+/** Approve a submitted payment (admin action) */
+export async function approvePayment(paymentId: string | number) {
+  return apiPost(`/api/admin/finance/payments/${paymentId}/approve`);
+}
+
+/** Reject a payment (optional reason) */
+export async function rejectPayment(paymentId: string | number, payload: { reason?: string } = {}) {
+  return apiPost(`/api/admin/finance/payments/${paymentId}/reject`, payload);
+}
+
+
+/** Export payments CSV for given filters */
+export async function exportPaymentsCsv(params: { church_id?: string | number; from?: string; to?: string; type?: string } = {}) {
+  const qs = new URLSearchParams();
+  if (params.church_id) qs.set('church_id', String(params.church_id));
+  if (params.from) qs.set('from', params.from);
+  if (params.to) qs.set('to', params.to);
+  if (params.type) qs.set('type', params.type);
+  // returns CSV text
+  const path = `/api/admin/finance/payments/export${qs.toString() ? `?${qs.toString()}` : ''}`;
+  const url = path.startsWith('http') ? path : `${BASE}${path.startsWith('/') ? path : `/${path}`}`;
+  const res = await fetch(url, { headers: buildHeaders({ Accept: 'text/csv' }), credentials: 'same-origin' });
+  if (!res.ok) throw { status: res.status, message: `Export failed (${res.status})` };
+  return await res.text();
+}
+
+// reconciliations
+export async function fetchReconciliations(params: { church_id?: string | number; page?: number; per_page?: number; q?: string; status?: string } = {}) {
+  const qs = new URLSearchParams();
+  if (params.church_id) qs.set('church_id', String(params.church_id));
+  if (params.page) qs.set('page', String(params.page));
+  if (params.per_page) qs.set('per_page', String(params.per_page ?? 30));
+  if (params.q) qs.set('q', String(params.q));
+  if (params.status) qs.set('status', String(params.status));
+  const path = `/api/admin/finance/reconciliations${qs.toString() ? `?${qs.toString()}` : ''}`;
+  return apiGet(path);
+}
+
+export async function fetchReconciliationById(id: string | number) {
+  return apiGet(`/api/admin/finance/reconciliations/${id}`);
+}
+
+export async function createReconciliation(payload: any) {
+  return apiPost('/api/admin/finance/reconciliations', payload);
+}
+
+export async function updateReconciliation(id: string | number, payload: any) {
+  return apiPut(`/api/admin/finance/reconciliations/${id}`, payload);
+}
+
+export async function deleteReconciliation(id: string | number) {
+  return apiDelete(`/api/admin/finance/reconciliations/${id}`);
+}
+
+
+
 
 
 const adminApi = { getAdminToken, setAdminToken, clearAdminToken, getAdminUser, setAdminUser, verifyAdmin, login, register, logout, apiGet, apiPost, apiPut };

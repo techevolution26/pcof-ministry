@@ -34,6 +34,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         { href: '/admin/church/departments', label: 'Departments', section: 'church' },
         { href: '/admin/church/designations', label: 'Designations', section: 'church' },
         { href: '/admin/church/finance', label: 'Finance', section: 'church' },
+        { href: '/admin/church/finance/reconciliations', label: 'Reconciliation', section: 'church' },
         { href: '/admin/church/assets', label: 'Assets', section: 'church' },
         { href: '/admin/ministers', label: 'Ministers', section: 'church' },
         { href: '/admin/church/events', label: 'Events', section: 'church' },
