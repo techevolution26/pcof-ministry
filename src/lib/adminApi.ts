@@ -216,9 +216,11 @@ export async function fetchChurchPayments(churchId: string | number) {
   // backend: FinanceController::payments(Request $r) -> probably /api/admin/finance/payments
   return apiGet(`/api/admin/payments?church_id=${churchId}`);
 }
-export async function fetchChurchFinanceSummary(churchId: string | number) {
-  // backend: FinanceController::adminSummary or summary -> we used /api/admin/finance/summary earlier
-  return apiGet(`/api/admin/finance/summary?church_id=${churchId}`);
+
+export async function fetchChurchFinanceSummary(churchId?: string | number) {
+  if (!churchId) return null;
+  // new endpoint
+  return apiGet(`/api/admin/churches/${churchId}/finance-summary`);
 }
 
 export async function fetchAdminUsers(filter = 'all') {
@@ -650,6 +652,53 @@ export async function deleteReconciliation(id: string | number) {
   return apiDelete(`/api/admin/finance/reconciliations/${id}`);
 }
 
+// existing fetchAdminEvents works, but add two helpers:
+
+export async function fetchEvents(params: { q?: string; church_id?: string | number; page?: number; per_page?: number; scope?: 'national' | 'church' } = {}) {
+  const qs = new URLSearchParams();
+  if (params.q) qs.set('q', String(params.q));
+  if (params.church_id) qs.set('church_id', String(params.church_id));
+  if (params.page) qs.set('page', String(params.page));
+  if (params.per_page) qs.set('per_page', String(params.per_page ?? 30));
+  if (params.scope) qs.set('scope', params.scope);
+  const path = `/api/admin/events${qs.toString() ? `?${qs.toString()}` : ''}`;
+  return apiGet(path);
+}
+
+// export async function fetchEventById(id: string | number) {
+//   return apiGet(`/api/admin/events/${id}`);
+// }
+
+// Event helpers
+export async function fetchEventById(id: string | number) {
+  return apiGet(`/api/admin/events/${id}`);
+}
+
+// RSVPs endpoints
+export async function fetchEventRsvps(eventId: string | number) {
+  return apiGet(`/api/admin/events/${eventId}/rsvps`);
+}
+export async function createEventRsvp(payload: { event_id: number | string; member_id: number | string; church_id?: number | string; status?: string; notes?: string }) {
+  return apiPost('/api/admin/event-rsvps', payload);
+}
+export async function deleteEventRsvp(id: string | number) {
+  return apiDelete(`/api/admin/event-rsvps/${id}`);
+}
+
+// fetch single payment
+export async function fetchPaymentById(id: string | number) {
+  return apiGet(`/api/admin/finance/payments/${id}`);
+}
+
+// // approve payment (POST)
+// export async function approvePayment(id: string | number) {
+//   return apiPost(`/api/admin/finance/payments/${id}/approve`);
+// }
+
+// delete payment
+export async function deletePayment(id: string | number) {
+  return apiDelete(`/api/admin/finance/payments/${id}`);
+}
 
 
 
