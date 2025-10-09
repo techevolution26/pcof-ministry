@@ -1,7 +1,7 @@
 // src/components/MemberTypeahead.tsx
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
-import { searchMembersByQuery } from '@/lib/adminApi' // implement searchMembersByQuery in adminApi
+import { searchMembersByQuery } from '@/lib/adminApi'
 
 type Member = { id: number; first_name?: string; last_name?: string; member_number?: string; email?: string }
 type Props = {
@@ -10,18 +10,16 @@ type Props = {
     placeholder?: string
     required?: boolean
     className?: string
+    churchId?: string | number | null // NEW: optional church scope
 }
 
-/**
- * Simple typeahead — IMPORTANT: does NOT render a <form>.
- * Use only as a child inside other forms (MinisterForm etc).
- */
 export default function MemberTypeahead({
     value,
     onSelect,
     placeholder = 'Type a member name or email…',
     required = false,
     className = '',
+    churchId = undefined,
 }: Props) {
     const [query, setQuery] = useState('')
     const [results, setResults] = useState<Member[]>([])
@@ -31,11 +29,10 @@ export default function MemberTypeahead({
     const timerRef = useRef<number | null>(null)
     const rootRef = useRef<HTMLDivElement | null>(null)
 
-    // If parent passes an id as `value`, you may want to fetch that member and set the label.
-    // Add `fetchMemberById` in adminApi if you want to show label when editing.
     useEffect(() => {
+        // If parent passes an id only, you could fetch label here (optional)
         if (!value) { setSelected(null); setQuery(''); return }
-        // optional: fetch and set selected member by id
+        // optional: fetchMemberById and set selected label
     }, [value])
 
     useEffect(() => {
@@ -57,8 +54,7 @@ export default function MemberTypeahead({
         }
         setLoading(true)
         try {
-            // Implement `searchMembersByQuery(q, limit)` in adminApi to return array
-            const r = await searchMembersByQuery(q.trim(), 10)
+            const r = await searchMembersByQuery(q.trim(), 10, churchId)
             setResults(Array.isArray(r) ? r : (r?.data ?? []))
             setOpen(true)
         } catch (err) {
@@ -105,9 +101,7 @@ export default function MemberTypeahead({
                     aria-autocomplete="list"
                 />
                 {selected && (
-                    <button type="button" onClick={clearSelection} className="text-sm text-red-600">
-                        Clear
-                    </button>
+                    <button type="button" onClick={clearSelection} className="text-sm text-red-600">Clear</button>
                 )}
             </div>
 
@@ -118,7 +112,7 @@ export default function MemberTypeahead({
                     {!loading && results.map((m) => (
                         <button
                             key={m.id}
-                            type="button"                      // <- important: NOT a submit button
+                            type="button"
                             onClick={() => handleSelect(m)}
                             className="w-full text-left px-3 py-2 hover:bg-slate-50"
                         >

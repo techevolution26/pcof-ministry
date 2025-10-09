@@ -449,12 +449,12 @@ export async function searchMembers(q = '', per_page = 10) {
   return Array.isArray(body) ? body : (body?.data ?? []);
 }
 
-export async function searchMembersByQuery(q: string, limit = 10) {
-  // adjust the backend endpoint to support q param, e.g. /api/admin/members/search?q=...
-  const res = await apiGet(`/api/admin/members?per_page=${limit}&q=${encodeURIComponent(q)}`)
-  // backend returns paginated { data: [...] } — normalize to array
-  return Array.isArray(res) ? res : (res?.data ?? [])
-}
+// export async function searchMembersByQuery(q: string, limit = 10) {
+//   // adjust the backend endpoint to support q param, e.g. /api/admin/members/search?q=...
+//   const res = await apiGet(`/api/admin/members?per_page=${limit}&q=${encodeURIComponent(q)}`)
+//   // backend returns paginated { data: [...] } — normalize to array
+//   return Array.isArray(res) ? res : (res?.data ?? [])
+// }
 
 /** Public (no-auth) API: fetch churches for typeahead (not admin-only) */
 export async function fetchPublicChurches(params: { q?: string; limit?: number } = {}) {
@@ -699,6 +699,35 @@ export async function fetchPaymentById(id: string | number) {
 export async function deletePayment(id: string | number) {
   return apiDelete(`/api/admin/finance/payments/${id}`);
 }
+
+// src/lib/adminApi.ts (add near other search helpers)
+
+export async function searchMembersByQuery(q: string, limit = 10, churchId?: string | number | null) {
+  const qs = new URLSearchParams();
+  if (q) qs.set('q', String(q));
+  qs.set('per_page', String(limit));
+  if (churchId) qs.set('church_id', String(churchId));
+  const path = `/api/admin/members${qs.toString() ? `?${qs.toString()}` : ''}`;
+  const res = await apiGet(path);
+  // normalize paginated response to array
+  return Array.isArray(res) ? res : (res?.data ?? []);
+}
+
+/**
+ * fetch members for a church with paging (used when the new payment form chooses a church)
+ */
+export async function fetchMembersForChurch(churchId: string | number, params: { q?: string; page?: number; per_page?: number } = {}) {
+  const qs = new URLSearchParams();
+  qs.set('church_id', String(churchId));
+  if (params.q) qs.set('q', String(params.q));
+  if (params.page) qs.set('page', String(params.page));
+  if (params.per_page) qs.set('per_page', String(params.per_page ?? 30));
+  const path = `/api/admin/members?${qs.toString()}`;
+  const res = await apiGet(path);
+  // Keep paginated object (controller returns paginator)
+  return res;
+}
+
 
 
 
