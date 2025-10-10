@@ -25,6 +25,7 @@ export default function EventForm({ eventId }: Props) {
         ends_at: '',
         location: '',
         online: false,
+        is_national: false,
     })
     const [loading, setLoading] = useState<boolean>(Boolean(eventId))
     const [saving, setSaving] = useState(false)
@@ -66,6 +67,7 @@ export default function EventForm({ eventId }: Props) {
         return () => { mounted = false }
     }, [form.church_id])
 
+    // load existing event when editing
     useEffect(() => {
         if (!eventId) { setLoading(false); return }
         let mounted = true
@@ -84,10 +86,11 @@ export default function EventForm({ eventId }: Props) {
                         ends_at: data.ends_at ? data.ends_at.slice(0, 16) : '',
                         location: data.location ?? '',
                         online: !!data.online,
+                        is_national: !!data.is_national,
                     })
 
                     // existing image (backend should return image_url accessor)
-                    const imageUrl = data.image_url ?? data.image_path ? (data.image_url ?? null) : null
+                    const imageUrl = data.image_url ?? (data.image_path ? (data.image_url ?? null) : null)
                     if (imageUrl) setExistingImageUrl(imageUrl)
 
                     // fetch assemblies immediately if editing and church_id present
@@ -109,7 +112,15 @@ export default function EventForm({ eventId }: Props) {
     function onChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
         const { name, value, type } = e.target as HTMLInputElement
         if (type === 'checkbox') {
-            setForm(prev => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }))
+            const checked = (e.target as HTMLInputElement).checked
+            setForm(prev => {
+                // if marking national, clear church & assemblies
+                if (name === 'is_national' && checked) {
+                    return { ...prev, is_national: true, church_id: '', assembly_id: '' }
+                }
+                // if unchecking is_national just set the flag
+                return { ...prev, [name]: checked }
+            })
         } else {
             setForm(prev => ({ ...prev, [name]: value }))
         }
@@ -125,8 +136,8 @@ export default function EventForm({ eventId }: Props) {
         if (f) {
             const url = URL.createObjectURL(f)
             setSelectedPreview(url)
-            // clear existing image preview so UI shows selected file
-            // we still keep existingImageUrl until a file is selected
+            // when selecting a new file, hide existing image url so preview shows the selected file
+            setExistingImageUrl(null)
         }
     }
 
@@ -145,12 +156,14 @@ export default function EventForm({ eventId }: Props) {
                 ...form,
                 starts_at: form.starts_at ? new Date(form.starts_at).toISOString() : null,
                 ends_at: form.ends_at ? new Date(form.ends_at).toISOString() : null,
+                is_national: !!form.is_national,
             }
 
             const file = fileRef.current?.files?.[0] ?? null
 
             if (eventId) {
                 if (file) {
+                    // ensure create/updateAdminEventFormData in adminApi appends is_national
                     await updateAdminEventFormData(eventId, payload, file)
                 } else {
                     await updateAdminEvent(eventId, payload)
@@ -191,16 +204,29 @@ export default function EventForm({ eventId }: Props) {
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-medium">Church</label>
-                    <select name="church_id" value={form.church_id ?? ''} onChange={onChange} className="w-full p-2 border rounded">
+                    <select
+                        name="church_id"
+                        value={form.church_id ?? ''}
+                        onChange={onChange}
+                        className="w-full p-2 border rounded"
+                        disabled={!!form.is_national}
+                    >
                         <option value="">— select church —</option>
                         {churches.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
                     {fieldError('church_id')}
+                    {form.is_national && <div className="text-xs text-gray-500 mt-1">This is a national event — visible to all churches</div>}
                 </div>
 
                 <div>
                     <label className="block text-sm font-medium">Assembly (optional)</label>
-                    <select name="assembly_id" value={form.assembly_id ?? ''} onChange={onChange} className="w-full p-2 border rounded">
+                    <select
+                        name="assembly_id"
+                        value={form.assembly_id ?? ''}
+                        onChange={onChange}
+                        className="w-full p-2 border rounded"
+                        disabled={!!form.is_national || !form.church_id}
+                    >
                         <option value="">— none —</option>
                         {assemblies.map((a: any) => <option key={a.id} value={a.id}>{a.name}</option>)}
                     </select>
@@ -208,16 +234,17 @@ export default function EventForm({ eventId }: Props) {
                 </div>
             </div>
 
-            <div>
-                <label className="block text-sm font-medium">Starts</label>
-                <input name="starts_at" type="datetime-local" value={form.starts_at ?? ''} onChange={onChange} className="w-full p-2 border rounded" />
-                {fieldError('starts_at')}
-            </div>
-
-            <div>
-                <label className="block text-sm font-medium">Ends</label>
-                <input name="ends_at" type="datetime-local" value={form.ends_at ?? ''} onChange={onChange} className="w-full p-2 border rounded" />
-                {fieldError('ends_at')}
+            <div className="flex items-center gap-4">
+                <div className="w-1/2">
+                    <label className="block text-sm font-medium">Starts</label>
+                    <input name="starts_at" type="datetime-local" value={form.starts_at ?? ''} onChange={onChange} className="w-full p-2 border rounded" />
+                    {fieldError('starts_at')}
+                </div>
+                <div className="w-1/2">
+                    <label className="block text-sm font-medium">Ends</label>
+                    <input name="ends_at" type="datetime-local" value={form.ends_at ?? ''} onChange={onChange} className="w-full p-2 border rounded" />
+                    {fieldError('ends_at')}
+                </div>
             </div>
 
             <div>
@@ -257,6 +284,9 @@ export default function EventForm({ eventId }: Props) {
             <div className="flex items-center gap-3">
                 <input id="online" name="online" type="checkbox" checked={!!form.online} onChange={onChange} />
                 <label htmlFor="online" className="text-sm">Online event</label>
+
+                <input id="is_national" name="is_national" type="checkbox" checked={!!form.is_national} onChange={onChange} className="ml-4" />
+                <label htmlFor="is_national" className="text-sm">National event (visible to all churches)</label>
             </div>
 
             <div className="flex justify-end">
