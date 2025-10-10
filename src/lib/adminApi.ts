@@ -728,6 +728,17 @@ export async function fetchMembersForChurch(churchId: string | number, params: {
   return res;
 }
 
+// /** Fetch summary for admin finance endpoint */
+// export async function fetchFinanceSummary(opts?: { churchId?: string | number | null; recentLimit?: number; page?: number; days?: number }) {
+//   const qs = new URLSearchParams();
+//   if (opts?.churchId) qs.set('church_id', String(opts.churchId));
+//   if (opts?.recentLimit) qs.set('recent_limit', String(opts.recentLimit));
+//   if (opts?.page) qs.set('page', String(opts.page));
+//   if (opts?.days) qs.set('days', String(opts.days));
+//   const path = `/api/admin/finance/summary${qs.toString() ? `?${qs.toString()}` : ''}`;
+//   return apiGet(path);
+// }
+
 
 
 
