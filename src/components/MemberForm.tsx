@@ -1,8 +1,21 @@
-// src/components/MemberForm.tsx
 'use client'
 import React, { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createMember, updateMember, fetchMemberById, fetchChurchesList } from '@/lib/adminApi'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faUsers,
+  faSave,
+  faSpinner,
+  faArrowLeft,
+  faUser,
+  faPhone,
+  faEnvelope,
+  faChurch,
+  faVenusMars,
+  faIdCard,
+  faInfo
+} from '@fortawesome/free-solid-svg-icons'
 
 type Props = { memberId?: string | number }
 
@@ -68,7 +81,6 @@ export default function MemberForm({ memberId }: Props) {
 
         if (!mounted) return
 
-        // set initial values only once (avoid stomping user's in-flight edits)
         if (!initialLoadedRef.current) {
           initialLoadedRef.current = true
           setForm({
@@ -97,6 +109,9 @@ export default function MemberForm({ memberId }: Props) {
   function onChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target
     setForm(prev => ({ ...(prev ?? {}), [name]: value }))
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: [] }))
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -108,12 +123,10 @@ export default function MemberForm({ memberId }: Props) {
 
       const payload: any = { ...form }
 
-      // Do not attempt to override member_number when updating
       if (memberId) {
         delete payload.member_number
       }
 
-      // Clean empty string -> null for optional foreign keys
       if (payload.church_id === '') payload.church_id = null
 
       if (memberId) {
@@ -136,76 +149,260 @@ export default function MemberForm({ memberId }: Props) {
   }
 
   if (loading || form === null) {
-    return <div className="p-6 bg-white rounded shadow text-sm text-gray-600">Loading member…</div>
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 dark:from-gray-900 dark:to-blue-900/20 py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 dark:border-gray-700/50 p-8">
+            <div className="flex items-center justify-center gap-3 py-12">
+              <FontAwesomeIcon icon={faSpinner} className="text-blue-500 text-xl animate-spin" />
+              <div className="text-gray-600 dark:text-gray-400 font-medium">Loading member details...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded shadow">
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium">First name</label>
-          <input name="first_name" value={form.first_name ?? ''} onChange={onChange} required className="w-full p-2 border rounded" />
-          {errors.first_name && <div className="text-red-600 text-sm">{errors.first_name.join(' ')}</div>}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 dark:from-gray-900 dark:to-blue-900/20 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
+                {memberId ? 'Edit Member' : 'Create New Member'}
+              </h1>
+              <p className="text-gray-600 dark:text-gray-300 text-lg">
+                {memberId ? 'Update member information and details' : 'Add a new member to your organization'}
+              </p>
+            </div>
+            <button
+              onClick={() => router.back()}
+              className="px-4 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors flex items-center gap-2"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} className="text-sm" />
+              Back
+            </button>
+          </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium">Last name</label>
-          <input name="last_name" value={form.last_name ?? ''} onChange={onChange} className="w-full p-2 border rounded" />
-          {errors.last_name && <div className="text-red-600 text-sm">{errors.last_name.join(' ')}</div>}
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 dark:border-gray-700/50 p-8">
+          {/* Personal Information Section */}
+          <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
+              <FontAwesomeIcon icon={faUser} className="text-blue-500 text-lg" />
+              Personal Information
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                  <FontAwesomeIcon icon={faUser} className="text-blue-500 text-xs" />
+                  First Name *
+                </label>
+                <input
+                  name="first_name"
+                  value={form.first_name ?? ''}
+                  onChange={onChange}
+                  required
+                  className={`w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${errors.first_name ? 'border-red-300 dark:border-red-500' : 'border-gray-200 dark:border-gray-600'
+                    }`}
+                  placeholder="Enter first name"
+                />
+                {errors.first_name && (
+                  <div className="text-red-600 dark:text-red-400 text-sm flex items-center gap-2 mt-1">
+                    <span>⚠</span>
+                    {errors.first_name.join(' ')}
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+                  Last Name
+                </label>
+                <input
+                  name="last_name"
+                  value={form.last_name ?? ''}
+                  onChange={onChange}
+                  className={`w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${errors.last_name ? 'border-red-300 dark:border-red-500' : 'border-gray-200 dark:border-gray-600'
+                    }`}
+                  placeholder="Enter last name"
+                />
+                {errors.last_name && (
+                  <div className="text-red-600 dark:text-red-400 text-sm flex items-center gap-2 mt-1">
+                    <span>⚠</span>
+                    {errors.last_name.join(' ')}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Contact Information Section */}
+          <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
+              <FontAwesomeIcon icon={faPhone} className="text-green-500 text-lg" />
+              Contact Information
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                  <FontAwesomeIcon icon={faPhone} className="text-green-500 text-xs" />
+                  Phone Number
+                </label>
+                <input
+                  name="phone"
+                  value={form.phone ?? ''}
+                  onChange={onChange}
+                  className={`w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${errors.phone ? 'border-red-300 dark:border-red-500' : 'border-gray-200 dark:border-gray-600'
+                    }`}
+                  placeholder="Enter phone number"
+                />
+                {errors.phone && (
+                  <div className="text-red-600 dark:text-red-400 text-sm flex items-center gap-2 mt-1">
+                    <span>⚠</span>
+                    {errors.phone.join(' ')}
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                  <FontAwesomeIcon icon={faEnvelope} className="text-purple-500 text-xs" />
+                  Email Address
+                </label>
+                <input
+                  name="email"
+                  value={form.email ?? ''}
+                  onChange={onChange}
+                  type="email"
+                  className={`w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${errors.email ? 'border-red-300 dark:border-red-500' : 'border-gray-200 dark:border-gray-600'
+                    }`}
+                  placeholder="Enter email address"
+                />
+                {errors.email && (
+                  <div className="text-red-600 dark:text-red-400 text-sm flex items-center gap-2 mt-1">
+                    <span>⚠</span>
+                    {errors.email.join(' ')}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Membership Details Section */}
+          <div className="border-b border-gray-200 dark:border-gray-700 pb-6">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-3">
+              <FontAwesomeIcon icon={faUsers} className="text-orange-500 text-lg" />
+              Membership Details
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                  <FontAwesomeIcon icon={faChurch} className="text-orange-500 text-xs" />
+                  Church
+                </label>
+                <select
+                  name="church_id"
+                  value={String(form.church_id ?? '')}
+                  onChange={onChange}
+                  className={`w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${errors.church_id ? 'border-red-300 dark:border-red-500' : 'border-gray-200 dark:border-gray-600'
+                    }`}
+                >
+                  <option value="">— Select church —</option>
+                  {churches.map((c: any) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name ?? c.title ?? `Church #${c.id}`}
+                    </option>
+                  ))}
+                </select>
+                {errors.church_id && (
+                  <div className="text-red-600 dark:text-red-400 text-sm flex items-center gap-2 mt-1">
+                    <span>⚠</span>
+                    {errors.church_id.join(' ')}
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                  <FontAwesomeIcon icon={faVenusMars} className="text-pink-500 text-xs" />
+                  Gender
+                </label>
+                <select
+                  name="gender"
+                  value={form.gender ?? 'male'}
+                  onChange={onChange}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                >
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+                {errors.gender && (
+                  <div className="text-red-600 dark:text-red-400 text-sm flex items-center gap-2 mt-1">
+                    <span>⚠</span>
+                    {errors.gender.join(' ')}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Member Number (Readonly when editing) */}
+            {memberId && (
+              <div className="mt-6">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                  <FontAwesomeIcon icon={faIdCard} className="text-blue-500 text-xs" />
+                  Member Number
+                </label>
+                <input
+                  name="member_number"
+                  value={form.member_number ?? ''}
+                  readOnly
+                  disabled
+                  className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-xl mt-2"
+                />
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-2">
+                  <FontAwesomeIcon icon={faInfo} className="text-xs" />
+                  Member numbers are automatically generated and cannot be changed.
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Form Actions */}
+          <div className="flex items-center justify-between pt-6">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-semibold flex items-center gap-2"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} className="text-sm" />
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none disabled:opacity-50 transition-all duration-200 font-semibold flex items-center gap-2"
+            >
+              {saving ? (
+                <>
+                  <FontAwesomeIcon icon={faSpinner} className="text-sm animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <FontAwesomeIcon icon={faSave} className="text-sm" />
+                  {memberId ? 'Update Member' : 'Create Member'}
+                </>
+              )}
+            </button>
+          </div>
+        </form>
       </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium">Phone</label>
-          <input name="phone" value={form.phone ?? ''} onChange={onChange} className="w-full p-2 border rounded" />
-          {errors.phone && <div className="text-red-600 text-sm">{errors.phone.join(' ')}</div>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Email</label>
-          <input name="email" value={form.email ?? ''} onChange={onChange} type="email" className="w-full p-2 border rounded" />
-          {errors.email && <div className="text-red-600 text-sm">{errors.email.join(' ')}</div>}
-        </div>
-      </div>
-
-      {/* Church selection instead of plain assembly_id */}
-      <div>
-        <label className="block text-sm font-medium">Church</label>
-        <select name="church_id" value={String(form.church_id ?? '')} onChange={onChange} className="w-full p-2 border rounded">
-          <option value="">— Select church —</option>
-          {churches.map((c: any) => (
-            <option key={c.id} value={c.id}>
-              {c.name ?? c.title ?? `#${c.id}`}
-            </option>
-          ))}
-        </select>
-        {errors.church_id && <div className="text-red-600 text-sm">{errors.church_id.join(' ')}</div>}
-      </div>
-
-      {/* Member number: show readonly when editing, hide when creating */}
-      {memberId ? (
-        <div>
-          <label className="block text-sm font-medium">Member number</label>
-          <input name="member_number" value={form.member_number ?? ''} readOnly disabled className="w-full p-2 border rounded bg-gray-50" />
-          <div className="text-xs text-gray-500 mt-1">Member numbers are generated automatically and cannot be changed.</div>
-        </div>
-      ) : null}
-
-      <div>
-        <label className="block text-sm font-medium">Gender</label>
-        <select name="gender" value={form.gender ?? 'male'} onChange={onChange} className="w-full p-2 border rounded">
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-        </select>
-        {errors.gender && <div className="text-red-600 text-sm">{errors.gender.join(' ')}</div>}
-      </div>
-
-      <div className="flex justify-end">
-        <button type="submit" disabled={saving} className="px-4 py-2 bg-sky-600 text-white rounded">
-          {saving ? 'Saving…' : 'Save member'}
-        </button>
-      </div>
-    </form>
+    </div>
   )
 }

@@ -1,10 +1,32 @@
-// src/app/admin/members/page.tsx
 'use client'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { apiGet, deleteMember } from '@/lib/adminApi'
 import { fetchChurchesList } from '@/lib/adminApi'
 import Toast from '@/components/Toast'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { 
+  faUsers, 
+  faSearch, 
+  faPlus, 
+  faEye, 
+  faEdit, 
+  faTrash, 
+  faChurch,
+  faDownload,
+  faToggleOn,
+  faToggleOff,
+  faSpinner,
+  faFilter,
+  faCheckSquare,
+  faSquare,
+  faArrowLeft,
+  faArrowRight,
+  faTimes,
+  faMoneyBillWave,
+  faUserCheck,
+  faUserSlash
+} from '@fortawesome/free-solid-svg-icons'
 
 type Member = any
 
@@ -22,7 +44,7 @@ export default function AdminMembersPage() {
   const [perPage, setPerPage] = useState<number>(20)
   const [page, setPage] = useState<number>(1)
 
-  // pagination meta (if backend sends meta)
+  // pagination meta
   const [total, setTotal] = useState<number | null>(null)
   const [lastPage, setLastPage] = useState<number | null>(null)
 
@@ -45,7 +67,7 @@ export default function AdminMembersPage() {
   const modalRef = useRef<HTMLDivElement | null>(null)
   const closeBtnRef = useRef<HTMLButtonElement | null>(null)
 
-  // load churches for filter dropdown (superadmin)
+  // load churches for filter dropdown
   useEffect(() => {
     let mounted = true
       ; (async () => {
@@ -86,7 +108,6 @@ export default function AdminMembersPage() {
 
         const path = `/api/admin/members${qs.toString() ? `?${qs.toString()}` : ''}`
         const body = await apiGet(path)
-        // body might be: { data: [...], meta: { total, last_page } } OR an array
         const list = Array.isArray(body) ? body : (body?.data ?? [])
         if (!mounted) return
         setMembers(list)
@@ -111,12 +132,11 @@ export default function AdminMembersPage() {
 
   // single delete
   async function handleDeleteMember(id: number | string) {
-    if (!confirm('Delete this member? This cannot be undone.')) return
+    if (!confirm('Are you sure you want to delete this member? This action cannot be undone.')) return
     try {
       await deleteMember(id)
       setMembers(prev => prev.filter(m => String(m.id) !== String(id)))
-      setToast({ show: true, message: 'Member deleted', type: 'success' })
-      // remove from selection if present
+      setToast({ show: true, message: 'Member deleted successfully', type: 'success' })
       setSelected(prev => {
         const copy = { ...prev }; delete copy[String(id)]; return copy
       })
@@ -130,33 +150,31 @@ export default function AdminMembersPage() {
   async function handleBulkDelete() {
     const ids = Object.keys(selected).filter(k => selected[k])
     if (ids.length === 0) { setToast({ show: true, type: 'error', message: 'No members selected' }); return }
-    if (!confirm(`Delete ${ids.length} members? This cannot be undone.`)) return
+    if (!confirm(`Are you sure you want to delete ${ids.length} members? This action cannot be undone.`)) return
     try {
       for (const id of ids) {
         await deleteMember(id)
       }
       setMembers(prev => prev.filter(m => !ids.includes(String(m.id))))
       setSelected({})
-      setToast({ show: true, message: `Deleted ${ids.length} members`, type: 'success' })
+      setToast({ show: true, message: `Successfully deleted ${ids.length} members`, type: 'success' })
     } catch (err: any) {
       console.error('bulk delete failed', err)
       setToast({ show: true, message: err?.message ?? 'Bulk delete failed', type: 'error' })
     }
   }
 
-  // open inspect modal -> lazy load member data + some related resources
+  // open inspect modal
   async function openInspect(id: number | string) {
     setInspectingMemberId(id)
     setInspectingMember(null)
     setInspectingLoading(true)
 
-    // block background scroll while loading UI is visible
     document.body.style.overflow = 'hidden'
 
     try {
       const body = await apiGet(`/api/admin/members/${id}`)
       const data = body?.data ?? body
-      // try to fetch some related short lists (payments, events) if available
       let recentPayments: any[] = []
       try {
         const rp = await apiGet(`/api/admin/members/${id}/payments?limit=6`)
@@ -164,14 +182,12 @@ export default function AdminMembersPage() {
       } catch (e) { /* ignore */ }
 
       setInspectingMember({ ...data, recentPayments })
-      // focus the close button once data is loaded
       setTimeout(() => closeBtnRef.current?.focus(), 50)
     } catch (err: any) {
       console.error('fetch member failed', err)
-      setToast({ show: true, message: err?.message ?? 'Failed to load member', type: 'error' })
+      setToast({ show: true, message: err?.message ?? 'Failed to load member details', type: 'error' })
       setInspectingMember(null)
       setInspectingMemberId(null)
-      // restore scroll if closed on error
       document.body.style.overflow = ''
     } finally {
       setInspectingLoading(false)
@@ -186,7 +202,7 @@ export default function AdminMembersPage() {
     document.body.style.overflow = ''
   }
 
-  // toggle active (works both from row and modal)
+  // toggle active
   async function toggleActive(member: Member) {
     if (!member?.id) return
     const newVal = !member.is_active
@@ -197,17 +213,16 @@ export default function AdminMembersPage() {
         body: JSON.stringify({ is_active: newVal }),
         credentials: 'same-origin',
       })
-      // refresh row in UI
       setMembers(prev => prev.map(m => m.id === member.id ? { ...m, is_active: newVal } : m))
       if (inspectingMember?.id === member.id) setInspectingMember(prev => prev ? { ...prev, is_active: newVal } : prev)
-      setToast({ show: true, message: `Member ${newVal ? 'activated' : 'deactivated'}`, type: 'success' })
+      setToast({ show: true, message: `Member ${newVal ? 'activated' : 'deactivated'} successfully`, type: 'success' })
     } catch (err: any) {
       console.error('toggle active failed', err)
-      setToast({ show: true, message: err?.message ?? 'Failed to update member', type: 'error' })
+      setToast({ show: true, message: err?.message ?? 'Failed to update member status', type: 'error' })
     }
   }
 
-  // helpers for selection
+  // selection helpers
   function toggleSelect(id: string | number) {
     setSelected(prev => ({ ...prev, [String(id)]: !prev[String(id)] }))
   }
@@ -227,7 +242,7 @@ export default function AdminMembersPage() {
     return `/api/admin/members/export${qs.toString() ? `?${qs.toString()}` : ''}`
   }, [churchId, status, debouncedQ])
 
-  // keyboard / click handlers while modal open
+  // keyboard handlers for modal
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (!inspectingMemberId) return
@@ -235,7 +250,6 @@ export default function AdminMembersPage() {
         e.preventDefault()
         closeInspect()
       } else if (e.key === 'Tab') {
-        // basic focus trap: keep focus inside modal
         const container = modalRef.current
         if (!container) return
         const focusable = container.querySelectorAll<HTMLElement>('a,button,input,select,textarea,[tabindex]:not([tabindex="-1"])')
@@ -267,198 +281,485 @@ export default function AdminMembersPage() {
   }
 
   return (
-    <div>
-      <div className="flex items-start justify-between mb-4 gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Members</h1>
-          <div className="text-sm text-gray-500">Manage all members — search, filter, export or bulk-manage</div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 dark:from-gray-900 dark:to-blue-900/20 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
+              Members Management
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300 text-lg">
+              Manage all members across your organization with advanced search and filtering
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <a 
+              href={exportUrl} 
+              className="px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors flex items-center gap-2 font-semibold"
+            >
+              <FontAwesomeIcon icon={faDownload} className="text-sm" />
+              Export CSV
+            </a>
+            <Link 
+              href="/admin/members/new" 
+              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2 font-semibold"
+            >
+              <FontAwesomeIcon icon={faPlus} className="text-sm" />
+              Add Member
+            </Link>
+          </div>
         </div>
 
-        <div className="flex gap-2 items-center">
-          <Link href="/admin/members/new" className="px-3 py-2 bg-sky-600 text-white rounded">Add member</Link>
-          <a href={exportUrl} className="px-3 py-2 border rounded text-sm">Export CSV</a>
+        {/* Search and Filters */}
+        <div className="mb-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 dark:border-gray-700/50 p-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex items-center gap-3 flex-1 max-w-2xl">
+              <div className="relative flex-1">
+                <FontAwesomeIcon 
+                  icon={faSearch} 
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"
+                />
+                <input
+                  placeholder="Search by name, phone, email, or member number…"
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  aria-label="Search members"
+                />
+              </div>
+              <button 
+                onClick={() => { setQ(''); setPage(1) }} 
+                className="px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-medium"
+              >
+                Clear
+              </button>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <FontAwesomeIcon icon={faFilter} className="text-gray-400 text-sm" />
+              <select 
+                value={churchId} 
+                onChange={(e) => { setChurchId(e.target.value); setPage(1) }} 
+                className="px-4 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">All churches</option>
+                {churches.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+
+              <select 
+                value={status} 
+                onChange={(e) => { setStatus(e.target.value as any); setPage(1) }} 
+                className="px-4 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">Any status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+
+              <select 
+                value={String(perPage)} 
+                onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1) }} 
+                className="px-4 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="10">10 / page</option>
+                <option value="20">20 / page</option>
+                <option value="50">50 / page</option>
+                <option value="100">100 / page</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Bulk Actions */}
+          {selectedCount > 0 && (
+            <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <FontAwesomeIcon icon={faUsers} className="text-blue-500 text-lg" />
+                  <div>
+                    <div className="font-semibold text-blue-800 dark:text-blue-300">
+                      {selectedCount} member{selectedCount !== 1 ? 's' : ''} selected
+                    </div>
+                    <div className="text-sm text-blue-600 dark:text-blue-400">
+                      Bulk actions available for selected members
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={selectAllCurrentlyShown} 
+                    className="px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors flex items-center gap-2"
+                  >
+                    <FontAwesomeIcon icon={faCheckSquare} className="text-sm" />
+                    Select All
+                  </button>
+                  <button 
+                    onClick={clearSelection} 
+                    className="px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors flex items-center gap-2"
+                  >
+                    <FontAwesomeIcon icon={faTimes} className="text-sm" />
+                    Clear
+                  </button>
+                  <button 
+                    onClick={handleBulkDelete} 
+                    disabled={selectedCount === 0}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 font-semibold"
+                  >
+                    <FontAwesomeIcon icon={faTrash} className="text-sm" />
+                    Delete ({selectedCount})
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-      </div>
 
-      <div className="bg-white rounded shadow p-4 mb-4">
-        <div className="flex gap-2 flex-wrap">
-          <input
-            placeholder="Search name, phone, email or number…"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            className="p-2 border rounded w-80"
-          />
+        {/* Main Content */}
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 dark:border-gray-700/50 overflow-hidden">
+          <div className="overflow-auto">
+            <table className="w-full text-left text-sm min-w-[1000px]">
+              <thead className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
+                <tr>
+                  <th className="p-6">
+                    <input 
+                      type="checkbox" 
+                      onChange={(e) => { e.target.checked ? selectAllCurrentlyShown() : clearSelection() }} 
+                      checked={members.length > 0 && selectedCount === members.length}
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                  </th>
+                  <th className="p-6 font-semibold text-gray-700 dark:text-gray-200 text-base">Member ID</th>
+                  <th className="p-6 font-semibold text-gray-700 dark:text-gray-200 text-base">Member Details</th>
+                  <th className="p-6 font-semibold text-gray-700 dark:text-gray-200 text-base">Contact</th>
+                  <th className="p-6 font-semibold text-gray-700 dark:text-gray-200 text-base">Church</th>
+                  <th className="p-6 font-semibold text-gray-700 dark:text-gray-200 text-base">Status</th>
+                  <th className="p-6 font-semibold text-gray-700 dark:text-gray-200 text-base">Actions</th>
+                </tr>
+              </thead>
 
-          <select value={churchId} onChange={(e) => { setChurchId(e.target.value); setPage(1) }} className="p-2 border rounded">
-            <option value="">All churches</option>
-            {churches.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
+              <tbody>
+                {loading ? (
+                  Array.from({ length: perPage > 20 ? 10 : perPage }).map((_, i) => (
+                    <tr key={i} className="border-t border-gray-100 dark:border-gray-700">
+                      <td className="p-6"><div className="h-4 w-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" /></td>
+                      <td className="p-6"><div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" /></td>
+                      <td className="p-6">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse" />
+                          <div className="space-y-2">
+                            <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                            <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-6"><div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" /></td>
+                      <td className="p-6"><div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" /></td>
+                      <td className="p-6"><div className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" /></td>
+                      <td className="p-6"><div className="h-8 w-28 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" /></td>
+                    </tr>
+                  ))
+                ) : members.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="p-12 text-center">
+                      <div className="flex flex-col items-center justify-center gap-4">
+                        <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                          <FontAwesomeIcon icon={faUsers} className="text-gray-400 text-2xl" />
+                        </div>
+                        <div className="text-gray-500 dark:text-gray-400 text-lg font-medium">
+                          No members found
+                        </div>
+                        {debouncedQ || churchId || status !== 'all' ? (
+                          <p className="text-gray-400 dark:text-gray-500 max-w-md">
+                            No members match your current filters. Try adjusting your search criteria or clear the filters.
+                          </p>
+                        ) : (
+                          <p className="text-gray-400 dark:text-gray-500 max-w-md">
+                            Get started by adding members to your organization.
+                          </p>
+                        )}
+                        <Link 
+                          href="/admin/members/new" 
+                          className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2 font-semibold mt-4"
+                        >
+                          <FontAwesomeIcon icon={faPlus} className="text-sm" />
+                          Add Your First Member
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                ) : members.map(m => (
+                  <tr key={m.id} className="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors">
+                    <td className="p-6">
+                      <input 
+                        type="checkbox" 
+                        checked={!!selected[String(m.id)]} 
+                        onChange={() => toggleSelect(m.id)}
+                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                    </td>
+                    <td className="p-6">
+                      <div className="font-mono text-sm text-gray-600 dark:text-gray-400">
+                        {m.member_number ?? m.id}
+                      </div>
+                    </td>
+                    <td className="p-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
+                          <span className="text-white font-bold text-lg">
+                            {(m.first_name?.charAt(0) + m.last_name?.charAt(0)).toUpperCase()}
+                          </span>
+                        </div>
+                        <div>
+                          <div className="font-semibold text-gray-900 dark:text-white text-lg">
+                            {m.first_name} {m.last_name}
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            {m.email || 'No email'}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="p-6">
+                      <div className="text-gray-700 dark:text-gray-300">
+                        {m.phone || '—'}
+                      </div>
+                    </td>
+                    <td className="p-6">
+                      <div className="flex items-center gap-2">
+                        <FontAwesomeIcon icon={faChurch} className="text-gray-400 text-sm" />
+                        <span className="text-gray-700 dark:text-gray-300">
+                          {m.church?.name || '—'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="p-6">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                        m.is_active 
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' 
+                          : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+                      }`}>
+                        <FontAwesomeIcon 
+                          icon={m.is_active ? faUserCheck : faUserSlash} 
+                          className="mr-1 text-xs" 
+                        />
+                        {m.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className="p-6">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => openInspect(m.id)}
+                          className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center hover:bg-blue-200 dark:hover:bg-blue-800/50 transition-colors"
+                          title="Quick View"
+                        >
+                          <FontAwesomeIcon icon={faEye} className="text-sm" />
+                        </button>
+                        <Link
+                          href={`/admin/members/${m.id}`}
+                          className="w-10 h-10 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg flex items-center justify-center hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors"
+                          title="Full Details"
+                        >
+                          <FontAwesomeIcon icon={faEye} className="text-sm" />
+                        </Link>
+                        <Link
+                          href={`/admin/members/${m.id}/edit`}
+                          className="w-10 h-10 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 rounded-lg flex items-center justify-center hover:bg-yellow-200 dark:hover:bg-yellow-800/50 transition-colors"
+                          title="Edit Member"
+                        >
+                          <FontAwesomeIcon icon={faEdit} className="text-sm" />
+                        </Link>
+                        <button
+                          onClick={() => toggleActive(m)}
+                          className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg flex items-center justify-center hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors"
+                          title={m.is_active ? 'Deactivate' : 'Activate'}
+                        >
+                          <FontAwesomeIcon icon={m.is_active ? faToggleOn : faToggleOff} className="text-sm" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteMember(m.id)}
+                          className="w-10 h-10 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg flex items-center justify-center hover:bg-red-200 dark:hover:bg-red-800/50 transition-colors"
+                          title="Delete Member"
+                        >
+                          <FontAwesomeIcon icon={faTrash} className="text-sm" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-          <select value={status} onChange={(e) => { setStatus(e.target.value as any); setPage(1) }} className="p-2 border rounded">
-            <option value="all">Any status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
+        {/* Pagination */}
+        <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            Showing <strong className="text-gray-900 dark:text-white">{members.length}</strong> members
+            {total !== null && (
+              <span> of <strong className="text-gray-900 dark:text-white">{total}</strong> total</span>
+            )}
+          </div>
 
-          <select value={String(perPage)} onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1) }} className="p-2 border rounded">
-            <option value="10">10 / page</option>
-            <option value="20">20 / page</option>
-            <option value="50">50 / page</option>
-            <option value="100">100 / page</option>
-          </select>
-
-          <div className="ml-auto flex items-center gap-2">
-            <button onClick={selectAllCurrentlyShown} className="px-3 py-1 border rounded text-sm">Select all</button>
-            <button onClick={clearSelection} className="px-3 py-1 border rounded text-sm">Clear</button>
-            <button onClick={handleBulkDelete} disabled={selectedCount === 0} className="px-3 py-1 bg-red-50 text-red-600 border rounded text-sm disabled:opacity-50">
-              Delete ({selectedCount})
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setPage(p => Math.max(1, p - 1))} 
+              disabled={page <= 1}
+              className="w-10 h-10 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} className="text-gray-600 dark:text-gray-400 text-sm" />
+            </button>
+            
+            <div className="flex items-center gap-1 mx-2">
+              <span className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                Page {page}{lastPage ? ` of ${lastPage}` : ''}
+              </span>
+            </div>
+            
+            <button 
+              onClick={() => setPage(p => p + 1)} 
+              disabled={lastPage !== null && page >= lastPage}
+              className="w-10 h-10 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <FontAwesomeIcon icon={faArrowRight} className="text-gray-600 dark:text-gray-400 text-sm" />
             </button>
           </div>
         </div>
-      </div>
 
-      <div className="bg-white rounded shadow overflow-auto">
-        <table className="w-full text-left text-sm">
-          <thead className="text-xs text-gray-500">
-            <tr>
-              <th className="p-2"><input type="checkbox" onChange={(e) => { e.target.checked ? selectAllCurrentlyShown() : clearSelection() }} checked={members.length > 0 && selectedCount === members.length} /></th>
-              <th className="p-3">#</th>
-              <th className="p-3">Name</th>
-              <th className="p-3">Phone</th>
-              <th className="p-3">Church</th>
-              <th className="p-3">Status</th>
-              <th className="p-3">Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={7} className="p-4">Loading…</td></tr>
-            ) : members.length === 0 ? (
-              <tr><td colSpan={7} className="p-4 text-gray-500">No members found</td></tr>
-            ) : members.map(m => (
-              <tr key={m.id} className="border-t last:border-b">
-                <td className="p-2">
-                  <input type="checkbox" checked={!!selected[String(m.id)]} onChange={() => toggleSelect(m.id)} />
-                </td>
-                <td className="p-3">{m.member_number ?? m.id}</td>
-                <td className="p-3">
-                  <div className="font-medium">{m.first_name} {m.last_name}</div>
-                  <div className="text-xs text-gray-500">{m.email ?? ''}</div>
-                </td>
-                <td className="p-3">{m.phone ?? '—'}</td>
-                <td className="p-3">{m.church?.name ?? '—'}</td>
-                <td className="p-3">
-                  <span className={`px-2 py-1 rounded text-xs ${m.is_active ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-600'}`}>{m.is_active ? 'Active' : 'Inactive'}</span>
-                </td>
-                <td className="p-3">
-                  <div className="flex gap-2 items-center">
-                    <Link href={`/admin/members/${m.id}`} className="text-sky-600 text-sm">View</Link>
-                    <Link href={`/admin/members/${m.id}/edit`} className="text-gray-700 text-sm">Edit</Link>
-                    <button onClick={() => toggleActive(m)} className="text-sm">{m.is_active ? 'Deactivate' : 'Activate'}</button>
-                    <button onClick={() => handleDeleteMember(m.id)} className="text-red-600 text-sm">Delete</button>
+        {/* Enhanced Inspect Modal */}
+        {inspectingMemberId && (
+          <div
+            ref={overlayRef}
+            onMouseDown={onOverlayMouseDown}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            aria-modal="true"
+            role="dialog"
+          >
+            <div ref={modalRef} className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden transform transition-all duration-300 scale-95 hover:scale-100">
+              <div className="flex items-start justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">Member Details</h3>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {inspectingMember?.member_number ?? inspectingMemberId}
                   </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* pagination */}
-      <div className="mt-3 flex items-center justify-between">
-        <div className="text-sm text-gray-500">Showing {members.length} members{total !== null ? ` — ${total} total` : ''}</div>
-        <div className="flex gap-2 items-center">
-          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className="px-3 py-1 border rounded text-sm">Prev</button>
-          <div className="px-3 py-1 border rounded text-sm">Page {page}{lastPage ? ` / ${lastPage}` : ''}</div>
-          <button onClick={() => setPage(p => p + 1)} className="px-3 py-1 border rounded text-sm">Next</button>
-        </div>
-      </div>
-
-      {/* Inspect modal */}
-      {inspectingMemberId && (
-        <div
-          ref={overlayRef}
-          onMouseDown={onOverlayMouseDown}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-          aria-modal="true"
-          role="dialog"
-        >
-          <div ref={modalRef} className="bg-white rounded-lg shadow-lg max-w-2xl w-full overflow-auto">
-            <div className="flex items-start justify-between p-4 border-b">
-              <div>
-                <h3 className="text-lg font-semibold">Member details</h3>
-                <div className="text-xs text-gray-500">{inspectingMember?.member_number ?? inspectingMemberId}</div>
-              </div>
-              <div>
+                </div>
                 <button
                   ref={closeBtnRef}
                   onClick={closeInspect}
-                  className="px-2 py-1 border rounded"
+                  className="w-10 h-10 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors text-gray-600 dark:text-gray-400"
                   aria-label="Close member details"
                 >
-                  Close
+                  <FontAwesomeIcon icon={faTimes} className="text-lg" />
                 </button>
               </div>
-            </div>
 
-            <div className="p-4">
-              {inspectingLoading ? (
-                <div>Loading…</div>
-              ) : !inspectingMember ? (
-                <div className="text-sm text-gray-500">No details</div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                      <div className="text-xs text-gray-500">Name</div>
-                      <div className="font-medium">{inspectingMember.first_name} {inspectingMember.last_name}</div>
+              <div className="p-6 max-h-[70vh] overflow-y-auto">
+                {inspectingLoading ? (
+                  <div className="flex items-center justify-center gap-3 py-12">
+                    <FontAwesomeIcon icon={faSpinner} className="text-blue-500 text-xl animate-spin" />
+                    <div className="text-gray-600 dark:text-gray-400 font-medium">Loading member details...</div>
+                  </div>
+                ) : !inspectingMember ? (
+                  <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                    No member details available
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {/* Basic Information */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-1">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Full Name</div>
+                        <div className="font-semibold text-gray-900 dark:text-white text-lg">
+                          {inspectingMember.first_name} {inspectingMember.last_name}
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Contact</div>
+                        <div className="font-medium text-gray-900 dark:text-white">
+                          {inspectingMember.phone || '—'}
+                          {inspectingMember.email && (
+                            <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                              {inspectingMember.email}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Church</div>
+                        <div className="font-medium text-gray-900 dark:text-white">
+                          {inspectingMember.church?.name || '—'}
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Status</div>
+                        <div className="font-medium">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
+                            inspectingMember.is_active 
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' 
+                              : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+                          }`}>
+                            {inspectingMember.is_active ? 'Active' : 'Inactive'}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="text-xs text-gray-500">Phone / Email</div>
-                      <div className="font-medium">{inspectingMember.phone ?? '—'} {inspectingMember.email ? <span className="text-xs text-gray-500"> • {inspectingMember.email}</span> : null}</div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-gray-500">Church</div>
-                      <div className="font-medium">{inspectingMember.church?.name ?? '—'}</div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-gray-500">Status</div>
-                      <div className="font-medium">{inspectingMember.is_active ? 'Active' : 'Inactive'}</div>
+
+                    {/* Recent Payments */}
+                    {Array.isArray(inspectingMember.recentPayments) && inspectingMember.recentPayments.length > 0 && (
+                      <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+                        <div className="flex items-center gap-2 mb-4">
+                          <FontAwesomeIcon icon={faMoneyBillWave} className="text-green-500 text-sm" />
+                          <div className="text-sm font-semibold text-gray-900 dark:text-white">Recent Payments</div>
+                        </div>
+                        <div className="space-y-2">
+                          {inspectingMember.recentPayments.map((p: any) => (
+                            <div key={p.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                              <div>
+                                <div className="font-medium text-gray-900 dark:text-white text-sm">
+                                  {p.type ?? 'Payment'} — {p.reference ?? `#${p.id}`}
+                                </div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                  {p.created_at ? new Date(p.created_at).toLocaleDateString() : '—'}
+                                </div>
+                              </div>
+                              <div className="font-semibold text-green-600 dark:text-green-400">
+                                {p.amount ?? '—'} {p.currency ?? ''}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="border-t border-gray-200 dark:border-gray-700 pt-6 flex justify-end gap-3">
+                      <Link
+                        href={`/admin/members/${inspectingMemberId}/edit`}
+                        className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2 font-semibold"
+                      >
+                        <FontAwesomeIcon icon={faEdit} className="text-sm" />
+                        Edit Member
+                      </Link>
+                      <button
+                        onClick={() => inspectingMember && toggleActive(inspectingMember)}
+                        className="px-4 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors flex items-center gap-2 font-semibold"
+                      >
+                        <FontAwesomeIcon 
+                          icon={inspectingMember?.is_active ? faToggleOn : faToggleOff} 
+                          className="text-sm" 
+                        />
+                        {inspectingMember?.is_active ? 'Deactivate' : 'Activate'}
+                      </button>
                     </div>
                   </div>
-
-                  {Array.isArray(inspectingMember.recentPayments) && inspectingMember.recentPayments.length > 0 && (
-                    <div>
-                      <div className="text-xs text-gray-500">Recent payments</div>
-                      <ul className="mt-2 space-y-1">
-                        {inspectingMember.recentPayments.map((p: any) => (
-                          <li key={p.id} className="flex items-center justify-between text-sm">
-                            <div>{p.type ?? 'Payment'} — {p.reference ?? `#${p.id}`}</div>
-                            <div className="text-xs text-gray-500">{p.amount} {p.currency ?? ''}</div>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  <div>
-                    <div className="text-xs text-gray-500">Raw</div>
-                    <pre className="bg-gray-50 p-2 rounded text-xs overflow-auto">{JSON.stringify(inspectingMember, null, 2)}</pre>
-                  </div>
-
-                  <div className="flex justify-end gap-2">
-                    <Link href={`/admin/members/${inspectingMemberId}/edit`} className="px-3 py-1 border rounded text-sm">Edit</Link>
-                    <button onClick={() => toggleActive(inspectingMember)} className="px-3 py-1 border rounded text-sm">{inspectingMember.is_active ? 'Deactivate' : 'Activate'}</button>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {toast && <Toast show={toast.show} message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+        {toast && <Toast show={toast.show} message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      </div>
     </div>
   )
 }
