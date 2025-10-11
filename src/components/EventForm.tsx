@@ -114,11 +114,15 @@ export default function EventForm({ eventId }: Props) {
         if (type === 'checkbox') {
             const checked = (e.target as HTMLInputElement).checked
             setForm(prev => {
-                // if marking national, clear church & assemblies
+                // marking national clears church & assembly and disables selects
                 if (name === 'is_national' && checked) {
                     return { ...prev, is_national: true, church_id: '', assembly_id: '' }
                 }
-                // if unchecking is_national just set the flag
+                // unchecking national just flips the flag (do not re-populate church)
+                if (name === 'is_national' && !checked) {
+                    return { ...prev, is_national: false }
+                }
+                // normal checkbox (online)
                 return { ...prev, [name]: checked }
             })
         } else {
@@ -201,14 +205,31 @@ export default function EventForm({ eventId }: Props) {
                 {fieldError('title')}
             </div>
 
+            {/* National checkbox + Church select grouped */}
             <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-sm font-medium">National event</label>
+                    <div className="flex items-center gap-3">
+                        <input
+                            id="is_national"
+                            name="is_national"
+                            type="checkbox"
+                            checked={!!form.is_national}
+                            onChange={onChange}
+                            className="h-4 w-4"
+                        />
+                        <label htmlFor="is_national" className="text-sm">Mark as national/global (visible to all churches)</label>
+                    </div>
+                    {fieldError('is_national')}
+                </div>
+
                 <div>
                     <label className="block text-sm font-medium">Church</label>
                     <select
                         name="church_id"
                         value={form.church_id ?? ''}
                         onChange={onChange}
-                        className="w-full p-2 border rounded"
+                        className="w-full p-2 border rounded disabled:opacity-50"
                         disabled={!!form.is_national}
                     >
                         <option value="">— select church —</option>
@@ -217,21 +238,21 @@ export default function EventForm({ eventId }: Props) {
                     {fieldError('church_id')}
                     {form.is_national && <div className="text-xs text-gray-500 mt-1">This is a national event — visible to all churches</div>}
                 </div>
+            </div>
 
-                <div>
-                    <label className="block text-sm font-medium">Assembly (optional)</label>
-                    <select
-                        name="assembly_id"
-                        value={form.assembly_id ?? ''}
-                        onChange={onChange}
-                        className="w-full p-2 border rounded"
-                        disabled={!!form.is_national || !form.church_id}
-                    >
-                        <option value="">— none —</option>
-                        {assemblies.map((a: any) => <option key={a.id} value={a.id}>{a.name}</option>)}
-                    </select>
-                    {fieldError('assembly_id')}
-                </div>
+            <div>
+                <label className="block text-sm font-medium">Assembly (optional)</label>
+                <select
+                    name="assembly_id"
+                    value={form.assembly_id ?? ''}
+                    onChange={onChange}
+                    className="w-full p-2 border rounded"
+                    disabled={!!form.is_national || !form.church_id}
+                >
+                    <option value="">— none —</option>
+                    {assemblies.map((a: any) => <option key={a.id} value={a.id}>{a.name}</option>)}
+                </select>
+                {fieldError('assembly_id')}
             </div>
 
             <div className="flex items-center gap-4">
@@ -284,9 +305,6 @@ export default function EventForm({ eventId }: Props) {
             <div className="flex items-center gap-3">
                 <input id="online" name="online" type="checkbox" checked={!!form.online} onChange={onChange} />
                 <label htmlFor="online" className="text-sm">Online event</label>
-
-                <input id="is_national" name="is_national" type="checkbox" checked={!!form.is_national} onChange={onChange} className="ml-4" />
-                <label htmlFor="is_national" className="text-sm">National event (visible to all churches)</label>
             </div>
 
             <div className="flex justify-end">
