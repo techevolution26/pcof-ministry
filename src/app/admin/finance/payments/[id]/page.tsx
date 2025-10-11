@@ -7,6 +7,30 @@ import Toast from '@/components/Toast'
 import { useAdminAuth } from '@/hooks/useAdminAuth'
 import { fetchPaymentById, approvePayment, createReconciliation } from '@/lib/adminApi'
 import ReconciliationForm from '@/components/ReconciliationForm'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+    faArrowLeft,
+    faCheckCircle,
+    faTimesCircle,
+    faHourglassHalf,
+    faFileInvoice,
+    faMoneyBillWave,
+    faUser,
+    faChurch,
+    faCreditCard,
+    faCalendar,
+    faFileText,
+    faReceipt,
+    faDownload,
+    faShare,
+    faEllipsisVertical,
+    faSpinner,
+    faExclamationTriangle,
+    faCheck,
+    faClock,
+    faHashtag,
+    faPlus
+} from '@fortawesome/free-solid-svg-icons'
 
 export default function PaymentDetailsPage() {
     const params = useParams()
@@ -20,6 +44,7 @@ export default function PaymentDetailsPage() {
     const [error, setError] = useState<string | null>(null)
     const [toast, setToast] = useState<any>(null)
     const [approving, setApproving] = useState(false)
+    const [refreshing, setRefreshing] = useState(false)
 
     useEffect(() => {
         let mounted = true
@@ -34,7 +59,7 @@ export default function PaymentDetailsPage() {
             } catch (err: any) {
                 console.error(err)
                 if (!mounted) return
-                setError(err?.message ?? 'Failed to load payment')
+                setError(err?.message ?? 'Failed to load payment details')
             } finally {
                 if (mounted) setLoading(false)
             }
@@ -43,126 +68,493 @@ export default function PaymentDetailsPage() {
         return () => { mounted = false }
     }, [id, isLoading])
 
+    const refreshPayment = async () => {
+        if (!id) return
+        setRefreshing(true)
+        try {
+            const body = await fetchPaymentById(id)
+            const p = body?.data ?? body
+            setPayment(p)
+        } catch (err: any) {
+            console.error('Failed to refresh payment', err)
+        } finally {
+            setRefreshing(false)
+        }
+    }
+
     async function handleApprove() {
         if (!payment) return
-        if (!window.confirm('Approve this payment?')) return
+        if (!window.confirm('Are you sure you want to approve this payment? This action cannot be undone.')) return
         setApproving(true)
         try {
             const body = await approvePayment(payment.id)
             const p = body?.data ?? body
             setPayment(p)
-            setToast({ show: true, message: 'Payment approved', type: 'success' })
+            setToast({ show: true, message: 'Payment approved successfully', type: 'success' })
         } catch (err: any) {
             console.error(err)
-            setToast({ show: true, message: err?.message ?? 'Approve failed', type: 'error' })
+            setToast({ show: true, message: err?.message ?? 'Failed to approve payment', type: 'error' })
         } finally {
             setApproving(false)
         }
     }
 
     async function handleReconciliationCreated(rec: any) {
-        // After creating reconciliation, attempt to refresh payment (to pick reconciliations)
         try {
-            const body = await fetchPaymentById(id)
-            const p = body?.data ?? body
-            setPayment(p)
-            setToast({ show: true, message: 'Reconciliation saved', type: 'success' })
+            await refreshPayment()
+            setToast({ show: true, message: 'Reconciliation record created successfully', type: 'success' })
         } catch {
-            // ignore
+            setToast({ show: true, message: 'Reconciliation created but failed to refresh', type: 'warning' })
         }
     }
 
-    if (isLoading || loading) return <div className="p-6 text-gray-500">Loading…</div>
-    if (error) return <div className="p-6 text-red-600">{error}</div>
-    if (!payment) return <div className="p-6 text-gray-500">Payment not found</div>
+    const getStatusIcon = (status: string) => {
+        const statusIcons: Record<string, any> = {
+            completed: faCheckCircle,
+            pending: faHourglassHalf,
+            failed: faTimesCircle,
+            submitted: faClock,
+            approved: faCheckCircle,
+            rejected: faTimesCircle
+        }
+        return statusIcons[status?.toLowerCase()] || faFileInvoice
+    }
 
-    // helper to get event image or payment file
+    const getStatusColor = (status: string) => {
+        const statusColors: Record<string, string> = {
+            completed: 'bg-green-100 text-green-800 border-green-200',
+            pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+            failed: 'bg-red-100 text-red-800 border-red-200',
+            submitted: 'bg-blue-100 text-blue-800 border-blue-200',
+            approved: 'bg-green-100 text-green-800 border-green-200',
+            rejected: 'bg-red-100 text-red-800 border-red-200'
+        }
+        return statusColors[status?.toLowerCase()] || 'bg-gray-100 text-gray-800 border-gray-200'
+    }
+
+    const getTypeIcon = (type: string) => {
+        const typeIcons: Record<string, any> = {
+            tithe: faMoneyBillWave,
+            offering: faFileInvoice,
+            collection: faMoneyBillWave,
+            event_fee: faCalendar,
+            donation: faMoneyBillWave
+        }
+        return typeIcons[type?.toLowerCase()] || faFileInvoice
+    }
+
+    const getTypeColor = (type: string) => {
+        const typeColors: Record<string, string> = {
+            tithe: 'bg-purple-100 text-purple-800 border-purple-200',
+            offering: 'bg-blue-100 text-blue-800 border-blue-200',
+            collection: 'bg-green-100 text-green-800 border-green-200',
+            event_fee: 'bg-orange-100 text-orange-800 border-orange-200',
+            donation: 'bg-teal-100 text-teal-800 border-teal-200'
+        }
+        return typeColors[type?.toLowerCase()] || 'bg-gray-100 text-gray-800 border-gray-200'
+    }
+
+    // Loading state
+    if (isLoading || loading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 dark:from-gray-900 dark:to-blue-900/20 py-8 flex items-center justify-center">
+                <div className="text-center">
+                    <FontAwesomeIcon icon={faSpinner} className="animate-spin text-3xl text-blue-600 mb-4" />
+                    <div className="text-lg font-medium text-gray-600 dark:text-gray-400">Loading payment details...</div>
+                </div>
+            </div>
+        )
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 dark:from-gray-900 dark:to-blue-900/20 py-8">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-8 text-center shadow-xl">
+                        <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <FontAwesomeIcon icon={faExclamationTriangle} className="text-red-600 dark:text-red-400 text-2xl" />
+                        </div>
+                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Payment Not Found</h3>
+                        <p className="text-gray-600 dark:text-gray-300 mb-6">{error}</p>
+                        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                            <button
+                                onClick={() => router.back()}
+                                className="px-6 py-3 bg-white/80 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-800 transition-colors duration-200 flex items-center gap-2"
+                            >
+                                <FontAwesomeIcon icon={faArrowLeft} />
+                                Go Back
+                            </button>
+                            <Link
+                                href="/admin/finance/payments"
+                                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors duration-200 flex items-center gap-2"
+                            >
+                                View All Payments
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    if (!payment) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 dark:from-gray-900 dark:to-blue-900/20 py-8 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="text-lg font-medium text-gray-600 dark:text-gray-400">Payment not found</div>
+                </div>
+            </div>
+        )
+    }
+
+    // Helper to get event image or payment file
     const imageUrl = payment?.image_url ?? payment?.file_url ?? payment?.metadata?.image_url
 
     return (
-        <div>
-            <div className="flex items-start justify-between mb-4">
-                <div>
-                    <h1 className="text-2xl font-semibold">Payment — {payment.reference ?? `#${payment.id}`}</h1>
-                    <div className="text-sm text-gray-500">{payment.type} • {payment.status}</div>
-                </div>
-
-                <div className="flex gap-2">
-                    {payment.status === 'submitted' && (
-                        <button onClick={handleApprove} disabled={approving} className="px-3 py-1 bg-green-600 text-white rounded">
-                            {approving ? 'Approving…' : 'Approve'}
-                        </button>
-                    )}
-                    <Link href="/admin/finance/payments" className="px-3 py-1 border rounded">Back</Link>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-                <div className="col-span-2 bg-white rounded shadow p-4">
-                    <dl className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div>
-                            <dt className="text-xs text-gray-500">Amount</dt>
-                            <dd className="font-medium">{payment.amount} {payment.currency ?? ''}</dd>
-                        </div>
-                        <div>
-                            <dt className="text-xs text-gray-500">Member</dt>
-                            <dd>{payment.member_name ?? payment.member?.first_name ? `${payment.member?.first_name} ${payment.member?.last_name}` : (payment.member_id ?? '—')}</dd>
-                        </div>
-                        <div>
-                            <dt className="text-xs text-gray-500">Church</dt>
-                            <dd>{payment.church?.name ?? (payment.church_id ?? '—')}</dd>
-                        </div>
-                        <div>
-                            <dt className="text-xs text-gray-500">Method</dt>
-                            <dd>{payment.payment_method ?? '—'}</dd>
-                        </div>
-                        <div>
-                            <dt className="text-xs text-gray-500">Event</dt>
-                            <dd>{payment.event?.title ? <Link href={`/admin/church/events/${payment.event.id}`}>{payment.event.title}</Link> : (payment.event_id ?? '—')}</dd>
-                        </div>
-                        <div>
-                            <dt className="text-xs text-gray-500">Created</dt>
-                            <dd>{payment.created_at ? new Date(payment.created_at).toLocaleString() : '—'}</dd>
-                        </div>
-
-                        <div className="md:col-span-2">
-                            <dt className="text-xs text-gray-500">Description</dt>
-                            <dd className="whitespace-pre-wrap">{payment.description ?? '—'}</dd>
-                        </div>
-                    </dl>
-
-                    {imageUrl && (
-                        <div className="mt-4">
-                            <img src={imageUrl} alt="payment file" className="max-w-xs rounded" />
-                        </div>
-                    )}
-                </div>
-
-                <aside className="bg-white rounded shadow p-4">
-                    <h3 className="text-sm font-semibold mb-2">Reconciliations</h3>
-
-                    {/* Show reconciliations if included on payment.reconciliations */}
-                    {Array.isArray(payment.reconciliations) && payment.reconciliations.length > 0 ? (
-                        <div className="space-y-2">
-                            {payment.reconciliations.map((r: any) => (
-                                <div key={r.id} className="border rounded p-2">
-                                    <div className="text-sm font-medium">{r.statement_reference ?? r.id}</div>
-                                    <div className="text-xs text-gray-500">{r.statement_date ?? r.created_at}</div>
-                                    <div className="text-xs">{r.statement_amount ?? '—'}</div>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 dark:from-gray-900 dark:to-blue-900/20 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Header */}
+                <div className="mb-8">
+                    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-3">
+                                <Link
+                                    href="/admin/finance/payments"
+                                    className="w-10 h-10 flex items-center justify-center bg-white/80 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-800 transition-colors duration-200 backdrop-blur-sm"
+                                >
+                                    <FontAwesomeIcon icon={faArrowLeft} className="text-gray-600 dark:text-gray-400" />
+                                </Link>
+                                <div>
+                                    <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
+                                        Payment Details
+                                    </h1>
+                                    <p className="text-lg text-gray-600 dark:text-gray-300 font-light">
+                                        {payment.reference ? `Reference: ${payment.reference}` : `ID: ${payment.id}`}
+                                    </p>
                                 </div>
-                            ))}
+                            </div>
                         </div>
-                    ) : (
-                        <div className="text-xs text-gray-500">No reconciliations</div>
-                    )}
 
-                    <div className="mt-4">
-                        <ReconciliationForm paymentId={payment.id} defaultChurchId={payment.church_id} onSaved={handleReconciliationCreated} />
+                        <div className="flex flex-wrap items-center gap-3">
+                            <button
+                                onClick={refreshPayment}
+                                disabled={refreshing}
+                                className="px-4 py-2.5 bg-white/80 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-800 disabled:opacity-50 transition-colors duration-200 flex items-center gap-2 backdrop-blur-sm"
+                            >
+                                <FontAwesomeIcon icon={refreshing ? faSpinner : faCheck} className={refreshing ? 'animate-spin' : ''} />
+                                Refresh
+                            </button>
+
+                            {payment.status === 'submitted' && (
+                                <button
+                                    onClick={handleApprove}
+                                    disabled={approving}
+                                    className="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl disabled:opacity-50 transition-colors duration-200 flex items-center gap-2 shadow-lg"
+                                >
+                                    <FontAwesomeIcon icon={approving ? faSpinner : faCheckCircle} className={approving ? 'animate-spin' : ''} />
+                                    {approving ? 'Approving...' : 'Approve Payment'}
+                                </button>
+                            )}
+
+                            <button className="w-10 h-10 flex items-center justify-center bg-white/80 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-800 transition-colors duration-200 backdrop-blur-sm">
+                                <FontAwesomeIcon icon={faEllipsisVertical} className="text-gray-600 dark:text-gray-400" />
+                            </button>
+                        </div>
                     </div>
-                </aside>
+                </div>
+
+                <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+                    {/* Main Content - 3 columns */}
+                    <div className="xl:col-span-3 space-y-6">
+                        {/* Payment Overview Card */}
+                        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 dark:border-gray-700/50 overflow-hidden">
+                            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-3">
+                                    <FontAwesomeIcon icon={faFileInvoice} className="text-blue-500" />
+                                    Payment Overview
+                                </h2>
+                            </div>
+                            <div className="p-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {/* Amount Card */}
+                                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <FontAwesomeIcon icon={faMoneyBillWave} className="text-2xl opacity-80" />
+                                            <span className={`px-3 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm ${getStatusColor(payment.status)}`}>
+                                                <FontAwesomeIcon icon={getStatusIcon(payment.status)} className="mr-1" />
+                                                {payment.status}
+                                            </span>
+                                        </div>
+                                        <div className="text-3xl font-bold mb-1">
+                                            {Number(payment.amount).toLocaleString('en-US', {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2
+                                            })}
+                                        </div>
+                                        <div className="text-blue-100 text-sm">
+                                            {payment.currency || 'KES'}
+                                        </div>
+                                    </div>
+
+                                    {/* Type Card */}
+                                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-2xl p-6 border border-gray-200 dark:border-gray-600">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                                                <FontAwesomeIcon icon={getTypeIcon(payment.type)} className="text-blue-600 dark:text-blue-400 text-lg" />
+                                            </div>
+                                            <div>
+                                                <div className="text-sm text-gray-500 dark:text-gray-400">Type</div>
+                                                <div className="text-lg font-semibold text-gray-900 dark:text-white capitalize">
+                                                    {payment.type?.replace('_', ' ')}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium border ${getTypeColor(payment.type)}`}>
+                                            {payment.type}
+                                        </span>
+                                    </div>
+
+                                    {/* Date Card */}
+                                    <div className="bg-gray-50 dark:bg-gray-700/50 rounded-2xl p-6 border border-gray-200 dark:border-gray-600">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
+                                                <FontAwesomeIcon icon={faCalendar} className="text-green-600 dark:text-green-400 text-lg" />
+                                            </div>
+                                            <div>
+                                                <div className="text-sm text-gray-500 dark:text-gray-400">Created</div>
+                                                <div className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                    {new Date(payment.created_at).toLocaleDateString()}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                                            {new Date(payment.created_at).toLocaleTimeString()}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Detailed Information */}
+                        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 dark:border-gray-700/50 overflow-hidden">
+                            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-3">
+                                    <FontAwesomeIcon icon={faReceipt} className="text-green-500" />
+                                    Payment Details
+                                </h2>
+                            </div>
+                            <div className="p-6">
+                                <dl className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-4">
+                                        <div>
+                                            <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2 mb-2">
+                                                <FontAwesomeIcon icon={faUser} className="text-blue-500" />
+                                                Member
+                                            </dt>
+                                            <dd className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                {payment.member_name ??
+                                                    (payment.member?.first_name ?
+                                                        `${payment.member?.first_name} ${payment.member?.last_name}` :
+                                                        (payment.member_id ?? '—'))}
+                                            </dd>
+                                        </div>
+
+                                        <div>
+                                            <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2 mb-2">
+                                                <FontAwesomeIcon icon={faChurch} className="text-purple-500" />
+                                                Church
+                                            </dt>
+                                            <dd className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                {payment.church?.name ?? (payment.church_id ?? '—')}
+                                            </dd>
+                                        </div>
+
+                                        <div>
+                                            <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2 mb-2">
+                                                <FontAwesomeIcon icon={faCreditCard} className="text-orange-500" />
+                                                Payment Method
+                                            </dt>
+                                            <dd className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                {payment.payment_method ?? '—'}
+                                            </dd>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <div>
+                                            <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2 mb-2">
+                                                <FontAwesomeIcon icon={faCalendar} className="text-green-500" />
+                                                Event
+                                            </dt>
+                                            <dd className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                {payment.event?.title ?
+                                                    <Link
+                                                        href={`/admin/church/events/${payment.event.id}`}
+                                                        className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline"
+                                                    >
+                                                        {payment.event.title}
+                                                    </Link> :
+                                                    (payment.event_id ?? '—')}
+                                            </dd>
+                                        </div>
+
+                                        <div>
+                                            <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2 mb-2">
+                                                <FontAwesomeIcon icon={faHashtag} className="text-indigo-500" />
+                                                Reference
+                                            </dt>
+                                            <dd className="text-lg font-semibold text-gray-900 dark:text-white font-mono">
+                                                {payment.reference ?? '—'}
+                                            </dd>
+                                        </div>
+
+                                        <div>
+                                            <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2 mb-2">
+                                                <FontAwesomeIcon icon={faClock} className="text-gray-500" />
+                                                Last Updated
+                                            </dt>
+                                            <dd className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                {payment.updated_at ? new Date(payment.updated_at).toLocaleString() : '—'}
+                                            </dd>
+                                        </div>
+                                    </div>
+
+                                    {/* Description - Full Width */}
+                                    {payment.description && (
+                                        <div className="md:col-span-2">
+                                            <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2 mb-2">
+                                                <FontAwesomeIcon icon={faFileText} className="text-teal-500" />
+                                                Description
+                                            </dt>
+                                            <dd className="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 border border-gray-200 dark:border-gray-600">
+                                                {payment.description}
+                                            </dd>
+                                        </div>
+                                    )}
+
+                                    {/* Payment Image */}
+                                    {imageUrl && (
+                                        <div className="md:col-span-2">
+                                            <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2 mb-2">
+                                                <FontAwesomeIcon icon={faReceipt} className="text-red-500" />
+                                                Payment Receipt/Image
+                                            </dt>
+                                            <dd className="flex justify-center">
+                                                <img
+                                                    src={imageUrl}
+                                                    alt="Payment receipt or documentation"
+                                                    className="max-w-full h-auto max-h-96 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600"
+                                                />
+                                            </dd>
+                                        </div>
+                                    )}
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Sidebar - 1 column */}
+                    <div className="space-y-6">
+                        {/* Reconciliations Card */}
+                        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 dark:border-gray-700/50 overflow-hidden">
+                            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-3">
+                                    <FontAwesomeIcon icon={faCheckCircle} className="text-green-500" />
+                                    Reconciliations
+                                </h3>
+                            </div>
+                            <div className="p-6">
+                                {/* Show reconciliations if included on payment.reconciliations */}
+                                {Array.isArray(payment.reconciliations) && payment.reconciliations.length > 0 ? (
+                                    <div className="space-y-4">
+                                        {payment.reconciliations.map((r: any) => (
+                                            <div key={r.id} className="border border-gray-200 dark:border-gray-600 rounded-xl p-4 bg-gray-50/50 dark:bg-gray-700/30">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <div className="font-medium text-gray-900 dark:text-white text-sm">
+                                                        {r.statement_reference ?? `Rec-${r.id}`}
+                                                    </div>
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${r.status === 'reconciled' ? 'bg-green-100 text-green-800' :
+                                                        r.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                                            'bg-gray-100 text-gray-800'
+                                                        }`}>
+                                                        {r.status}
+                                                    </span>
+                                                </div>
+                                                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                                    Date: {r.statement_date ?? new Date(r.created_at).toLocaleDateString()}
+                                                </div>
+                                                <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                                                    Amount: {r.statement_amount ? Number(r.statement_amount).toLocaleString() : '—'}
+                                                </div>
+                                                {r.notes && (
+                                                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                                        {typeof r.notes === 'string' ? r.notes : r.notes?.text}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-6">
+                                        <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                                            <FontAwesomeIcon icon={faReceipt} className="text-gray-400" />
+                                        </div>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                                            No reconciliation records found for this payment.
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Reconciliation Form */}
+                                <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700">
+                                    <ReconciliationForm
+                                        paymentId={payment.id}
+                                        defaultChurchId={payment.church_id}
+                                        onSaved={handleReconciliationCreated}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Quick Actions */}
+                        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 dark:border-gray-700/50 overflow-hidden">
+                            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-3">
+                                    <FontAwesomeIcon icon={faDownload} className="text-blue-500" />
+                                    Quick Actions
+                                </h3>
+                            </div>
+                            <div className="p-4 space-y-2">
+                                <button className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl transition-colors duration-200">
+                                    <FontAwesomeIcon icon={faDownload} className="text-gray-400" />
+                                    <span>Export Receipt</span>
+                                </button>
+                                <button className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl transition-colors duration-200">
+                                    <FontAwesomeIcon icon={faShare} className="text-gray-400" />
+                                    <span>Share Payment</span>
+                                </button>
+                                <Link
+                                    href={`/admin/finance/payments/new`}
+                                    className="w-full flex items-center gap-3 px-4 py-3 text-left text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-colors duration-200"
+                                >
+                                    <FontAwesomeIcon icon={faPlus} />
+                                    <span>Create Similar Payment</span>
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            {toast && <Toast show={toast.show} message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+            {toast && (
+                <Toast
+                    show={toast.show}
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                />
+            )}
         </div>
     )
 }
