@@ -26,7 +26,7 @@ export default function AdminUsersPage() {
         try {
           // JSON.stringify on Error often yields {}, include non-enumerable props for more detail
           console.error('Error details:', JSON.stringify(err, Object.getOwnPropertyNames(err)))
-        } catch (_) {}
+        } catch (_) { }
         setUsers([])
         setRoles([])
       } finally {
