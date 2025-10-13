@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
           <main className="container mx-auto p-4 md:p-6 flex-1">{children}</main>
 
-          <CogMaintenance size={80} />
+          {/* <CogMaintenance size={80} /> */}
           <Footer />
         </div>
       </body>
