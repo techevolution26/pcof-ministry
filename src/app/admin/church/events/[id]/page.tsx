@@ -1,4 +1,3 @@
-// app/admin/church/events/[id]/page.tsx
 'use client'
 import React, { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
@@ -8,6 +7,21 @@ import { fetchEventById } from '@/lib/adminApi'
 import ChurchMemberTypeahead from '@/components/ChurchMemberTypeahead'
 import { fetchEventRsvps, createEventRsvp, deleteEventRsvp } from '@/lib/adminApi'
 import Toast from '@/components/Toast'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+    faArrowLeft,
+    faCalendar,
+    faMapMarkerAlt,
+    faClock,
+    faUsers,
+    faUserPlus,
+    faUserMinus,
+    faEye,
+    faEdit,
+    faSpinner,
+    faTimes,
+    faGlobe
+} from '@fortawesome/free-solid-svg-icons'
 
 function fmtDate(dt?: string | null) {
     if (!dt) return '—'
@@ -55,13 +69,65 @@ export default function EventDetailsPage() {
         return () => { mounted = false }
     }, [id, isLoading])
 
-    if (isLoading || loading) return <div className="p-6 text-gray-500">Loading…</div>
-    if (error) return <div className="p-6 text-red-600">{error}</div>
-    if (!event) return <div className="p-6 text-gray-500">Event not found.</div>
+    if (isLoading || loading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 dark:from-gray-900 dark:to-blue-900/20 py-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center py-12">
+                        <FontAwesomeIcon
+                            icon={faSpinner}
+                            className="mx-auto mb-4 text-2xl text-blue-600 animate-spin"
+                        />
+                        <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                            Loading event details...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 dark:from-gray-900 dark:to-blue-900/20 py-8">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <FontAwesomeIcon icon={faTimes} className="text-4xl text-red-500 mb-4" />
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Error Loading Event</h2>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">{error}</p>
+                    <Link
+                        href="/admin/church/events"
+                        className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center gap-2"
+                    >
+                        <FontAwesomeIcon icon={faArrowLeft} />
+                        Back to Events
+                    </Link>
+                </div>
+            </div>
+        )
+    }
+
+    if (!event) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 dark:from-gray-900 dark:to-blue-900/20 py-8">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <FontAwesomeIcon icon={faCalendar} className="text-4xl text-gray-400 mb-4" />
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Event Not Found</h2>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">The event you're looking for doesn't exist.</p>
+                    <Link
+                        href="/admin/church/events"
+                        className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center gap-2"
+                    >
+                        <FontAwesomeIcon icon={faArrowLeft} />
+                        Back to Events
+                    </Link>
+                </div>
+            </div>
+        )
+    }
 
     async function handleAddAttendee() {
         if (!attendingMember) {
-            setToast({ show: true, message: 'Please pick a member', type: 'error' })
+            setToast({ show: true, message: 'Please select a member to add', type: 'error' })
             return
         }
         setSaving(true)
@@ -76,10 +142,10 @@ export default function EventDetailsPage() {
             const saved = res?.data ?? res
             setRsvps(prev => [saved, ...prev])
             setAttendingMember(null)
-            setToast({ show: true, message: 'Added attendee', type: 'success' })
+            setToast({ show: true, message: 'Attendee added successfully', type: 'success' })
         } catch (err: any) {
             console.error(err)
-            setToast({ show: true, message: err?.message ?? 'Failed to add', type: 'error' })
+            setToast({ show: true, message: err?.message ?? 'Failed to add attendee', type: 'error' })
         } finally {
             setSaving(false)
         }
@@ -90,79 +156,280 @@ export default function EventDetailsPage() {
         try {
             await deleteEventRsvp(rsvp.id)
             setRsvps(prev => prev.filter(x => x.id !== rsvp.id))
-            setToast({ show: true, message: 'Removed', type: 'success' })
+            setToast({ show: true, message: 'Attendee removed successfully', type: 'success' })
         } catch (err: any) {
             console.error(err)
-            setToast({ show: true, message: err?.message ?? 'Failed to remove', type: 'error' })
+            setToast({ show: true, message: err?.message ?? 'Failed to remove attendee', type: 'error' })
         }
     }
 
     const imageUrl = event.image_url ?? event.image_path ?? null
-    const placeholder = '/images/event-placeholder.png' // add this asset to public/images
+    const placeholder = '/images/event-placeholder.png'
 
     return (
-        <div>
-            <div className="flex items-start justify-between mb-4">
-                <div>
-                    <h1 className="text-2xl font-semibold">{event.title}</h1>
-                    <div className="text-sm text-gray-500">{event.location ?? (event.online ? 'Online' : '—')}</div>
-                    <div className="text-xs text-gray-400">{event.scope ?? (event.church_id ? 'church' : 'national')} • {fmtDate(event.starts_at)}</div>
-                </div>
-
-                <div className="flex gap-2">
-                    <Link href={`/admin/church/events/${id}/edit`} className="px-3 py-1 border rounded">Edit</Link>
-                    <Link href="/admin/church/events" className="px-3 py-1 border rounded">Back</Link>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div className="col-span-2 bg-white rounded shadow p-4">
-                    <div className="prose max-w-none">
-                        <div dangerouslySetInnerHTML={{ __html: event.description ?? '' }} />
-
-
-                        {/* Correct tag: <img> not <image>. Use lazy loading and fallback */}
-                        <img
-                            src={imageUrl ?? placeholder}
-                            alt={event.title ?? 'Event image'}
-                            loading="lazy"
-                            className="max-w-full h-auto rounded shadow-sm object-cover"
-                            onError={(e: any) => { e.currentTarget.src = placeholder }}
-                        />
-
-                    </div>
-                </div>
-
-                <aside className="bg-white rounded shadow p-4">
-                    <h3 className="text-sm font-semibold mb-2">Add attendee</h3>
-                    <ChurchMemberTypeahead churchId={event.church_id ?? user?.church_id} onSelect={(m) => setAttendingMember(m)} value={attendingMember} />
-                    <div className="mt-2 flex gap-2">
-                        <button onClick={handleAddAttendee} disabled={saving} className="px-3 py-1 bg-sky-600 text-white rounded">Add</button>
-                        <button onClick={() => setAttendingMember(null)} className="px-3 py-1 border rounded">Clear</button>
-                    </div>
-                </aside>
-            </div>
-
-            <section className="bg-white rounded shadow p-4">
-                <h2 className="text-lg font-semibold mb-3">Attendees ({rsvps.length})</h2>
-                <div className="space-y-2">
-                    {rsvps.map(r => (
-                        <div key={r.id} className="flex items-center justify-between border-b py-2">
-                            <div>
-                                <div className="font-medium">{r.member ? `${r.member.first_name} ${r.member.last_name}` : `Member #${r.member_id}`}</div>
-                                <div className="text-xs text-gray-500">{r.status} • {r.notes ?? ''}</div>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 dark:from-gray-900 dark:to-blue-900/20 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Header */}
+                <header className="mb-8">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-3">
+                                <Link
+                                    href="/admin/church/events"
+                                    className="flex items-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors group"
+                                >
+                                    <FontAwesomeIcon
+                                        icon={faArrowLeft}
+                                        className="text-sm group-hover:-translate-x-1 transition-transform"
+                                    />
+                                    <span className="text-sm font-medium">Back to Events</span>
+                                </Link>
                             </div>
-                            <div className="flex gap-2">
-                                <button onClick={() => router.push(`/admin/church/members/${r.member_id}`)} className="text-sky-600 text-sm">View</button>
-                                <button onClick={() => handleRemoveAttendee(r)} className="text-red-600 text-sm">Remove</button>
+                            <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
+                                Event Details
+                            </h1>
+                        </div>
+                        <div className="flex items-center gap-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-3 shadow-sm">
+                            <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
+                                <FontAwesomeIcon icon={faCalendar} className="text-white text-lg" />
+                            </div>
+                            <div className="hidden sm:block">
+                                <div className="text-sm font-medium text-gray-900 dark:text-white">Event Details</div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                    {event.scope ?? (event.church_id ? 'Church' : 'National')}
+                                </div>
                             </div>
                         </div>
-                    ))}
-                    {rsvps.length === 0 && <div className="text-gray-500">No attendees yet</div>}
-                </div>
-            </section>
+                    </div>
+                </header>
 
-            {toast && <Toast show={toast.show} message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Main Content */}
+                    <div className="lg:col-span-2 space-y-6">
+                        {/* Event Information Card */}
+                        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 overflow-hidden">
+                            {/* Event Image */}
+                            {imageUrl && (
+                                <div className="w-full h-64 bg-gradient-to-br from-blue-500 to-purple-600">
+                                    <img
+                                        src={imageUrl}
+                                        alt={event.title ?? 'Event image'}
+                                        loading="lazy"
+                                        className="w-full h-full object-cover"
+                                        onError={(e: any) => { e.currentTarget.src = placeholder }}
+                                    />
+                                </div>
+                            )}
+
+                            <div className="p-6">
+                                <div className="flex items-start justify-between mb-4">
+                                    <div>
+                                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{event.title}</h2>
+                                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                                            <div className="flex items-center gap-2">
+                                                <FontAwesomeIcon icon={faClock} className="text-blue-500" />
+                                                <span>{fmtDate(event.starts_at)}</span>
+                                            </div>
+                                            {event.location && (
+                                                <div className="flex items-center gap-2">
+                                                    <FontAwesomeIcon icon={faMapMarkerAlt} className="text-green-500" />
+                                                    <span>{event.location}</span>
+                                                </div>
+                                            )}
+                                            <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${event.scope === 'national' || event.is_national
+                                                ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
+                                                : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                                                }`}>
+                                                <FontAwesomeIcon icon={event.online ? faGlobe : faMapMarkerAlt} className="text-xs" />
+                                                {event.scope ?? (event.church_id ? 'Church Event' : 'National Event')}
+                                                {event.online && ' • Online'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Event Description */}
+                                {event.description && (
+                                    <div className="prose dark:prose-invert max-w-none">
+                                        <div dangerouslySetInnerHTML={{ __html: event.description }} />
+                                    </div>
+                                )}
+
+                                {/* Event Stats */}
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                                    <div className="text-center">
+                                        <div className="text-2xl font-bold text-gray-900 dark:text-white">{rsvps.length}</div>
+                                        <div className="text-sm text-gray-600 dark:text-gray-400">Attendees</div>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                                            {event.capacity || '∞'}
+                                        </div>
+                                        <div className="text-sm text-gray-600 dark:text-gray-400">Capacity</div>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                                            {event.online ? 'Online' : 'In-person'}
+                                        </div>
+                                        <div className="text-sm text-gray-600 dark:text-gray-400">Format</div>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                                            {event.scope ?? 'Church'}
+                                        </div>
+                                        <div className="text-sm text-gray-600 dark:text-gray-400">Scope</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Attendees List Card */}
+                        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 p-6">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+                                <FontAwesomeIcon icon={faUsers} className="text-purple-500 text-lg" />
+                                Event Attendees ({rsvps.length})
+                            </h2>
+
+                            {rsvps.length === 0 ? (
+                                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                                    <FontAwesomeIcon icon={faUsers} className="text-2xl mb-2 opacity-50" />
+                                    <p>No attendees yet. Add members using the form in the sidebar.</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {rsvps.map(r => (
+                                        <div key={r.id} className="flex items-center justify-between p-4 bg-white/50 dark:bg-gray-700/50 rounded-2xl border border-gray-200 dark:border-gray-600 hover:bg-white dark:hover:bg-gray-700 transition-colors duration-200">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-semibold text-lg">
+                                                    {r.member ? `${r.member.first_name?.charAt(0)}${r.member.last_name?.charAt(0)}` : 'M'}
+                                                </div>
+                                                <div>
+                                                    <div className="font-semibold text-gray-900 dark:text-white">
+                                                        {r.member ? `${r.member.first_name} ${r.member.last_name}` : `Member #${r.member_id}`}
+                                                    </div>
+                                                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                                                        <span className="capitalize">{r.status}</span>
+                                                        {r.notes && ` • ${r.notes}`}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => router.push(`/admin/church/members/${r.member_id}`)}
+                                                    className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all duration-200 group"
+                                                    title="View member"
+                                                >
+                                                    <FontAwesomeIcon icon={faEye} className="group-hover:scale-110 transition-transform" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleRemoveAttendee(r)}
+                                                    className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200 group"
+                                                    title="Remove attendee"
+                                                >
+                                                    <FontAwesomeIcon icon={faUserMinus} className="group-hover:scale-110 transition-transform" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Sidebar */}
+                    <div className="space-y-6">
+                        {/* Quick Actions Card */}
+                        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 p-6">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
+                            <div className="space-y-3">
+                                <Link
+                                    href={`/admin/church/events/${id}/edit`}
+                                    className="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2"
+                                >
+                                    <FontAwesomeIcon icon={faEdit} />
+                                    Edit Event
+                                </Link>
+
+                                <Link
+                                    href="/admin/church/events"
+                                    className="w-full py-3 px-4 bg-white/50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-400 text-gray-700 dark:text-gray-300 font-semibold rounded-2xl hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
+                                >
+                                    <FontAwesomeIcon icon={faArrowLeft} />
+                                    Back to Events
+                                </Link>
+                            </div>
+                        </div>
+
+                        {/* Add Attendee Card */}
+                        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 p-6">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <FontAwesomeIcon icon={faUserPlus} className="text-green-500" />
+                                Add Attendee
+                            </h3>
+                            <div className="space-y-4">
+                                <ChurchMemberTypeahead
+                                    churchId={event.church_id ?? user?.church_id}
+                                    onSelect={(m) => setAttendingMember(m)}
+                                    value={attendingMember}
+                                />
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={handleAddAttendee}
+                                        disabled={saving || !attendingMember}
+                                        className="flex-1 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2"
+                                    >
+                                        {saving ? (
+                                            <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
+                                        ) : (
+                                            <FontAwesomeIcon icon={faUserPlus} />
+                                        )}
+                                        Add Attendee
+                                    </button>
+                                    <button
+                                        onClick={() => setAttendingMember(null)}
+                                        className="px-4 py-3 bg-white/50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 text-gray-700 dark:text-gray-300 font-semibold rounded-2xl hover:shadow-lg transition-all duration-200"
+                                    >
+                                        Clear
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Event Info Card */}
+                        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 p-6">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Event Information</h3>
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-gray-600 dark:text-gray-400">Event ID</span>
+                                    <span className="font-semibold text-gray-900 dark:text-white">#{event.id}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-gray-600 dark:text-gray-400">Church ID</span>
+                                    <span className="font-semibold text-gray-900 dark:text-white">#{event.church_id}</span>
+                                </div>
+                                {event.created_at && (
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm text-gray-600 dark:text-gray-400">Created</span>
+                                        <span className="font-semibold text-gray-900 dark:text-white text-sm">
+                                            {new Date(event.created_at).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                )}
+                                {event.updated_at && (
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm text-gray-600 dark:text-gray-400">Last Updated</span>
+                                        <span className="font-semibold text-gray-900 dark:text-white text-sm">
+                                            {new Date(event.updated_at).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {toast && <Toast show={toast.show} message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+            </div>
         </div>
     )
 }

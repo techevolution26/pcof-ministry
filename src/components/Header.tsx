@@ -5,6 +5,14 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+    faHome,
+    faBars,
+    faTimes,
+    faShieldAlt,
+    faArrowLeft
+} from '@fortawesome/free-solid-svg-icons'
 
 const navItems = [
     { href: '/', label: 'Home' },
@@ -28,6 +36,64 @@ export default function Header() {
         return pathname.startsWith(href)
     }
 
+    // Check if we're in admin section
+    const isAdminSection = pathname.startsWith('/admin')
+
+    // If we're in admin section, show minimal home button instead of full header
+    if (isAdminSection) {
+        return (
+            <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-50 supports-backdrop-blur:bg-white/60">
+                <div className="container mx-auto px-4 md:px-6">
+                    <div className="flex items-center justify-between h-16">
+                        {/* Left: Home button with glass morphism */}
+                        <Link
+                            href="/"
+                            className="group flex items-center gap-3 p-3 rounded-2xl transition-all duration-300 hover:bg-white/50 dark:hover:bg-gray-800/50 backdrop-blur-sm border border-transparent hover:border-gray-200/50 dark:hover:border-gray-600/50"
+                        >
+                            <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br from-sky-500 to-blue-600 flex-shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-lg">
+                                <Image
+                                    src="/pcof.jpeg"
+                                    alt="PCOF logo"
+                                    width={40}
+                                    height={40}
+                                    className="object-cover"
+                                />
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <FontAwesomeIcon
+                                    icon={faArrowLeft}
+                                    className="text-sky-600 dark:text-sky-400 text-base group-hover:translate-x-[-2px] transition-transform"
+                                />
+                                <div className="text-left">
+                                    <div className="text-sm font-semibold text-sky-600 dark:text-sky-400 group-hover:text-sky-700 dark:group-hover:text-sky-300">
+                                        Return to Site
+                                    </div>
+                                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                                        Pentecostal Church One Faith
+                                    </div>
+                                </div>
+                            </div>
+                        </Link>
+
+                        {/* Right: Admin badge */}
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-sky-500/10 to-blue-600/10 dark:from-sky-500/20 dark:to-blue-600/20 backdrop-blur-sm rounded-2xl border border-sky-200/50 dark:border-sky-700/50">
+                                <FontAwesomeIcon
+                                    icon={faShieldAlt}
+                                    className="text-sky-600 dark:text-sky-400 text-sm"
+                                />
+                                <span className="text-sm font-medium text-sky-700 dark:text-sky-300">
+                                    Admin Dashboard
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+        )
+    }
+
+    // Regular header for non-admin sections (unchanged)
     return (
         <header className="bg-white border-b shadow-md sticky top-0 z-50">
             <div className="container mx-auto px-4 md:px-6">
@@ -61,8 +127,8 @@ export default function Header() {
                                     key={item.href}
                                     href={item.href}
                                     className={`text-sm px-3 py-2 rounded-lg font-medium transition-all duration-300 relative ${active
-                                            ? 'text-sky-600 bg-sky-50 font-semibold'
-                                            : 'text-slate-700 hover:text-sky-600 hover:bg-green-50'
+                                        ? 'text-sky-600 bg-sky-50 font-semibold'
+                                        : 'text-slate-700 hover:text-sky-600 hover:bg-green-50'
                                         }`}
                                 >
                                     {item.label}
@@ -91,13 +157,10 @@ export default function Header() {
                             onClick={() => setOpen((v) => !v)}
                             className="inline-flex items-center justify-center p-2 rounded-md text-slate-700 hover:bg-green-50 md:hidden focus:outline-none focus:ring-2 focus:ring-sky-300 transition-colors"
                         >
-                            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                {open ? (
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                ) : (
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                                )}
-                            </svg>
+                            <FontAwesomeIcon
+                                icon={open ? faTimes : faBars}
+                                className="w-5 h-5"
+                            />
                         </button>
                     </div>
                 </div>
@@ -118,8 +181,8 @@ export default function Header() {
                                 href={item.href}
                                 onClick={() => setOpen(false)}
                                 className={`block px-4 py-3 rounded-lg transition-colors font-medium relative ${active
-                                        ? 'text-sky-600 bg-sky-50 font-semibold'
-                                        : 'text-slate-700 hover:bg-green-50'
+                                    ? 'text-sky-600 bg-sky-50 font-semibold'
+                                    : 'text-slate-700 hover:bg-green-50'
                                     }`}
                             >
                                 {item.label}
