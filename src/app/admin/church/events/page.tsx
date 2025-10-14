@@ -347,7 +347,7 @@ export default function EventsPage() {
                                                         Manage RSVPs
                                                     </button>
                                                     <Link
-                                                        href={`/admin/finance/payments/new?event_id=${e.id}`}
+                                                        href={`/admin/church/finance/payments/new?event_id=${e.id}`}
                                                         className="px-4 py-2 text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-xl transition-all duration-200 flex items-center gap-2 group"
                                                     >
                                                         <FontAwesomeIcon icon={faReceipt} className="group-hover:scale-110 transition-transform" />

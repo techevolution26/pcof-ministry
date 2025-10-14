@@ -16,7 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen h-full bg-gradient-to-b from-green-50 via-green-100 to-green-200 text-slate-900">
         <Analytics />
         <div className="min-h-screen flex flex-col">
-          <Header />
+          {/* <Header /> */}
 
           <main className="container mx-auto p-4 md:p-6 flex-1">{children}</main>
 
