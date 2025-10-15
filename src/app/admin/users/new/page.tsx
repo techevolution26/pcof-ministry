@@ -1,8 +1,11 @@
+// src/app/admin/users/new/page.tsx
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { fetchRoles, } from '@/lib/adminApi' //createUser
+import { fetchRoles } from '@/lib/adminApi'
+import { createUser } from '@/lib/adminApi'
+import ChurchTypeahead from '@/components/ChurchTypeahead'
 import { useAdminAuth } from '@/hooks/useAdminAuth'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -14,9 +17,10 @@ import {
     faUserPlus,
     faSpinner,
     faCheckCircle,
-    faCircle,
     faInfoCircle,
-    faLightbulb
+    faLightbulb,
+    faUsers,
+    faChurch
 } from '@fortawesome/free-solid-svg-icons'
 
 interface FormData {
@@ -25,13 +29,14 @@ interface FormData {
     password: string
     confirmPassword: string
     roles: string[]
+    church_id?: number | string | null
 }
 
 export default function AdminUserCreatePage() {
     const router = useRouter()
     const { user } = useAdminAuth()
     const [loading, setLoading] = useState(false)
-    const [error, setError] = useState('')
+    const [error, setError] = useState<string | null>(null)
     const [roles, setRoles] = useState<any[]>([])
     const [rolesLoading, setRolesLoading] = useState(true)
     const [formData, setFormData] = useState<FormData>({
@@ -39,63 +44,67 @@ export default function AdminUserCreatePage() {
         email: '',
         password: '',
         confirmPassword: '',
-        roles: []
+        roles: [],
+        church_id: null,
     })
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
 
-    // Load available roles
     useEffect(() => {
-        const loadRoles = async () => {
-            try {
-                setRolesLoading(true)
-                const rolesData = await fetchRoles()
-                setRoles(rolesData)
-            } catch (error) {
-                console.error('Failed to load roles:', error)
-                setError('Failed to load available roles')
-            } finally {
-                setRolesLoading(false)
-            }
-        }
-        loadRoles()
+        let mounted = true
+            ; (async () => {
+                try {
+                    setRolesLoading(true)
+                    const r = await fetchRoles()
+                    if (!mounted) return
+                    setRoles(Array.isArray(r) ? r : (r?.data ?? []))
+                } catch (err) {
+                    console.error('Failed to load roles', err)
+                    setError('Failed to load available roles')
+                } finally {
+                    if (mounted) setRolesLoading(false)
+                }
+            })()
+        return () => { mounted = false }
     }, [])
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }))
-        // Clear error when user starts typing
-        if (error) setError('')
+    function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const { name, value, type } = e.target as HTMLInputElement
+        setFormData(prev => ({ ...prev, [name]: value }))
+        if (error) setError(null)
+        if (Object.keys(fieldErrors).length) setFieldErrors({})
     }
 
-    const handleRoleToggle = (roleName: string) => {
+    function handleRoleToggle(roleName: string) {
         setFormData(prev => ({
             ...prev,
-            roles: prev.roles.includes(roleName)
-                ? prev.roles.filter(r => r !== roleName)
-                : [...prev.roles, roleName]
+            roles: prev.roles.includes(roleName) ? prev.roles.filter(r => r !== roleName) : [...prev.roles, roleName]
         }))
     }
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    function onSelectChurch(church: any | null) {
+        setFormData(prev => ({ ...prev, church_id: church ? church.id : null }))
+        if (fieldErrors['church_id']) setFieldErrors(prev => { const cp = { ...prev }; delete cp['church_id']; return cp })
+    }
+
+    const fieldError = (k: string) => fieldErrors?.[k] ? <div className="text-red-600 text-sm mt-1">{fieldErrors[k].join(' ')}</div> : null
+
+    async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
-        setError('')
+        setError(null)
+        setFieldErrors({})
         setLoading(true)
 
-        // Validation
+        // client-side validations
         if (formData.password !== formData.confirmPassword) {
-            setError('Passwords do not match')
+            setFieldErrors({ password: ['Passwords do not match'] })
             setLoading(false)
             return
         }
-
         if (formData.password.length < 6) {
-            setError('Password must be at least 6 characters long')
+            setFieldErrors({ password: ['Password must be at least 6 characters long'] })
             setLoading(false)
             return
         }
-
         if (!formData.name.trim() || !formData.email.trim()) {
             setError('Please fill in all required fields')
             setLoading(false)
@@ -107,14 +116,20 @@ export default function AdminUserCreatePage() {
                 name: formData.name,
                 email: formData.email,
                 password: formData.password,
-                roles: formData.roles
-            })
+                password_confirmation: formData.confirmPassword,
+                roles: formData.roles,
+                church_id: formData.church_id ?? null,
+            });
 
             router.push('/admin/users')
             router.refresh()
         } catch (err: any) {
-            console.error('Failed to create user:', err)
-            setError(err.message || 'Failed to create user. Please try again.')
+            console.error('create user failed', err)
+            if (err?.status === 422 && err.errors) {
+                setFieldErrors(err.errors)
+            } else {
+                setError(err?.message ?? 'Failed to create user')
+            }
         } finally {
             setLoading(false)
         }
@@ -143,270 +158,226 @@ export default function AdminUserCreatePage() {
                                 Create New User
                             </h1>
                             <p className="text-lg text-gray-600 dark:text-gray-300 font-light">
-                                Add a new user to the system and assign roles
+                                Add a new user to the system with appropriate roles and permissions
                             </p>
                         </div>
                         <div className="flex items-center gap-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-3 shadow-sm">
                             <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
                                 <FontAwesomeIcon icon={faUserPlus} className="text-white text-lg" />
                             </div>
-                            <div className="hidden sm:block">
-                                <div className="text-sm font-medium text-gray-900 dark:text-white">New User</div>
-                                <div className="text-xs text-gray-500 dark:text-gray-400">Setup</div>
-                            </div>
                         </div>
                     </div>
                 </header>
 
-                {/* Error Display */}
-                {error && (
-                    <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl backdrop-blur-sm">
-                        <div className="flex items-center gap-3 text-red-800 dark:text-red-200">
-                            <FontAwesomeIcon icon={faInfoCircle} className="text-lg" />
-                            <div>
-                                <span className="font-medium">Error: </span>
-                                <span>{error}</span>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                {/* Main Form */}
+                <section>
+                    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 overflow-hidden">
+                        <div className="p-6">
+                            {error && (
+                                <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl">
+                                    <div className="flex items-center gap-3 text-red-800 dark:text-red-200">
+                                        <FontAwesomeIcon icon={faInfoCircle} />
+                                        <span>{error}</span>
+                                    </div>
+                                </div>
+                            )}
 
-                {/* Form Card */}
-                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 overflow-hidden">
-                    <form onSubmit={handleSubmit} className="p-6 space-y-8">
-                        {/* Basic Information Section */}
-                        <section>
-                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
-                                <FontAwesomeIcon icon={faUser} className="text-blue-500 text-lg" />
-                                Basic Information
-                            </h2>
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                {/* Basic Information Section */}
+                                <div className="bg-white dark:bg-gray-700/50 rounded-2xl p-6 border border-gray-200 dark:border-gray-600">
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                        <FontAwesomeIcon icon={faUser} className="text-blue-500" />
+                                        Basic Information
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                Full Name *
+                                            </label>
+                                            <input
+                                                name="name"
+                                                value={formData.name}
+                                                onChange={handleChange}
+                                                required
+                                                className="w-full p-3 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 dark:text-white"
+                                                placeholder="Enter full name"
+                                            />
+                                            {fieldError('name')}
+                                        </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Name Field */}
-                                <div className="space-y-3">
-                                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        Full Name *
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            id="name"
-                                            name="name"
-                                            required
-                                            value={formData.name}
-                                            onChange={handleChange}
-                                            className="w-full px-4 py-3 bg-white/50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 pl-11"
-                                            placeholder="Enter full name"
-                                        />
-                                        <FontAwesomeIcon
-                                            icon={faUser}
-                                            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"
-                                        />
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                Email Address *
+                                            </label>
+                                            <input
+                                                name="email"
+                                                value={formData.email}
+                                                onChange={handleChange}
+                                                type="email"
+                                                required
+                                                className="w-full p-3 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 dark:text-white"
+                                                placeholder="Enter email address"
+                                            />
+                                            {fieldError('email')}
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Email Field */}
-                                <div className="space-y-3">
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        Email Address *
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            type="email"
-                                            id="email"
-                                            name="email"
-                                            required
-                                            value={formData.email}
-                                            onChange={handleChange}
-                                            className="w-full px-4 py-3 bg-white/50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 pl-11"
-                                            placeholder="Enter email address"
-                                        />
-                                        <FontAwesomeIcon
-                                            icon={faEnvelope}
-                                            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"
-                                        />
+                                {/* Church Assignment Section */}
+                                <div className="bg-white dark:bg-gray-700/50 rounded-2xl p-6 border border-gray-200 dark:border-gray-600">
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                        <FontAwesomeIcon icon={faChurch} className="text-purple-500" />
+                                        Church Assignment
+                                    </h3>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                            Assign to Church (Optional)
+                                        </label>
+                                        <div className="max-w-md">
+                                            <ChurchTypeahead
+                                                value={formData.church_id ?? ''}
+                                                onSelect={onSelectChurch}
+                                                placeholder="Search churches by name..."
+                                            />
+                                        </div>
+                                        {fieldError('church_id')}
+                                        <div className="mt-2 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                                            <FontAwesomeIcon icon={faInfoCircle} className="text-sm" />
+                                            <span>Leave empty to create a system admin user</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </section>
 
-                        {/* Password Section */}
-                        <section>
-                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
-                                <FontAwesomeIcon icon={faLock} className="text-green-500 text-lg" />
-                                Security Settings
-                            </h2>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Password Field */}
-                                <div className="space-y-3">
-                                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        Password *
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            type="password"
-                                            id="password"
-                                            name="password"
-                                            required
-                                            value={formData.password}
-                                            onChange={handleChange}
-                                            className="w-full px-4 py-3 bg-white/50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 pl-11"
-                                            placeholder="Enter password"
-                                            minLength={6}
-                                        />
-                                        <FontAwesomeIcon
-                                            icon={faLock}
-                                            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"
-                                        />
+                                {/* Security Section */}
+                                <div className="bg-white dark:bg-gray-700/50 rounded-2xl p-6 border border-gray-200 dark:border-gray-600">
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                        <FontAwesomeIcon icon={faLock} className="text-green-500" />
+                                        Security Settings
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                Password *
+                                            </label>
+                                            <input
+                                                name="password"
+                                                value={formData.password}
+                                                onChange={handleChange}
+                                                type="password"
+                                                minLength={6}
+                                                required
+                                                className="w-full p-3 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 dark:text-white"
+                                                placeholder="Enter password"
+                                            />
+                                            {fieldError('password')}
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                Confirm Password *
+                                            </label>
+                                            <input
+                                                name="confirmPassword"
+                                                value={formData.confirmPassword}
+                                                onChange={handleChange}
+                                                type="password"
+                                                required
+                                                className="w-full p-3 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 dark:text-white"
+                                                placeholder="Confirm password"
+                                            />
+                                        </div>
                                     </div>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                                        Minimum 6 characters
-                                    </p>
-                                </div>
-
-                                {/* Confirm Password Field */}
-                                <div className="space-y-3">
-                                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        Confirm Password *
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            type="password"
-                                            id="confirmPassword"
-                                            name="confirmPassword"
-                                            required
-                                            value={formData.confirmPassword}
-                                            onChange={handleChange}
-                                            className="w-full px-4 py-3 bg-white/50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 pl-11"
-                                            placeholder="Confirm password"
-                                        />
-                                        <FontAwesomeIcon
-                                            icon={faLock}
-                                            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"
-                                        />
+                                    <div className="mt-3 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                                        <FontAwesomeIcon icon={faLightbulb} className="text-sm" />
+                                        <span>Password must be at least 6 characters long</span>
                                     </div>
                                 </div>
-                            </div>
-                        </section>
 
-                        {/* Roles Section */}
-                        <section>
-                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
-                                <FontAwesomeIcon icon={faShield} className="text-purple-500 text-lg" />
-                                Role Assignment
-                            </h2>
-
-                            <div className="space-y-4">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Select User Roles
-                                </label>
-
-                                {rolesLoading ? (
-                                    <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
-                                        <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
-                                        Loading available roles...
-                                    </div>
-                                ) : (
-                                    <>
+                                {/* Roles Section */}
+                                <div className="bg-white dark:bg-gray-700/50 rounded-2xl p-6 border border-gray-200 dark:border-gray-600">
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                        <FontAwesomeIcon icon={faShield} className="text-orange-500" />
+                                        User Roles & Permissions
+                                    </h3>
+                                    {rolesLoading ? (
+                                        <div className="flex items-center justify-center p-4">
+                                            <FontAwesomeIcon icon={faSpinner} className="animate-spin text-blue-600 mr-2" />
+                                            <span className="text-gray-600 dark:text-gray-400">Loading roles...</span>
+                                        </div>
+                                    ) : (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                            {roles.map((role) => (
+                                            {roles.map((r: any) => (
                                                 <button
-                                                    key={role.id}
+                                                    key={r.id}
                                                     type="button"
-                                                    onClick={() => handleRoleToggle(role.name)}
-                                                    className={`p-4 rounded-2xl border-2 transition-all duration-200 group text-left ${formData.roles.includes(role.name)
-                                                        ? 'bg-indigo-50 border-indigo-200 dark:bg-indigo-900/20 dark:border-indigo-700 shadow-lg shadow-indigo-500/10'
-                                                        : 'bg-white/50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600 hover:border-indigo-300 dark:hover:border-indigo-400'
+                                                    onClick={() => handleRoleToggle(r.name)}
+                                                    className={`p-4 text-left rounded-2xl border-2 transition-all duration-200 ${formData.roles.includes(r.name)
+                                                        ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 shadow-sm'
+                                                        : 'bg-white dark:bg-gray-600 border-gray-200 dark:border-gray-500 hover:border-gray-300 dark:hover:border-gray-400'
                                                         }`}
                                                 >
-                                                    <div className="flex items-center justify-between">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${formData.roles.includes(role.name)
-                                                                ? 'bg-indigo-500 text-white'
-                                                                : 'bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-gray-300'
-                                                                }`}>
-                                                                <FontAwesomeIcon icon={faShield} className="text-sm" />
-                                                            </div>
-                                                            <span className={`font-medium ${formData.roles.includes(role.name)
-                                                                ? 'text-indigo-700 dark:text-indigo-300'
-                                                                : 'text-gray-700 dark:text-gray-300'
-                                                                }`}>
-                                                                {role.name}
-                                                            </span>
+                                                    <div className="flex justify-between items-center">
+                                                        <div className="font-medium text-gray-900 dark:text-white">
+                                                            {r.name}
                                                         </div>
-                                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${formData.roles.includes(role.name)
-                                                            ? 'bg-indigo-500 border-indigo-500 text-white'
-                                                            : 'border-gray-300 dark:border-gray-500 group-hover:border-indigo-300'
-                                                            }`}>
-                                                            {formData.roles.includes(role.name) && (
-                                                                <FontAwesomeIcon icon={faCheckCircle} className="text-xs" />
-                                                            )}
-                                                        </div>
+                                                        {formData.roles.includes(r.name) && (
+                                                            <FontAwesomeIcon
+                                                                icon={faCheckCircle}
+                                                                className="text-green-500 text-lg"
+                                                            />
+                                                        )}
                                                     </div>
+                                                    {r.description && (
+                                                        <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                                            {r.description}
+                                                        </div>
+                                                    )}
                                                 </button>
                                             ))}
                                         </div>
+                                    )}
+                                    {roles.length === 0 && !rolesLoading && (
+                                        <div className="text-center py-4 text-gray-500 dark:text-gray-400">
+                                            No roles available
+                                        </div>
+                                    )}
+                                </div>
 
-                                        {roles.length === 0 && (
-                                            <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-                                                <FontAwesomeIcon icon={faShield} className="text-2xl mb-2 opacity-50" />
-                                                <p>No roles available. Please create roles first.</p>
-                                            </div>
-                                        )}
-                                    </>
-                                )}
-
-                                {formData.roles.length > 0 && (
-                                    <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-200 dark:border-blue-800">
-                                        <p className="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-3">
-                                            <FontAwesomeIcon icon={faInfoCircle} className="text-lg" />
-                                            <span>
-                                                Selected roles: <strong className="font-semibold">{formData.roles.join(', ')}</strong>
-                                            </span>
-                                        </p>
+                                {/* Action Buttons */}
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6">
+                                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                        <FontAwesomeIcon icon={faInfoCircle} />
+                                        <span>Fields marked with * are required</span>
                                     </div>
-                                )}
-                            </div>
-                        </section>
-
-                        {/* Action Buttons */}
-                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                            <Link
-                                href="/admin/users"
-                                className="w-full sm:w-auto px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-2xl hover:bg-white dark:hover:bg-gray-700 transition-all duration-200 text-center"
-                            >
-                                Cancel
-                            </Link>
-
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full sm:w-auto px-8 py-3 text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-3"
-                            >
-                                {loading ? (
-                                    <>
-                                        <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
-                                        Creating User...
-                                    </>
-                                ) : (
-                                    <>
-                                        <FontAwesomeIcon icon={faUserPlus} />
-                                        Create User
-                                    </>
-                                )}
-                            </button>
+                                    <div className="flex flex-col sm:flex-row gap-3">
+                                        <Link
+                                            href="/admin/users"
+                                            className="px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300 font-semibold rounded-2xl transition-all duration-200 text-center"
+                                        >
+                                            Cancel
+                                        </Link>
+                                        <button
+                                            type="submit"
+                                            disabled={loading}
+                                            className="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none disabled:hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
+                                        >
+                                            {loading ? (
+                                                <>
+                                                    <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
+                                                    Creating User...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <FontAwesomeIcon icon={faUserPlus} />
+                                                    Create User
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-                    </form>
-                </div>
-
-                {/* Help Text */}
-                <div className="mt-8 text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center justify-center gap-2">
-                        <FontAwesomeIcon icon={faLightbulb} className="text-yellow-500" />
-                        The user will be created and can be activated immediately
-                    </p>
-                </div>
+                    </div>
+                </section>
             </div>
         </div>
     )

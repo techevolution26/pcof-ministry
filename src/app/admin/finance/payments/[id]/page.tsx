@@ -29,7 +29,11 @@ import {
     faCheck,
     faClock,
     faHashtag,
-    faPlus
+    faPlus,
+    faRefresh,
+    faEye,
+    faEdit,
+    faTimes
 } from '@fortawesome/free-solid-svg-icons'
 
 export default function PaymentDetailsPage() {
@@ -45,6 +49,7 @@ export default function PaymentDetailsPage() {
     const [toast, setToast] = useState<any>(null)
     const [approving, setApproving] = useState(false)
     const [refreshing, setRefreshing] = useState(false)
+    const [showReconciliationForm, setShowReconciliationForm] = useState(false)
 
     useEffect(() => {
         let mounted = true
@@ -102,6 +107,7 @@ export default function PaymentDetailsPage() {
     async function handleReconciliationCreated(rec: any) {
         try {
             await refreshPayment()
+            setShowReconciliationForm(false)
             setToast({ show: true, message: 'Reconciliation record created successfully', type: 'success' })
         } catch {
             setToast({ show: true, message: 'Reconciliation created but failed to refresh', type: 'warning' })
@@ -122,14 +128,14 @@ export default function PaymentDetailsPage() {
 
     const getStatusColor = (status: string) => {
         const statusColors: Record<string, string> = {
-            completed: 'bg-green-100 text-green-800 border-green-200',
-            pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-            failed: 'bg-red-100 text-red-800 border-red-200',
-            submitted: 'bg-blue-100 text-blue-800 border-blue-200',
-            approved: 'bg-green-100 text-green-800 border-green-200',
-            rejected: 'bg-red-100 text-red-800 border-red-200'
+            completed: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800',
+            pending: 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800',
+            failed: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800',
+            submitted: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800',
+            approved: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800',
+            rejected: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800'
         }
-        return statusColors[status?.toLowerCase()] || 'bg-gray-100 text-gray-800 border-gray-200'
+        return statusColors[status?.toLowerCase()] || 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300 dark:border-gray-700'
     }
 
     const getTypeIcon = (type: string) => {
@@ -145,13 +151,13 @@ export default function PaymentDetailsPage() {
 
     const getTypeColor = (type: string) => {
         const typeColors: Record<string, string> = {
-            tithe: 'bg-purple-100 text-purple-800 border-purple-200',
-            offering: 'bg-blue-100 text-blue-800 border-blue-200',
-            collection: 'bg-green-100 text-green-800 border-green-200',
-            event_fee: 'bg-orange-100 text-orange-800 border-orange-200',
-            donation: 'bg-teal-100 text-teal-800 border-teal-200'
+            tithe: 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800',
+            offering: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800',
+            collection: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800',
+            event_fee: 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800',
+            donation: 'bg-teal-100 text-teal-800 border-teal-200 dark:bg-teal-900/30 dark:text-teal-300 dark:border-teal-800'
         }
-        return typeColors[type?.toLowerCase()] || 'bg-gray-100 text-gray-800 border-gray-200'
+        return typeColors[type?.toLowerCase()] || 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300 dark:border-gray-700'
     }
 
     // Loading state
@@ -171,7 +177,7 @@ export default function PaymentDetailsPage() {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 dark:from-gray-900 dark:to-blue-900/20 py-8">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-8 text-center shadow-xl">
+                    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-8 text-center shadow-xl border border-white/50 dark:border-gray-700/50">
                         <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                             <FontAwesomeIcon icon={faExclamationTriangle} className="text-red-600 dark:text-red-400 text-2xl" />
                         </div>
@@ -242,8 +248,8 @@ export default function PaymentDetailsPage() {
                                 disabled={refreshing}
                                 className="px-4 py-2.5 bg-white/80 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-800 disabled:opacity-50 transition-colors duration-200 flex items-center gap-2 backdrop-blur-sm"
                             >
-                                <FontAwesomeIcon icon={refreshing ? faSpinner : faCheck} className={refreshing ? 'animate-spin' : ''} />
-                                Refresh
+                                <FontAwesomeIcon icon={refreshing ? faSpinner : faRefresh} className={refreshing ? 'animate-spin' : ''} />
+                                {refreshing ? 'Refreshing...' : 'Refresh'}
                             </button>
 
                             {payment.status === 'submitted' && (
@@ -257,9 +263,13 @@ export default function PaymentDetailsPage() {
                                 </button>
                             )}
 
-                            <button className="w-10 h-10 flex items-center justify-center bg-white/80 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-800 transition-colors duration-200 backdrop-blur-sm">
-                                <FontAwesomeIcon icon={faEllipsisVertical} className="text-gray-600 dark:text-gray-400" />
-                            </button>
+                            <Link
+                                href={`/admin/finance/payments/${payment.id}/edit`}
+                                className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors duration-200 flex items-center gap-2"
+                            >
+                                <FontAwesomeIcon icon={faEdit} />
+                                Edit
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -269,7 +279,7 @@ export default function PaymentDetailsPage() {
                     <div className="xl:col-span-3 space-y-6">
                         {/* Payment Overview Card */}
                         <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 dark:border-gray-700/50 overflow-hidden">
-                            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
                                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-3">
                                     <FontAwesomeIcon icon={faFileInvoice} className="text-blue-500" />
                                     Payment Overview
@@ -338,7 +348,7 @@ export default function PaymentDetailsPage() {
 
                         {/* Detailed Information */}
                         <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 dark:border-gray-700/50 overflow-hidden">
-                            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20">
                                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-3">
                                     <FontAwesomeIcon icon={faReceipt} className="text-green-500" />
                                     Payment Details
@@ -452,31 +462,34 @@ export default function PaymentDetailsPage() {
                                 </dl>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Sidebar - 1 column */}
-                    <div className="space-y-6">
-                        {/* Reconciliations Card */}
+                        {/* Reconciliations Section - Moved from sidebar */}
                         <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 dark:border-gray-700/50 overflow-hidden">
-                            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-3">
-                                    <FontAwesomeIcon icon={faCheckCircle} className="text-green-500" />
-                                    Reconciliations
-                                </h3>
+                            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-3">
+                                        <FontAwesomeIcon icon={faCheckCircle} className="text-green-500" />
+                                        Bank Reconciliations
+                                    </h2>
+                                    <span className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 text-xs font-medium px-2 py-1 rounded-full">
+                                        {Array.isArray(payment.reconciliations) ? payment.reconciliations.length : 0}
+                                    </span>
+                                </div>
                             </div>
                             <div className="p-6">
                                 {/* Show reconciliations if included on payment.reconciliations */}
                                 {Array.isArray(payment.reconciliations) && payment.reconciliations.length > 0 ? (
                                     <div className="space-y-4">
                                         {payment.reconciliations.map((r: any) => (
-                                            <div key={r.id} className="border border-gray-200 dark:border-gray-600 rounded-xl p-4 bg-gray-50/50 dark:bg-gray-700/30">
+                                            <div key={r.id} className="border border-gray-200 dark:border-gray-600 rounded-xl p-4 bg-gray-50/50 dark:bg-gray-700/30 hover:bg-white dark:hover:bg-gray-700/50 transition-colors">
                                                 <div className="flex items-center justify-between mb-2">
                                                     <div className="font-medium text-gray-900 dark:text-white text-sm">
                                                         {r.statement_reference ?? `Rec-${r.id}`}
                                                     </div>
-                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${r.status === 'reconciled' ? 'bg-green-100 text-green-800' :
-                                                        r.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                                            'bg-gray-100 text-gray-800'
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${r.status === 'reconciled' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
+                                                            r.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' :
+                                                                r.status === 'disputed' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
+                                                                    'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
                                                         }`}>
                                                         {r.status}
                                                     </span>
@@ -506,22 +519,46 @@ export default function PaymentDetailsPage() {
                                     </div>
                                 )}
 
-                                {/* Reconciliation Form */}
+                                {/* Toggle Reconciliation Form */}
                                 <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700">
-                                    <ReconciliationForm
-                                        paymentId={payment.id}
-                                        defaultChurchId={payment.church_id}
-                                        onSaved={handleReconciliationCreated}
-                                    />
+                                    {!showReconciliationForm ? (
+                                        <button
+                                            onClick={() => setShowReconciliationForm(true)}
+                                            className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl transition-all duration-200 flex items-center justify-center gap-2 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                                        >
+                                            <FontAwesomeIcon icon={faPlus} />
+                                            Add Reconciliation
+                                        </button>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            <div className="flex items-center justify-between">
+                                                <h4 className="font-semibold text-gray-900 dark:text-white">New Reconciliation</h4>
+                                                <button
+                                                    onClick={() => setShowReconciliationForm(false)}
+                                                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                                                >
+                                                    <FontAwesomeIcon icon={faTimes} />
+                                                </button>
+                                            </div>
+                                            <ReconciliationForm
+                                                paymentId={payment.id}
+                                                churchId={payment.church_id}
+                                                onSaved={handleReconciliationCreated}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
+                    </div>
 
+                    {/* Sidebar - 1 column */}
+                    <div className="space-y-6">
                         {/* Quick Actions */}
                         <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 dark:border-gray-700/50 overflow-hidden">
-                            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
                                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-3">
-                                    <FontAwesomeIcon icon={faDownload} className="text-blue-500" />
+                                    <FontAwesomeIcon icon={faDownload} className="text-purple-500" />
                                     Quick Actions
                                 </h3>
                             </div>
@@ -541,6 +578,57 @@ export default function PaymentDetailsPage() {
                                     <FontAwesomeIcon icon={faPlus} />
                                     <span>Create Similar Payment</span>
                                 </Link>
+                                <Link
+                                    href={`/admin/finance/payments/${payment.id}`}
+                                    className="w-full flex items-center gap-3 px-4 py-3 text-left text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-xl transition-colors duration-200"
+                                >
+                                    <FontAwesomeIcon icon={faEye} />
+                                    <span>View Full Details</span>
+                                </Link>
+                            </div>
+                        </div>
+
+                        {/* Payment Summary */}
+                        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 dark:border-gray-700/50 overflow-hidden">
+                            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-3">
+                                    <FontAwesomeIcon icon={faFileInvoice} className="text-indigo-500" />
+                                    Summary
+                                </h3>
+                            </div>
+                            <div className="p-4 space-y-3">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-gray-500 dark:text-gray-400">Church</span>
+                                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                        {payment.church?.name || '—'}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-gray-500 dark:text-gray-400">Payment Type</span>
+                                    <span className="text-sm font-medium text-gray-900 dark:text-white capitalize">
+                                        {payment.type?.replace('_', ' ') || '—'}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-gray-500 dark:text-gray-400">Status</span>
+                                    <span className={`text-xs font-medium px-2 py-1 rounded-full ${getStatusColor(payment.status)}`}>
+                                        {payment.status}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-gray-500 dark:text-gray-400">Created</span>
+                                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                        {new Date(payment.created_at).toLocaleDateString()}
+                                    </span>
+                                </div>
+                                {payment.updated_at && (
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm text-gray-500 dark:text-gray-400">Last Updated</span>
+                                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                            {new Date(payment.updated_at).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

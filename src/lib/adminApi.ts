@@ -4,6 +4,8 @@ const DEV_LOG = true; // set to false when done debugging
 export const ADMIN_TOKEN_KEY = 'ADMIN_TOKEN';
 export const ADMIN_USER_KEY = 'ADMIN_USER';
 
+const BASE = (process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000').replace(/\/$/, '');
+
 export function getAdminToken(): string | null {
   if (typeof window === 'undefined') return null;
   const t = localStorage.getItem(ADMIN_TOKEN_KEY);
@@ -39,7 +41,23 @@ async function parseJsonSafe(res: Response) {
   try { return await res.json(); } catch { return null; }
 }
 
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000';
+export async function createUser(payload: {
+  name: string
+  email: string
+  password: string
+  roles?: string[]
+  church_id?: number | string | null
+}) {
+  // Use CSRF to support Sanctum SPA flow
+  try {
+    return await apiPost('/api/admin/users', payload, { useCsrf: true });
+  } catch (err: any) {
+    // normalize thrown error shape to match existing UI expectations
+    if (err?.status === 422 && err?.errors) throw err;
+    // rethrow structured error
+    throw err;
+  }
+}
 
 function buildHeaders(extra?: HeadersInit) {
   const headers: Record<string, string> = {
@@ -727,6 +745,9 @@ export async function fetchMembersForChurch(churchId: string | number, params: {
   // Keep paginated object (controller returns paginator)
   return res;
 }
+
+
+
 
 // /** Fetch summary for admin finance endpoint */
 // export async function fetchFinanceSummary(opts?: { churchId?: string | number | null; recentLimit?: number; page?: number; days?: number }) {
