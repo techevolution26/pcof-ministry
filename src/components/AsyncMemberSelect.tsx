@@ -1,6 +1,8 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
 import { searchMembersByQuery, fetchMemberById } from '@/lib/adminApi'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSearch, faSpinner, faTimes } from '@fortawesome/free-solid-svg-icons'
 
 type Option = { id: number | string; first_name?: string; last_name?: string; phone?: string; email?: string }
 
@@ -59,7 +61,7 @@ export default function AsyncMemberSelect({ value = null, onChange, churchId, pl
         }
         setLoading(true)
         try {
-            const res = await searchMembersByQuery(q, 10) // uses adminApi.searchMembersByQuery which accepts q
+            const res = await searchMembersByQuery(q, 10)
             setOptions(Array.isArray(res) ? res : (res?.data ?? []))
         } catch (err) {
             setOptions([])
@@ -90,39 +92,71 @@ export default function AsyncMemberSelect({ value = null, onChange, churchId, pl
         setSelected(null)
         setInput('')
         onChange(null)
+        setOpen(false)
     }
 
     return (
         <div className={`relative ${className}`} ref={wrapperRef}>
-            <input
-                type="text"
-                value={input}
-                onChange={onInput}
-                onFocus={() => setOpen(true)}
-                placeholder={placeholder}
-                className="w-full p-2 border rounded"
-                aria-autocomplete="list"
-            />
+            <div className="relative">
+                <FontAwesomeIcon
+                    icon={faSearch}
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"
+                />
+                <input
+                    type="text"
+                    value={input}
+                    onChange={onInput}
+                    onFocus={() => setOpen(true)}
+                    placeholder={placeholder}
+                    className="w-full pl-10 pr-10 py-3 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                    aria-autocomplete="list"
+                />
 
-            {allowClear && selected && (
-                <button onClick={clearSelection} type="button" className="absolute right-2 top-2 text-xs text-gray-500">
-                    Clear
-                </button>
-            )}
+                {allowClear && selected && (
+                    <button
+                        onClick={clearSelection}
+                        type="button"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                    >
+                        <FontAwesomeIcon icon={faTimes} className="text-sm" />
+                    </button>
+                )}
+            </div>
 
             {open && (
-                <div className="absolute z-50 left-0 right-0 bg-white border rounded mt-1 shadow max-h-60 overflow-auto">
-                    {loading && <div className="p-2 text-sm text-gray-500">Searching…</div>}
-                    {!loading && options.length === 0 && <div className="p-2 text-sm text-gray-500">No matches</div>}
+                <div className="absolute z-50 left-0 right-0 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl mt-1 shadow-lg max-h-60 overflow-auto">
+                    {loading && (
+                        <div className="p-3 text-center text-gray-500 dark:text-gray-400">
+                            <FontAwesomeIcon icon={faSpinner} className="animate-spin mr-2" />
+                            Searching...
+                        </div>
+                    )}
+                    {!loading && options.length === 0 && input.length >= 2 && (
+                        <div className="p-3 text-sm text-gray-500 dark:text-gray-400 text-center">
+                            No members found
+                        </div>
+                    )}
+                    {!loading && input.length < 2 && (
+                        <div className="p-3 text-sm text-gray-500 dark:text-gray-400 text-center">
+                            Type at least 2 characters to search
+                        </div>
+                    )}
                     {!loading && options.map((o: any) => (
                         <button
                             key={o.id}
                             type="button"
                             onClick={() => handleSelect(o)}
-                            className="w-full text-left p-2 hover:bg-slate-50 border-b last:border-b-0"
+                            className="w-full text-left p-3 hover:bg-blue-50 dark:hover:bg-gray-600 border-b border-gray-100 dark:border-gray-600 last:border-b-0 transition-colors duration-200"
                         >
-                            <div className="font-medium">{(o.first_name ? `${o.first_name} ${o.last_name ?? ''}` : o.name) ?? `#${o.id}`}</div>
-                            <div className="text-xs text-gray-500">{o.phone ?? o.email ?? ''}</div>
+                            <div className="font-medium text-gray-900 dark:text-white">
+                                {o.first_name ? `${o.first_name} ${o.last_name ?? ''}` : o.name ?? `#${o.id}`}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                {o.phone && `Phone: ${o.phone}`}
+                                {o.phone && o.email && ' • '}
+                                {o.email && `Email: ${o.email}`}
+                                {!o.phone && !o.email && 'No contact info'}
+                            </div>
                         </button>
                     ))}
                 </div>

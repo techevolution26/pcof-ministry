@@ -3,7 +3,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -26,7 +26,13 @@ const navItems = [
 
 export default function Header() {
     const [open, setOpen] = useState(false)
+    const [mounted, setMounted] = useState(false)
     const pathname = usePathname()
+
+    // Fix hydration by only rendering after mount
+    useEffect(() => {
+        setMounted(true)
+    }, [])
 
     // Function to check if a nav item is active
     const isActive = (href: string) => {
@@ -37,12 +43,13 @@ export default function Header() {
     }
 
     // Check if we're in admin section
-    const isAdminSection = pathname.startsWith('/admin')
+    const isAdminSection = pathname?.startsWith('/admin')
 
-    // If we're in admin section, show minimal home button instead of full header
-    if (isAdminSection) {
+    // If we're in admin section AND not on login/register pages, show minimal sticky header
+    if (mounted && isAdminSection && !pathname?.includes('/admin/login') && !pathname?.includes('/admin/register')) {
         return (
-            <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-50 supports-backdrop-blur:bg-white/60">
+            <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50 supports-backdrop-blur:bg-white/60 sticky top-0 z-50">
+                {/* Added sticky positioning */}
                 <div className="container mx-auto px-4 md:px-6">
                     <div className="flex items-center justify-between h-16">
                         {/* Left: Home button with glass morphism */}
@@ -93,7 +100,7 @@ export default function Header() {
         )
     }
 
-    // Regular header for non-admin sections (unchanged)
+    // Regular header for non-admin sections and admin login/register
     return (
         <header className="bg-white border-b shadow-md sticky top-0 z-50">
             <div className="container mx-auto px-4 md:px-6">
