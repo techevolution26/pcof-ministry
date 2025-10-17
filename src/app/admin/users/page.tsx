@@ -20,9 +20,9 @@ import {
 
 export default function AdminUsersPage() {
   const { user } = useAdminAuth()
-  const [users, setUsers] = useState<any[]>([])
+  const [users, setUsers] = useState<unknown[]>([])
   const [loading, setLoading] = useState(true)
-  const [roles, setRoles] = useState<any[]>([])
+  const [roles, setRoles] = useState<unknown[]>([])
   const [actionLoading, setActionLoading] = useState<number | null>(null)
 
   useEffect(() => {
@@ -69,7 +69,7 @@ export default function AdminUsersPage() {
       else await assignRoleToUser(userId, roleName)
       setUsers(prev => prev.map(u => u.id === userId ? {
         ...u,
-        roles: currentlyHas ? u.roles.filter((r: any) => r !== roleName) : [...(u.roles || []), roleName]
+        roles: currentlyHas ? u.roles.filter((r: unknown) => r !== roleName) : [...(u.roles || []), roleName]
       } : u))
     } catch (err) {
       console.error(err)
@@ -212,7 +212,7 @@ export default function AdminUsersPage() {
                         </td>
                         <td className="p-6">
                           <div className="flex flex-wrap gap-2 max-w-xs">
-                            {roles.map((r: any) => {
+                            {roles.map((r: unknown) => {
                               const has = (u.roles || []).includes(r.name)
                               return (
                                 <button

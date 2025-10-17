@@ -24,10 +24,10 @@ import {
 
 export default function AdminEventsPage() {
     const { user } = useAdminAuth()
-    const [events, setEvents] = useState<any[]>([])
+    const [events, setEvents] = useState<unknown[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const [toast, setToast] = useState<any | null>(null)
+    const [toast, setToast] = useState<unknown | null>(null)
 
     // controls
     const [q, setQ] = useState('')
@@ -37,7 +37,7 @@ export default function AdminEventsPage() {
     const [page, setPage] = useState<number>(1)
     const [perPage] = useState<number>(30)
 
-    const [churches, setChurches] = useState<any[]>([])
+    const [churches, setChurches] = useState<unknown[]>([])
     const [rowDeleting, setRowDeleting] = useState<Record<string, boolean>>({})
     const [refreshing, setRefreshing] = useState(false)
 
@@ -71,7 +71,7 @@ export default function AdminEventsPage() {
             const body = await fetchAdminEvents(qstr)
             const list = Array.isArray(body) ? body : (body?.data ?? [])
             setEvents(list)
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('load events failed', err)
             setError(err?.message ?? 'Failed to load events')
         } finally {
@@ -105,7 +105,7 @@ export default function AdminEventsPage() {
         try {
             await deleteAdminEvent(id)
             setToast({ show: true, message: 'Event deleted successfully', type: 'success' })
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('delete failed', err)
             setEvents(snapshot) // rollback
             setToast({
@@ -271,7 +271,7 @@ export default function AdminEventsPage() {
                                 <FontAwesomeIcon icon={faFilter} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" />
                                 <select
                                     value={scope}
-                                    onChange={(e) => { setScope(e.target.value as any); setPage(1) }}
+                                    onChange={(e) => { setScope(e.target.value as unknown); setPage(1) }}
                                     className="pl-12 pr-8 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-white appearance-none cursor-pointer transition-colors duration-200"
                                 >
                                     <option value="all">All Events</option>
@@ -309,7 +309,7 @@ export default function AdminEventsPage() {
                             {q && (
                                 <span className="text-sm text-blue-600 dark:text-blue-400 flex items-center gap-2">
                                     <FontAwesomeIcon icon={faSearch} />
-                                    Search: "{q}"
+                                    Search: &aquot;{q}&aquot;
                                 </span>
                             )}
                         </div>

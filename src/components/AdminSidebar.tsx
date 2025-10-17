@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useMemo, useState, useRef } from 'react'
+import React, { useMemo, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -22,7 +22,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { useAdminAuth } from '@/hooks/useAdminAuth'
 
-type NavItem = { href: string; label: string; section?: string; icon: any }
+type NavItem = { href: string; label: string; section?: string; icon: unknown }
 
 interface AdminSidebarProps {
     isOpen: boolean

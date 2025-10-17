@@ -21,7 +21,6 @@ import {
     faReceipt,
     faSpinner,
     faArrowLeft,
-    faPlus,
     faTimes,
     faUserPlus,
     faUserMinus,
@@ -33,7 +32,7 @@ export default function EventsPage() {
     const { user, isLoading } = useAdminAuth()
     const churchId = user?.church_id
 
-    const [events, setEvents] = useState<any[]>([])
+    const [events, setEvents] = useState<unknown[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [q, setQ] = useState<string>('')
@@ -44,29 +43,29 @@ export default function EventsPage() {
 
     // attendee modal
     const [showAttendeeModal, setShowAttendeeModal] = useState(false)
-    const [modalEvent, setModalEvent] = useState<any | null>(null)
-    const [attendees, setAttendees] = useState<any[]>([])
+    const [modalEvent, setModalEvent] = useState<unknown | null>(null)
+    const [attendees, setAttendees] = useState<unknown[]>([])
     const [attendeesLoading, setAttendeesLoading] = useState(false)
-    const [attendeeSelected, setAttendeeSelected] = useState<any | null>(null)
+    const [attendeeSelected, setAttendeeSelected] = useState<unknown | null>(null)
     const [attendeeSaving, setAttendeeSaving] = useState(false)
 
-    const [toast, setToast] = useState<any | null>(null)
+    const [toast, setToast] = useState<unknown | null>(null)
 
     useEffect(() => {
         let mounted = true
         async function load() {
             setLoading(true)
             try {
-                const params: any = { per_page: perPage, page }
+                const params: unknown = { per_page: perPage, page }
                 if (churchId) params.church_id = churchId
                 if (q && q.trim().length) params.q = q.trim()
                 const res = await fetchEvents(params)
                 const list = Array.isArray(res) ? res : (res?.data ?? [])
                 if (!mounted) return
                 // normalize: ensure each event has attendees_count (optional)
-                setEvents(list.map((ev: any) => ({ ...ev, _loadedAttendees: false })))
+                setEvents(list.map((ev: unknown) => ({ ...ev, _loadedAttendees: false })))
                 setError(null)
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error('load events failed', err)
                 if (!mounted) return
                 setError(err?.message ?? 'Failed to load events')
@@ -80,13 +79,13 @@ export default function EventsPage() {
         return () => { mounted = false }
     }, [churchId, isLoading, page, q])
 
-    function openAttendeesModal(ev: any) {
+    function openAttendeesModal(ev: unknown) {
         setModalEvent(ev)
         setShowAttendeeModal(true)
         loadAttendees(ev)
     }
 
-    async function loadAttendees(ev: any) {
+    async function loadAttendees(ev: unknown) {
         setAttendeesLoading(true)
         try {
             const r = await fetchEventRsvps(ev.id)
@@ -94,7 +93,7 @@ export default function EventsPage() {
             setAttendees(list)
             // update event entry with cached count
             setEvents(prev => prev.map(e => e.id === ev.id ? ({ ...e, attendees_count: list.length, _loadedAttendees: true }) : e))
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('load attendees failed', err)
             setToast({ show: true, type: 'error', message: err?.message ?? 'Failed to load attendees' })
         } finally {
@@ -122,7 +121,7 @@ export default function EventsPage() {
             setEvents(prev => prev.map(e => e.id === modalEvent.id ? ({ ...e, attendees_count: (e.attendees_count ?? 0) + 1 }) : e))
             setAttendeeSelected(null)
             setToast({ show: true, type: 'success', message: 'Attendee added successfully' })
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('add attendee failed', err)
             setToast({ show: true, type: 'error', message: err?.message ?? 'Failed to add attendee' })
         } finally {
@@ -130,7 +129,7 @@ export default function EventsPage() {
         }
     }
 
-    async function handleRemoveAttendee(rsvp: any) {
+    async function handleRemoveAttendee(rsvp: unknown) {
         if (!rsvp?.id) return
         if (!confirm(`Remove attendee ${rsvp.member?.first_name ?? ''} ${rsvp.member?.last_name ?? ''}?`)) return
         try {
@@ -138,7 +137,7 @@ export default function EventsPage() {
             setAttendees(prev => prev.filter(a => a.id !== rsvp.id))
             setEvents(prev => prev.map(e => e.id === modalEvent.id ? ({ ...e, attendees_count: Math.max((e.attendees_count ?? 1) - 1, 0) }) : e))
             setToast({ show: true, type: 'success', message: 'Attendee removed successfully' })
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('remove attendee failed', err)
             setToast({ show: true, type: 'error', message: err?.message ?? 'Failed to remove attendee' })
         }

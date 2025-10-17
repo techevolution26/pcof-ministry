@@ -23,7 +23,7 @@ export default function MinisterShowPage() {
     const params = useParams() as { id?: string }
     const id = params?.id
     const router = useRouter()
-    const [item, setItem] = useState<any | null>(null)
+    const [item, setItem] = useState<unknown | null>(null)
     const [loading, setLoading] = useState(true)
     const [deleting, setDeleting] = useState(false)
 
@@ -83,7 +83,7 @@ export default function MinisterShowPage() {
                     <div className="text-center py-12">
                         <FontAwesomeIcon icon={faUserTie} className="text-4xl text-gray-400 mb-4" />
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Minister Not Found</h2>
-                        <p className="text-gray-600 dark:text-gray-400 mb-6">The minister you're looking for doesn't exist.</p>
+                        <p className="text-gray-600 dark:text-gray-400 mb-6">The minister you&apos;re looking for doesn&apos;t exist.</p>
                         <Link
                             href="/admin/ministers"
                             className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center gap-2"

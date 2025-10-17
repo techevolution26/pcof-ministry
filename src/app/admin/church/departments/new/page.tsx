@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft, faSpinner } from '@fortawesome/free-solid-svg-icons'
 
 export default function NewDepartmentPage() {
-    const { user, isLoading } = useAdminAuth()
+    const { isLoading } = useAdminAuth()
     const router = useRouter()
 
     if (isLoading) return (

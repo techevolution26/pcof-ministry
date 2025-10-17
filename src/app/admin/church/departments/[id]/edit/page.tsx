@@ -4,9 +4,17 @@ import { useParams } from 'next/navigation'
 import ChurchDepartmentForm from '@/components/ChurchDepartmentForm'
 import { fetchDepartmentById } from '@/lib/adminApi'
 
+/**
+ * Type guard to check for objects with a `data` property.
+ * Avoids using `any` while allowing safely extracting `.data`.
+ */
+function hasDataProp(v: unknown): v is { data: unknown } {
+    return !!v && typeof v === 'object' && 'data' in v
+}
+
 export default function EditDepartmentPage() {
     const { id } = useParams() as { id?: string }
-    const [initial, setInitial] = useState<any>(null)
+    const [initial, setInitial] = useState<unknown>(null)
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -15,12 +23,18 @@ export default function EditDepartmentPage() {
             ; (async () => {
                 try {
                     const res = await fetchDepartmentById(id)
-                    const data = res?.data ?? res
+                    // safely extract .data if present, otherwise use the response
+                    const data = hasDataProp(res) ? res.data : res
                     if (!mounted) return
                     setInitial(data)
-                } catch (err) {
-                    // handle
-                } finally { if (mounted) setLoading(false) }
+                } catch (error: unknown) {
+                    // keep a console log for debugging; this also uses the caught variable
+                    // and silences the "defined but never used" warning
+                    // eslint-disable-next-line no-console
+                    console.error('Failed to load department', error)
+                } finally {
+                    if (mounted) setLoading(false)
+                }
             })()
         return () => { mounted = false }
     }, [id])

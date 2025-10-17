@@ -47,9 +47,9 @@ export default function MinisterForm({ ministerId }: { ministerId?: string | num
         active: true,
     })
 
-    const [churches, setChurches] = useState<any[]>([])
-    const [departments, setDepartments] = useState<any[]>([])
-    const [designations, setDesignations] = useState<any[]>([])
+    const [churches, setChurches] = useState<unknown[]>([])
+    const [departments, setDepartments] = useState<unknown[]>([])
+    const [designations, setDesignations] = useState<unknown[]>([])
     const [loading, setLoading] = useState<boolean>(Boolean(ministerId))
     const [saving, setSaving] = useState<boolean>(false)
     const [listsLoading, setListsLoading] = useState<boolean>(true)
@@ -172,7 +172,7 @@ export default function MinisterForm({ ministerId }: { ministerId?: string | num
                 await createMinister(payload)
             }
             router.push('/admin/ministers')
-        } catch (err: any) {
+        } catch (err: unknown) {
             const msg = err?.message ?? 'Save failed'
             alert(msg)
             console.error(err)
@@ -213,7 +213,7 @@ export default function MinisterForm({ ministerId }: { ministerId?: string | num
                         <div className="max-w-2xl">
                             <MemberTypeahead
                                 value={form.member_id}
-                                onSelect={(m: any | null) => setForm(prev => ({ ...prev, member_id: m ? m.id : '' }))}
+                                onSelect={(m: unknown | null) => setForm(prev => ({ ...prev, member_id: m ? m.id : '' }))}
                                 placeholder="Type a member name or email…"
                                 required
                             />
@@ -251,7 +251,7 @@ export default function MinisterForm({ ministerId }: { ministerId?: string | num
                                         className="w-full px-4 py-3 bg-white/50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 dark:text-white appearance-none"
                                     >
                                         <option value="">— Select a church —</option>
-                                        {churches.map((c: any) => (
+                                        {churches.map((c: unknown) => (
                                             <option key={c.id} value={c.id}>{c.name}</option>
                                         ))}
                                     </select>
@@ -274,7 +274,7 @@ export default function MinisterForm({ ministerId }: { ministerId?: string | num
                                         className="w-full px-4 py-3 bg-white/50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 dark:text-white appearance-none"
                                     >
                                         <option value="">— Select a department —</option>
-                                        {departments.map((d: any) => (
+                                        {departments.map((d: unknown) => (
                                             <option key={d.id} value={d.id}>{d.name}</option>
                                         ))}
                                     </select>

@@ -7,21 +7,20 @@ import {
     faMoneyBillWave,
     faSpinner,
     faTimes,
-    faIdCard,
     faUser,
     faCalendar,
     faCheckCircle,
     faReceipt
 } from '@fortawesome/free-solid-svg-icons'
 
-type Props = { churchId?: string | number; onSelect: (p: any) => void; value?: any }
+type Props = { churchId?: string | number; onSelect: (p: unknown) => void; value?: unknown }
 
 export default function PaymentTypeahead({ churchId, onSelect, value }: Props) {
     const [q, setQ] = useState('')
-    const [suggestions, setSuggestions] = useState<any[]>([])
+    const [suggestions, setSuggestions] = useState<unknown[]>([])
     const [loading, setLoading] = useState(false)
     const [isOpen, setIsOpen] = useState(false)
-    const [selectedPayment, setSelectedPayment] = useState<any>(value)
+    const [selectedPayment, setSelectedPayment] = useState<unknown>(value)
 
     useEffect(() => {
         setSelectedPayment(value)
@@ -60,7 +59,7 @@ export default function PaymentTypeahead({ churchId, onSelect, value }: Props) {
         return () => { mounted = false }
     }, [churchId, q])
 
-    const handleSelect = (payment: any) => {
+    const handleSelect = (payment: unknown) => {
         onSelect(payment)
         setSelectedPayment(payment)
         setQ('')
@@ -204,7 +203,7 @@ export default function PaymentTypeahead({ churchId, onSelect, value }: Props) {
                         <div className="p-8 text-center text-gray-500 dark:text-gray-400">
                             <FontAwesomeIcon icon={faReceipt} className="text-3xl mb-3 opacity-30" />
                             <div className="font-medium text-gray-900 dark:text-gray-100 mb-1">No payments found</div>
-                            <div className="text-sm">No results for "{q}"</div>
+                            <div className="text-sm">No results for &aquot;{q}&aquot;</div>
                         </div>
                     ) : null}
                 </div>

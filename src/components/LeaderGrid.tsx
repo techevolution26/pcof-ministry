@@ -23,7 +23,12 @@ const chunk = <T,>(arr: T[], size: number) => {
 }
 
 const LeaderGrid = ({ initialLeadership = [], perPage = 3 }: { initialLeadership?: Leader[]; perPage?: number }) => {
-    const leaders = Array.isArray(initialLeadership) ? initialLeadership : []
+    // Fix: Wrap leaders in useMemo to stabilize the reference
+    const leaders = useMemo(() =>
+        Array.isArray(initialLeadership) ? initialLeadership : [],
+        [initialLeadership]
+    )
+
     const pages = useMemo(() => chunk(leaders, perPage), [leaders, perPage])
     const [page, setPage] = useState(0)
 

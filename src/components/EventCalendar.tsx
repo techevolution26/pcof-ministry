@@ -3,7 +3,7 @@ import React, { useMemo, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons'
 
-type MiniEvent = { id: any; title: string; starts_at?: string; ends_at?: string }
+type MiniEvent = { id: unknown; title: string; starts_at?: string; ends_at?: string }
 
 function startOfMonth(d: Date) { return new Date(d.getFullYear(), d.getMonth(), 1) }
 function endOfMonth(d: Date) { return new Date(d.getFullYear(), d.getMonth() + 1, 0) }

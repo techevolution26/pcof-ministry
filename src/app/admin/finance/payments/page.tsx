@@ -24,7 +24,7 @@ import {
 export default function PaymentsPage() {
   const [q, setQ] = useState('')
   const [page, setPage] = useState(1)
-  const [items, setItems] = useState<any[]>([])
+  const [items, setItems] = useState<unknown[]>([])
   const [loading, setLoading] = useState(true)
   const [total, setTotal] = useState(0)
   const [lastPage, setLastPage] = useState(1)
@@ -63,7 +63,7 @@ export default function PaymentsPage() {
   }
 
   const getPaymentStatusIcon = (status: string) => {
-    const statusIcons: Record<string, any> = {
+    const statusIcons: Record<string, unknown> = {
       completed: faCheckCircle,
       pending: faHourglassHalf,
       failed: faTimesCircle,
@@ -75,7 +75,7 @@ export default function PaymentsPage() {
   }
 
   const getPaymentTypeIcon = (type: string) => {
-    const typeIcons: Record<string, any> = {
+    const typeIcons: Record<string, unknown> = {
       tithe: faMoneyBillWave,
       offering: faFileInvoice,
       collection: faMoneyBillWave,

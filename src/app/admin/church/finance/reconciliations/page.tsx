@@ -24,8 +24,8 @@ export default function ReconciliationsListPage() {
     const router = useRouter()
     const { user, isLoading } = useAdminAuth()
     const churchId = user?.church_id
-    const [items, setItems] = useState<any[]>([])
-    const [meta, setMeta] = useState<any>({})
+    const [items, setItems] = useState<unknown[]>([])
+    const [meta, setMeta] = useState<unknown>({})
     const [loading, setLoading] = useState(true)
     const [q, setQ] = useState('')
     const [page, setPage] = useState(1)
@@ -60,7 +60,7 @@ export default function ReconciliationsListPage() {
             await deleteReconciliation(id)
             setItems(prev => prev.filter(i => i.id !== id))
             setMeta(prev => ({ ...prev, total: Math.max(0, (prev.total ?? 1) - 1) }))
-        } catch (err: any) {
+        } catch (err: unknown) {
             alert(err?.message ?? 'Delete failed')
         } finally {
             setDeletingId(null)

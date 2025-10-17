@@ -10,7 +10,7 @@ import { faArrowLeft, faSpinner } from '@fortawesome/free-solid-svg-icons'
 export default function EditDesignationPage() {
     const { id } = useParams() as { id?: string }
     const router = useRouter()
-    const [initial, setInitial] = useState<any>(null)
+    const [initial, setInitial] = useState<unknown>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
@@ -23,7 +23,7 @@ export default function EditDesignationPage() {
                     const data = res?.data ?? res
                     if (!mounted) return
                     setInitial(data)
-                } catch (err: any) {
+                } catch (err: unknown) {
                     if (!mounted) return
                     setError(err?.message ?? 'Failed to load designation')
                 } finally { if (mounted) setLoading(false) }

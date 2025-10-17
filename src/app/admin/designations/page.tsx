@@ -18,7 +18,7 @@ import {
 
 export default function AdminDesignationsPage() {
     const router = useRouter()
-    const [items, setItems] = useState<any[]>([])
+    const [items, setItems] = useState<unknown[]>([])
     const [loading, setLoading] = useState(true)
     const [deletingId, setDeletingId] = useState<string | number | null>(null)
 
@@ -42,7 +42,7 @@ export default function AdminDesignationsPage() {
         try {
             await deleteDesignation(id)
             setItems(prev => prev.filter(x => x.id !== id))
-        } catch (err: any) {
+        } catch (err: unknown) {
             alert(err?.message ?? 'Failed to delete designation')
         } finally {
             setDeletingId(null)

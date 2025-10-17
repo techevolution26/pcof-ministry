@@ -24,17 +24,17 @@ import { useRouter } from 'next/navigation'
 
 export default function SuperAdminNewPaymentPage() {
     const router = useRouter()
-    const [churches, setChurches] = useState<any[]>([])
+    const [churches, setChurches] = useState<unknown[]>([])
     const [churchId, setChurchId] = useState<string | number | ''>('')
-    const [member, setMember] = useState<any | null>(null)
+    const [member, setMember] = useState<unknown | null>(null)
     const [type, setType] = useState('collection')
     const [amount, setAmount] = useState<string | number>('')
     const [currency, setCurrency] = useState('KES')
     const [reference, setReference] = useState('')
     const [description, setDescription] = useState('')
     const [saving, setSaving] = useState(false)
-    const [toast, setToast] = useState<any | null>(null)
-    const [membersList, setMembersList] = useState<any[]>([])
+    const [toast, setToast] = useState<unknown | null>(null)
+    const [membersList, setMembersList] = useState<unknown[]>([])
 
     // Payment types with icons and descriptions
     const paymentTypes = [
@@ -65,7 +65,7 @@ export default function SuperAdminNewPaymentPage() {
         (async () => {
             if (!churchId) { setMembersList([]); return }
             try {
-                const res = await fetchMembersForChurch(churchId as any, { per_page: 50 })
+                const res = await fetchMembersForChurch(churchId as unknown, { per_page: 50 })
                 if (!mounted) return
                 const arr = Array.isArray(res) ? res : (res?.data ?? [])
                 setMembersList(arr)
@@ -117,7 +117,7 @@ export default function SuperAdminNewPaymentPage() {
                 router.push(`/admin/finance/payments/${saved.id}`)
             }, 2000)
 
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err)
             setToast({
                 show: true,

@@ -19,13 +19,13 @@ import {
 
 type Props = {
     eventId?: string | number | null
-    initial?: any
-    onSaved?: (event: any) => void
+    initial?: unknown
+    onSaved?: (event: unknown) => void
 }
 
 export default function EventForm({ eventId = null, initial = {}, onSaved }: Props) {
-    const { user, isLoading } = useAdminAuth()
-    const [form, setForm] = useState<any>({
+    const { user } = useAdminAuth()
+    const [form, setForm] = useState<unknown>({
         title: initial.title ?? '',
         description: initial.description ?? '',
         church_id: initial.church_id ?? (user?.church_id ?? ''),
@@ -39,14 +39,14 @@ export default function EventForm({ eventId = null, initial = {}, onSaved }: Pro
     const [previewUrl, setPreviewUrl] = useState<string | null>(initial.image_url ?? null)
     const [loading, setLoading] = useState<boolean>(Boolean(eventId))
     const [saving, setSaving] = useState(false)
-    const [toast, setToast] = useState<any>(null)
+    const [toast, setToast] = useState<unknown>(null)
 
     useEffect(() => {
         let mounted = true
         async function load() {
             if (!eventId) { setLoading(false); return }
             try {
-                const body = await fetchEventById(eventId as any)
+                const body = await fetchEventById(eventId as unknown)
                 const data = body?.data ?? body
                 if (!mounted) return
                 setForm({
@@ -82,7 +82,7 @@ export default function EventForm({ eventId = null, initial = {}, onSaved }: Pro
     }, [imageFile, initial.image_url])
 
     function onChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
-        const { name, value, type, checked } = e.target as any
+        const { name, value, type, checked } = e.target as unknown
         setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
     }
 
@@ -101,12 +101,12 @@ export default function EventForm({ eventId = null, initial = {}, onSaved }: Pro
         setSaving(true)
         try {
             // Normalize booleans and empty strings
-            const payload: Record<string, any> = { ...form }
+            const payload: Record<string, unknown> = { ...form }
             if (payload.online === undefined) payload.online = false
 
             if (eventId) {
                 // update with FormData helper (sends POST + _method=PUT if needed)
-                const res = await updateAdminEventFormData(eventId as any, payload, imageFile ?? undefined)
+                const res = await updateAdminEventFormData(eventId as unknown, payload, imageFile ?? undefined)
                 const saved = res?.data ?? res
                 setToast({ show: true, message: 'Event updated successfully', type: 'success' })
                 onSaved?.(saved)
@@ -116,7 +116,7 @@ export default function EventForm({ eventId = null, initial = {}, onSaved }: Pro
                 setToast({ show: true, message: 'Event created successfully', type: 'success' })
                 onSaved?.(saved)
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err)
             setToast({ show: true, message: err?.message ?? 'Save failed. Please try again.', type: 'error' })
         } finally {

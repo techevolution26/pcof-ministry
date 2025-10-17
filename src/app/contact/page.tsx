@@ -1,6 +1,6 @@
 // app/contact/page.tsx
 import ContactForm from '@/components/ContactForm'
-import Link from 'next/link'
+// import Link from 'next/link'
 
 export const revalidate = 3600
 

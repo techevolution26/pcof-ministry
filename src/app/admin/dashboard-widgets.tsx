@@ -48,7 +48,7 @@ export default function DashboardWidgets() {
 
         const firstRejection = [adminResp, financeResp].find(r => r.status === 'rejected') as PromiseRejectedResult | undefined
         if (firstRejection && firstRejection.reason) {
-          const reason = firstRejection.reason as any
+          const reason = firstRejection.reason as unknown
           if (reason?.status === 401) {
             router.replace('/admin/login')
             return
@@ -99,7 +99,7 @@ export default function DashboardWidgets() {
         }
 
         if (mounted) setSummary(mapped)
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (err?.status === 401) {
           router.replace('/admin/login')
           return
@@ -189,7 +189,7 @@ export default function DashboardWidgets() {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      {widgets.map((widget, index) => (
+      {widgets.map((widget) => (
         <div
           key={widget.label}
           className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 border border-white/50 dark:border-gray-700/50 group"

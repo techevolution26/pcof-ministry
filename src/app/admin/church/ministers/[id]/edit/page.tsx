@@ -10,7 +10,7 @@ import { faArrowLeft, faSpinner, faUserTie } from '@fortawesome/free-solid-svg-i
 export default function EditMinisterPage() {
     const { id } = useParams() as { id?: string }
     const router = useRouter()
-    const [initial, setInitial] = useState<any>(null)
+    const [initial, setInitial] = useState<unknown>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
@@ -33,7 +33,7 @@ export default function EditMinisterPage() {
                 } else {
                     setInitial(data)
                 }
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error('Failed to load minister', err)
                 setError(err?.message ?? 'Failed to load minister')
             } finally {

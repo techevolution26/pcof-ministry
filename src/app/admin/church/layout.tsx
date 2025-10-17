@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAdminAuth } from '@/hooks/useAdminAuth'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSpinner, faChurch } from '@fortawesome/free-solid-svg-icons'
+import { faSpinner } from '@fortawesome/free-solid-svg-icons'
 
 export default function ChurchLayout({ children }: { children: React.ReactNode }) {
     const { user, isLoading, isChurchAdmin } = useAdminAuth()

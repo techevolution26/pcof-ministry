@@ -53,7 +53,7 @@ export default function DesignationForm({ designationId }: { designationId?: str
                 await createDesignation(form)
             }
             router.push('/admin/designations')
-        } catch (err: any) {
+        } catch (err: unknown) {
             if (err?.status === 422 && err.errors) {
                 // show field errors
                 setServerErrors(err.errors)

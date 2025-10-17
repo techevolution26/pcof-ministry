@@ -6,13 +6,13 @@ import { faChurch, faSearch, faSpinner } from '@fortawesome/free-solid-svg-icons
 
 type Props = {
     value?: string | number | ''
-    onSelect: (church: any | null) => void
+    onSelect: (church: unknown | null) => void
     placeholder?: string
 }
 
 export default function ChurchTypeahead({ value, onSelect, placeholder }: Props) {
     const [q, setQ] = useState('')
-    const [items, setItems] = useState<any[]>([])
+    const [items, setItems] = useState<unknown[]>([])
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const timer = useRef<number | null>(null)
@@ -58,7 +58,7 @@ export default function ChurchTypeahead({ value, onSelect, placeholder }: Props)
         }, 300)
     }
 
-    function doSelect(item: any) {
+    function doSelect(item: unknown) {
         setQ(item.name)
         setOpen(false)
         onSelect(item)
@@ -141,7 +141,7 @@ export default function ChurchTypeahead({ value, onSelect, placeholder }: Props)
                 <div className="absolute z-50 left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl p-4">
                     <div className="text-center text-gray-500 dark:text-gray-400">
                         <FontAwesomeIcon icon={faChurch} className="text-gray-300 text-xl mb-2" />
-                        <div className="text-sm">No churches found matching "{q}"</div>
+                        <div className="text-sm">No churches found matching &aquot;{q}&aquot;</div>
                         <div className="text-xs mt-1">Try a different search term</div>
                     </div>
                 </div>

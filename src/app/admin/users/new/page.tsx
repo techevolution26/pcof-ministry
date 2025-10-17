@@ -11,7 +11,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
     faArrowLeft,
     faUser,
-    faEnvelope,
     faLock,
     faShield,
     faUserPlus,
@@ -19,7 +18,6 @@ import {
     faCheckCircle,
     faInfoCircle,
     faLightbulb,
-    faUsers,
     faChurch
 } from '@fortawesome/free-solid-svg-icons'
 
@@ -37,7 +35,7 @@ export default function AdminUserCreatePage() {
     const { user } = useAdminAuth()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [roles, setRoles] = useState<any[]>([])
+    const [roles, setRoles] = useState<unknown[]>([])
     const [rolesLoading, setRolesLoading] = useState(true)
     const [formData, setFormData] = useState<FormData>({
         name: '',
@@ -81,7 +79,7 @@ export default function AdminUserCreatePage() {
         }))
     }
 
-    function onSelectChurch(church: any | null) {
+    function onSelectChurch(church: unknown | null) {
         setFormData(prev => ({ ...prev, church_id: church ? church.id : null }))
         if (fieldErrors['church_id']) setFieldErrors(prev => { const cp = { ...prev }; delete cp['church_id']; return cp })
     }
@@ -123,7 +121,7 @@ export default function AdminUserCreatePage() {
 
             router.push('/admin/users')
             router.refresh()
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('create user failed', err)
             if (err?.status === 422 && err.errors) {
                 setFieldErrors(err.errors)
@@ -305,7 +303,7 @@ export default function AdminUserCreatePage() {
                                         </div>
                                     ) : (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                            {roles.map((r: any) => (
+                                            {roles.map((r: unknown) => (
                                                 <button
                                                     key={r.id}
                                                     type="button"

@@ -14,14 +14,11 @@ import {
   faChartLine,
   faClock,
   faChurch,
-  faUsers,
   faCalendar,
   faExclamationTriangle,
   faSpinner,
   faArrowRight,
   faFilter,
-  faDownload,
-  faEllipsisVertical,
   faCheckCircle,
   faTimesCircle,
   faHourglassHalf
@@ -32,8 +29,8 @@ interface FinanceSummary {
   donations_total: number
   tithes_30d: number
   collections_pending: number
-  recent_payments: any[]
-  raw?: any
+  recent_payments: unknown[]
+  raw?: unknown
 }
 
 interface PaymentItem {
@@ -49,7 +46,7 @@ interface PaymentItem {
   church_name?: string
   status?: string
   description?: string
-  metadata?: any
+  metadata?: unknown
   _synthetic?: boolean
   _origId?: string | number
   _isNumericId?: boolean
@@ -67,19 +64,19 @@ export default function AdminFinancePage() {
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [lastPage, setLastPage] = useState<number | null>(null)
 
-  const [churches, setChurches] = useState<any[]>([])
+  const [churches, setChurches] = useState<unknown[]>([])
 
   // Modal state
   const [inspecting, setInspecting] = useState<PaymentItem | null>(null)
-  const [resolvedPayment, setResolvedPayment] = useState<any | null>(null)
+  const [resolvedPayment, setResolvedPayment] = useState<unknown | null>(null)
   const [resolving, setResolving] = useState(false)
   const [resolveError, setResolveError] = useState<string | null>(null)
-  const [breakdown, setBreakdown] = useState<any[] | null>(null)
+  const [breakdown, setBreakdown] = useState<unknown[] | null>(null)
   const [breakdownLoading, setBreakdownLoading] = useState(false)
   const modalRef = useRef<HTMLDivElement | null>(null)
 
   // Enhanced number utilities
-  const num = (v: any): number => {
+  const num = (v: unknown): number => {
     if (v === null || v === undefined || v === '') return 0
     const n = typeof v === 'number' ? v : Number(String(v).replace(/,/g, '') || 0)
     return Number.isFinite(n) ? n : 0
@@ -101,7 +98,7 @@ export default function AdminFinancePage() {
   }
 
   // Enhanced classification
-  const isAggregate = (p: any): boolean => {
+  const isAggregate = (p: unknown): boolean => {
     if (!p) return false
     return (
       (('total' in p || 'amount_total' in p) &&
@@ -110,7 +107,7 @@ export default function AdminFinancePage() {
     )
   }
 
-  const getSafeRecentPayments = (payments: any[]): PaymentItem[] => {
+  const getSafeRecentPayments = (payments: unknown[]): PaymentItem[] => {
     const seenIds = new Set<string>()
     const safePayments: PaymentItem[] = []
     let duplicateCount = 0
@@ -178,7 +175,7 @@ export default function AdminFinancePage() {
   }
 
   const getPaymentStatusIcon = (status: string) => {
-    const statusIcons: Record<string, any> = {
+    const statusIcons: Record<string, unknown> = {
       completed: faCheckCircle,
       pending: faHourglassHalf,
       failed: faTimesCircle,
@@ -201,7 +198,7 @@ export default function AdminFinancePage() {
   }
 
   const getPaymentTypeIcon = (type: string) => {
-    const typeIcons: Record<string, any> = {
+    const typeIcons: Record<string, unknown> = {
       tithe: faMoneyBillWave,
       offering: faFileInvoice,
       collection: faMoneyBillWave,
@@ -242,7 +239,7 @@ export default function AdminFinancePage() {
         recent_payments: recent,
       })
       setError(null)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to load finance summary', err)
       setError(err?.message ?? 'Failed to load finance summary')
       setSummary(null)
@@ -267,7 +264,7 @@ export default function AdminFinancePage() {
     return () => { mounted = false }
   }, [load])
 
-  const recentsRaw = (summary?.recent_payments ?? []) as any[]
+  const recentsRaw = (summary?.recent_payments ?? []) as unknown[]
   const safeRecentsRaw = getSafeRecentPayments(recentsRaw)
   const recents = safeRecentsRaw.slice(0, recentCount)
 
@@ -278,7 +275,7 @@ export default function AdminFinancePage() {
       const next = page + 1
       await load({ page: next })
       setPage(next)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err)
     } finally {
       setIsLoadingMore(false)
@@ -328,7 +325,7 @@ export default function AdminFinancePage() {
         setResolvedPayment(null)
         setResolveError('No payment found with that reference.')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Resolve failed', err)
       setResolvedPayment(null)
       setResolveError(err?.message ?? 'Failed to resolve reference')
@@ -337,7 +334,7 @@ export default function AdminFinancePage() {
     }
   }
 
-  async function fetchBreakdownForAggregate(item: any) {
+  async function fetchBreakdownForAggregate(item: unknown) {
     const type = item?.type ?? item?.collection_type ?? null
     const qs = new URLSearchParams()
     if (type) qs.set('type', String(type))
@@ -351,7 +348,7 @@ export default function AdminFinancePage() {
       const body = await apiGet(path)
       const rows = Array.isArray(body?.data) ? body.data : (Array.isArray(body) ? body : (body?.payments ?? body?.data ?? []))
       setBreakdown(rows)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to fetch breakdown', err)
       setBreakdown([])
     } finally {

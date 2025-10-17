@@ -31,13 +31,13 @@ export default function AdminMemberShowPage() {
     const id = params?.id
     const router = useRouter()
 
-    const [member, setMember] = useState<any | null>(null)
+    const [member, setMember] = useState<unknown | null>(null)
     const [loading, setLoading] = useState(true)
     const [deleting, setDeleting] = useState(false)
     const [toggling, setToggling] = useState(false)
-    const [recentPayments, setRecentPayments] = useState<any[]>([])
+    const [recentPayments, setRecentPayments] = useState<unknown[]>([])
     const [error, setError] = useState<string | null>(null)
-    const [toast, setToast] = useState<any | null>(null)
+    const [toast, setToast] = useState<unknown | null>(null)
 
     useEffect(() => {
         if (!id) return
@@ -60,7 +60,7 @@ export default function AdminMemberShowPage() {
                     }
 
                     setError(null)
-                } catch (err: any) {
+                } catch (err: unknown) {
                     console.error('fetch member failed', err)
                     if (!mounted) return
                     setError(err?.message ?? 'Failed to load member details')
@@ -82,7 +82,7 @@ export default function AdminMemberShowPage() {
             await deleteMember(member.id)
             setToast({ show: true, type: 'success', message: 'Member deleted successfully' })
             setTimeout(() => router.push('/admin/members'), 600)
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('delete failed', err)
             setToast({ show: true, type: 'error', message: err?.message ?? 'Delete failed' })
         } finally {
@@ -103,7 +103,7 @@ export default function AdminMemberShowPage() {
             })
             setMember(prev => prev ? { ...prev, is_active: newVal } : prev)
             setToast({ show: true, type: 'success', message: `Member ${newVal ? 'activated' : 'deactivated'} successfully` })
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('toggle active failed', err)
             setToast({ show: true, type: 'error', message: err?.message ?? 'Failed to update member status' })
         } finally {
@@ -182,8 +182,8 @@ export default function AdminMemberShowPage() {
                                         className={member.is_active ? "text-green-500 text-sm" : "text-gray-500 text-sm"}
                                     />
                                     <span className={`text-lg font-semibold ${member.is_active
-                                            ? 'text-green-600 dark:text-green-400'
-                                            : 'text-gray-600 dark:text-gray-400'
+                                        ? 'text-green-600 dark:text-green-400'
+                                        : 'text-gray-600 dark:text-gray-400'
                                         }`}>
                                         {member.is_active ? 'Active Member' : 'Inactive Member'}
                                     </span>
@@ -322,8 +322,8 @@ export default function AdminMemberShowPage() {
                                     </div>
                                     <div className="font-semibold">
                                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${member.is_active
-                                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                                                : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+                                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                            : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
                                             }`}>
                                             {member.is_active ? 'Active' : 'Inactive'}
                                         </span>
@@ -365,7 +365,7 @@ export default function AdminMemberShowPage() {
                                     </div>
                                     <div className="text-gray-500 dark:text-gray-400 font-medium">No recent payments</div>
                                     <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">
-                                        This member hasn't made any payments yet.
+                                        This member hasn&apos;t made any payments yet.
                                     </p>
                                     <Link
                                         href={`/admin/finance/payments/new?member_id=${member.id}`}
@@ -376,7 +376,7 @@ export default function AdminMemberShowPage() {
                                 </div>
                             ) : (
                                 <div className="space-y-3">
-                                    {recentPayments.map((p: any) => (
+                                    {recentPayments.map((p: unknown) => (
                                         <div key={p.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-600/50 transition-colors">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
@@ -458,8 +458,8 @@ export default function AdminMemberShowPage() {
                                 <div className="flex items-center justify-between">
                                     <span className="text-gray-600 dark:text-gray-400">Current Status</span>
                                     <span className={`font-semibold ${member.is_active
-                                            ? 'text-green-600 dark:text-green-400'
-                                            : 'text-gray-600 dark:text-gray-400'
+                                        ? 'text-green-600 dark:text-green-400'
+                                        : 'text-gray-600 dark:text-gray-400'
                                         }`}>
                                         {member.is_active ? 'Active' : 'Inactive'}
                                     </span>

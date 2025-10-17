@@ -18,7 +18,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 
 export default function AdminMinistersPage() {
-  const [items, setItems] = useState<any[]>([])
+  const [items, setItems] = useState<unknown[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

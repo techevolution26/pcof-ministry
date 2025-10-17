@@ -8,22 +8,20 @@ import {
     faSave,
     faSpinner,
     faFileInvoice,
-    faMoneyBillWave,
-    faCalendar,
     faFileAlt,
     faLink,
     faTimes
 } from '@fortawesome/free-solid-svg-icons'
 
 type Props = {
-    initial?: any
+    initial?: unknown
     churchId?: string | number
-    onSaved?: (rec: any) => void
+    onSaved?: (rec: unknown) => void
     paymentId?: string | number // Add this line to fix the TypeScript error
 }
 
 export default function ReconciliationForm({ initial = {}, churchId, onSaved, paymentId }: Props) {
-    const [form, setForm] = useState<any>({
+    const [form, setForm] = useState<unknown>({
         payment_id: initial.payment_id ?? paymentId ?? null, // Use paymentId prop here
         statement_reference: initial.statement_reference ?? '',
         statement_date: initial.statement_date ?? '',
@@ -33,15 +31,15 @@ export default function ReconciliationForm({ initial = {}, churchId, onSaved, pa
         church_id: initial.church_id ?? churchId ?? '',
     })
     const [saving, setSaving] = useState(false)
-    const [toast, setToast] = useState<any>(null)
-    const [selectedPayment, setSelectedPayment] = useState<any>(initial.payment ?? null)
+    const [toast, setToast] = useState<unknown>(null)
+    const [selectedPayment, setSelectedPayment] = useState<unknown>(initial.payment ?? null)
 
-    function onChange(e: any) {
+    function onChange(e: unknown) {
         const { name, value } = e.target
         setForm(prev => ({ ...prev, [name]: value }))
     }
 
-    async function handleSelectPayment(p: any) {
+    async function handleSelectPayment(p: unknown) {
         setSelectedPayment(p)
         setForm(prev => ({
             ...prev,
@@ -102,7 +100,7 @@ export default function ReconciliationForm({ initial = {}, churchId, onSaved, pa
             }
 
             onSaved?.(savedRec)
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err)
             setToast({ show: true, message: err?.message ?? 'Failed to save reconciliation', type: 'error' })
         } finally {

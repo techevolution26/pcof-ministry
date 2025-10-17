@@ -13,14 +13,14 @@ import {
     faCheckCircle
 } from '@fortawesome/free-solid-svg-icons'
 
-type Props = { churchId?: string | number; onSelect: (m: any) => void; value?: any }
+type Props = { churchId?: string | number; onSelect: (m: unknown) => void; value?: unknown }
 
 export default function MemberTypeahead({ churchId, onSelect, value }: Props) {
     const [q, setQ] = useState('')
-    const [list, setList] = useState<any[]>([])
+    const [list, setList] = useState<unknown[]>([])
     const [loading, setLoading] = useState(false)
     const [isOpen, setIsOpen] = useState(false)
-    const [selectedMember, setSelectedMember] = useState<any>(value)
+    const [selectedMember, setSelectedMember] = useState<unknown>(value)
 
     useEffect(() => {
         setSelectedMember(value)
@@ -53,7 +53,7 @@ export default function MemberTypeahead({ churchId, onSelect, value }: Props) {
         return () => { mounted = false }
     }, [q])
 
-    const handleSelect = (member: any) => {
+    const handleSelect = (member: unknown) => {
         onSelect(member)
         setSelectedMember(member)
         setQ('')
@@ -66,13 +66,13 @@ export default function MemberTypeahead({ churchId, onSelect, value }: Props) {
         setQ('')
     }
 
-    const getInitials = (member: any) => {
+    const getInitials = (member: unknown) => {
         const firstName = member.first_name || ''
         const lastName = member.last_name || ''
         return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || 'M'
     }
 
-    const getFullName = (member: any) => {
+    const getFullName = (member: unknown) => {
         return [member.first_name, member.last_name].filter(Boolean).join(' ') || 'Unnamed Member'
     }
 
@@ -167,7 +167,7 @@ export default function MemberTypeahead({ churchId, onSelect, value }: Props) {
                         <div className="p-8 text-center text-gray-500 dark:text-gray-400">
                             <FontAwesomeIcon icon={faUser} className="text-3xl mb-3 opacity-30" />
                             <div className="font-medium text-gray-900 dark:text-gray-100 mb-1">No members found</div>
-                            <div className="text-sm">No results for "{q}"</div>
+                            <div className="text-sm">No results for &aquot;{q}&aquot;</div>
                         </div>
                     ) : null}
                 </div>

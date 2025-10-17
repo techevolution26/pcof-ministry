@@ -1,7 +1,43 @@
+// /src/app/admin/assets/[id]/page.tsx
 'use client'
 import React, { useEffect, useState } from 'react'
 import { fetchAssetById } from '@/lib/adminApi'
 import Link from 'next/link'
+import Image from 'next/image'
+
+type Asset = {
+    id: number | string
+    name?: string
+    asset_tag?: string
+    church?: { name?: string } | null
+    church_id?: number | string
+    location?: string | null
+    description?: string | null
+    file_url?: string | null
+}
+
+/** Safely unwrapping values like `{ data: ... }` returned by APIs */
+function extractData<T>(val: unknown): T | undefined {
+    if (val && typeof val === 'object') {
+        const obj = val as Record<string, unknown>
+        if ('data' in obj) {
+            return obj['data'] as T
+        }
+    }
+    return val as T | undefined
+}
+
+/** Safely getting id from unknown params -Next params can be objects or promises */
+function params: unknown?.id: string | undefined {
+    if (!params) return undefined
+    if (typeof params === 'string' || typeof params === 'number') return String(params)
+    if (typeof params === 'object') {
+        const p = params as Record<string, unknown>
+        const idVal = p['id']
+        if (typeof idVal === 'string' || typeof idVal === 'number') return String(idVal)
+    }
+    return undefined
+}
 
 function normalizeFileUrl(url?: string | null) {
     if (!url) return null
@@ -9,12 +45,11 @@ function normalizeFileUrl(url?: string | null) {
     // NEXT_PUBLIC_API_URL e.g. http://localhost:8000
     const base = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '')
     if (!base) return url
-    // if url already starts with a slash, just join
     return `${base}${url.startsWith('/') ? '' : '/'}${url}`
 }
 
-export default function AssetShowPage({ params }: { params: any }) {
-    const [asset, setAsset] = useState<any | null>(null)
+export default function AssetShowPage({ params }: { params: unknown }) {
+    const [asset, setAsset] = useState<Asset | null>(null)
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -22,7 +57,7 @@ export default function AssetShowPage({ params }: { params: any }) {
 
             ; (async () => {
                 try {
-                    // resolve params (in newer Next params may be a Promise)
+                    // resolving params in Next versions params may be a Promise
                     const resolved = await Promise.resolve(params)
                     const id = resolved?.id
                     if (!id) {
@@ -31,15 +66,18 @@ export default function AssetShowPage({ params }: { params: any }) {
                     }
 
                     const body = await fetchAssetById(id)
-                    const data = body?.data ?? body
+                    const data = extractData<Asset>(body) ?? null
 
-                    // normalize file_url for the frontend
-                    if (data?.file_url) data.file_url = normalizeFileUrl(data.file_url)
+                    if (data && data.file_url) {
+                        data.file_url = normalizeFileUrl(data.file_url)
+                    }
 
                     if (!mounted) return
                     setAsset(data)
-                } catch (err) {
+                } catch (err: unknown) {
+                    // keeping console debuging to aid troubleshooting
                     console.error('Failed to load asset', err)
+                    if (mounted) setAsset(null)
                 } finally {
                     if (mounted) setLoading(false)
                 }
@@ -48,7 +86,7 @@ export default function AssetShowPage({ params }: { params: any }) {
         return () => {
             mounted = false
         }
-        // note: we depend on `params` itself, not `params.id` (avoid direct property access)
+        // depending on `params` we intentionally avoid direct property access in the dependency list
     }, [params])
 
     if (loading) return <div>Loading…</div>
@@ -69,7 +107,7 @@ export default function AssetShowPage({ params }: { params: any }) {
             <dl className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <dt className="text-xs text-gray-500">Church</dt>
-                    <dd>{asset.church?.name ?? '—'}</dd>
+                    <dd>{asset.church?.name ?? asset.church_id ?? '—'}</dd>
                 </div>
                 <div>
                     <dt className="text-xs text-gray-500">Location</dt>
@@ -85,7 +123,18 @@ export default function AssetShowPage({ params }: { params: any }) {
                     <dd>
                         {asset.file_url ? (
                             asset.file_url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
-                                <img src={asset.file_url} alt={asset.name} className="max-h-64 rounded border" />
+                                <div className="max-h-64 rounded border overflow-hidden">
+                                    <Image
+                                        src={asset.file_url}
+                                        alt={asset.name ?? 'Asset file'}
+                                        width={800}
+                                        height={480}
+                                        style={{ objectFit: 'cover', maxHeight: '16rem', width: '100%', height: 'auto' }}
+                                        // remove the next line if you configured domains in next.config.js
+                                        // unoptimized
+                                        priority={false}
+                                    />
+                                </div>
                             ) : (
                                 <a href={asset.file_url} className="text-sky-600" target="_blank" rel="noreferrer">Download file</a>
                             )

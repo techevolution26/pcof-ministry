@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useAdminAuth } from '@/hooks/useAdminAuth'
-import { fetchChurchMembers, deleteMember, bulkDeleteMembers } from '@/lib/adminApi'
+import { fetchChurchMembers, deleteMember } from '@/lib/adminApi'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faUsers,
@@ -15,9 +15,6 @@ import {
   faArrowLeft,
   faCheckCircle,
   faTimesCircle,
-  faFilter,
-  faDownload,
-  faUpload
 } from '@fortawesome/free-solid-svg-icons'
 
 type Member = {
@@ -27,10 +24,10 @@ type Member = {
   last_name?: string
   phone?: string | null
   email?: string | null
-  assembly?: any
-  designation?: any
-  department?: any
-  [k: string]: any
+  assembly?: unknown
+  designation?: unknown
+  department?: unknown
+  [k: string]: unknown
 }
 
 export default function ChurchMembersPage() {
@@ -96,7 +93,7 @@ export default function ChurchMembersPage() {
           per_page: Number(pagination.per_page ?? perPage),
           total: Number(pagination.total ?? (Array.isArray(list) ? list.length : 0)),
         })
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed loading members', err)
         if (!mounted) return
         setError(err?.message ?? 'Failed to load members')
@@ -141,7 +138,6 @@ export default function ChurchMembersPage() {
       localStorage.removeItem(CREATED_KEY)
     }
     // run only once on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [churchId])
 
   // Selection handlers
@@ -185,7 +181,7 @@ export default function ChurchMembersPage() {
       try {
         // If your API supports bulk delete, use it. Otherwise delete individually.
         await Promise.all(memberIds.map(id => deleteMember(id)))
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Restore on failure
         console.error('Bulk delete failed', err)
         setMembers(prevMembers)
@@ -212,7 +208,7 @@ export default function ChurchMembersPage() {
     try {
       await deleteMember(member.id)
       // success – nothing else to do
-    } catch (err: any) {
+    } catch (err: unknown) {
       // restore on failure
       console.error('Delete failed', err)
       setMembers(prev) // restore

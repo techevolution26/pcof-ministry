@@ -3,7 +3,7 @@ import React from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import DesignationForm from '@/components/DesignationForm'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowLeft, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 
 export default function EditDesignation() {
   const params = useParams() as { id?: string }

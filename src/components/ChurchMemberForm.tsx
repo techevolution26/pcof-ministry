@@ -23,8 +23,8 @@ import {
 
 type Props = {
     memberId?: string | number | null
-    initial?: Partial<Record<string, any>>
-    onSaved?: (member: any) => void
+    initial?: Partial<Record<string, unknown>>
+    onSaved?: (member: unknown) => void
     onCancel?: () => void
 }
 
@@ -32,7 +32,7 @@ export default function ChurchMemberForm({ memberId = null, initial = {}, onSave
     const router = useRouter()
     const { user, isLoading } = useAdminAuth()
     const churchId = user?.church_id
-    const [form, setForm] = useState<any>({
+    const [form, setForm] = useState<unknown>({
         church_id: initial.church_id ?? churchId ?? '',
         first_name: initial.first_name ?? '',
         last_name: initial.last_name ?? '',
@@ -52,9 +52,9 @@ export default function ChurchMemberForm({ memberId = null, initial = {}, onSave
     const [errors, setErrors] = useState<Record<string, string[]>>({})
     const [toast, setToast] = useState<{ show: boolean; message?: string; type?: 'success' | 'error' } | null>(null)
 
-    const [departments, setDepartments] = useState<any[]>([])
-    const [designations, setDesignations] = useState<any[]>([])
-    const [ministers, setMinisters] = useState<any[]>([])
+    const [departments, setDepartments] = useState<unknown[]>([])
+    const [designations, setDesignations] = useState<unknown[]>([])
+    const [ministers, setMinisters] = useState<unknown[]>([])
     const [loadingMeta, setLoadingMeta] = useState(true)
 
     useEffect(() => {
@@ -87,7 +87,7 @@ export default function ChurchMemberForm({ memberId = null, initial = {}, onSave
         async function load() {
             if (!memberId) { setLoading(false); return }
             try {
-                const body = await fetchMemberById(memberId as any)
+                const body = await fetchMemberById(memberId as unknown)
                 const data = body?.data ?? body
                 if (!mounted) return
                 setForm(prev => ({
@@ -144,7 +144,7 @@ export default function ChurchMemberForm({ memberId = null, initial = {}, onSave
             const payload = { ...form, church_id: churchId }
             let res
             if (memberId) {
-                res = await updateMember(memberId as any, payload)
+                res = await updateMember(memberId as unknown, payload)
             } else {
                 res = await createMember(payload)
             }
@@ -152,7 +152,7 @@ export default function ChurchMemberForm({ memberId = null, initial = {}, onSave
             setToast({ show: true, message: memberId ? 'Member updated successfully' : 'Member created successfully', type: 'success' })
             onSaved?.(saved)
             if (!onSaved) router.push('/admin/church/members')
-        } catch (err: any) {
+        } catch (err: unknown) {
             if (err?.status === 422 && err.errors) setErrors(err.errors)
             else {
                 const msg = err?.message ?? 'Save failed'

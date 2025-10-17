@@ -28,7 +28,7 @@ import {
     faEye
 } from '@fortawesome/free-solid-svg-icons'
 
-type Church = { id: number | string; name?: string; address?: string; pastor?: string; description?: string;[k: string]: any }
+type Church = { id: number | string; name?: string; address?: string; pastor?: string; description?: string;[k: string]: unknown }
 
 export default function ChurchShowPage() {
     const params = useParams()
@@ -47,7 +47,7 @@ export default function ChurchShowPage() {
 
         setLoadingChurch(true)
         fetchChurchById(id)
-            .then((body: any) => {
+            .then((body: unknown) => {
                 if (!mounted) return
                 const data = body?.data ?? body?.church ?? body
                 setChurch(data || null)
@@ -176,7 +176,7 @@ export default function ChurchShowPage() {
 
 /* ----------------------- Enhanced Tab Components ----------------------- */
 
-function normalizeList(body: any) {
+function normalizeList(body: unknown) {
     if (!body) return []
     if (Array.isArray(body)) return body
     if (Array.isArray(body?.data)) return body.data
@@ -187,7 +187,7 @@ function normalizeList(body: any) {
 
 /** Enhanced Members Tab */
 function MembersTab({ churchId }: { churchId: string | number }) {
-    const [list, setList] = useState<any[]>([])
+    const [list, setList] = useState<unknown[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
@@ -256,7 +256,7 @@ function MembersTab({ churchId }: { churchId: string | number }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {list.map((m: any) => (
+                            {list.map((m: unknown) => (
                                 <tr key={m.id} className="border-t border-gray-100 dark:border-gray-600 hover:bg-gray-50/50 dark:hover:bg-gray-600/50 transition-colors">
                                     <td className="p-4 font-mono text-sm text-gray-600 dark:text-gray-400">
                                         {m.member_number ?? m.id}
@@ -324,7 +324,7 @@ function MembersTab({ churchId }: { churchId: string | number }) {
 
 /** Enhanced Assets Tab */
 function AssetsTab({ churchId }: { churchId: string | number }) {
-    const [list, setList] = useState<any[]>([])
+    const [list, setList] = useState<unknown[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
@@ -363,7 +363,7 @@ function AssetsTab({ churchId }: { churchId: string | number }) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {list.map((a: any) => (
+                {list.map((a: unknown) => (
                     <div key={a.id} className="bg-white dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 p-6 hover:shadow-lg transition-all duration-200">
                         <div className="flex items-center gap-4 mb-4">
                             <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
@@ -413,7 +413,7 @@ function AssetsTab({ churchId }: { churchId: string | number }) {
 
 /** Enhanced Events Tab */
 function EventsTab({ churchId }: { churchId: string | number }) {
-    const [list, setList] = useState<any[]>([])
+    const [list, setList] = useState<unknown[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
@@ -452,7 +452,7 @@ function EventsTab({ churchId }: { churchId: string | number }) {
             </div>
 
             <div className="space-y-4">
-                {list.map((e: any) => (
+                {list.map((e: unknown) => (
                     <div key={e.id} className="bg-white dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 p-6 hover:shadow-lg transition-all duration-200">
                         <div className="flex items-center justify-between">
                             <div className="flex-1">
@@ -510,8 +510,8 @@ function EventsTab({ churchId }: { churchId: string | number }) {
 
 /** Enhanced Collections Tab */
 function CollectionsTab({ churchId }: { churchId: string | number }) {
-    const [payments, setPayments] = useState<any[]>([])
-    const [summary, setSummary] = useState<any>(null)
+    const [payments, setPayments] = useState<unknown[]>([])
+    const [summary, setSummary] = useState<unknown>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
@@ -621,7 +621,7 @@ function CollectionsTab({ churchId }: { churchId: string | number }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {payments.map((p: any) => (
+                            {payments.map((p: unknown) => (
                                 <tr key={p.id} className="border-t border-gray-100 dark:border-gray-600 hover:bg-gray-50/50 dark:hover:bg-gray-600/50 transition-colors">
                                     <td className="p-4 font-mono text-sm text-gray-600 dark:text-gray-400">#{p.id}</td>
                                     <td className="p-4">

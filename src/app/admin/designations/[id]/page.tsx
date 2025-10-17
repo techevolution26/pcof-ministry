@@ -19,7 +19,7 @@ export default function DesignationShow() {
   const params = useParams() as { id?: string }
   const id = params?.id
   const router = useRouter()
-  const [item, setItem] = useState<any | null>(null)
+  const [item, setItem] = useState<unknown | null>(null)
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
 
@@ -44,7 +44,7 @@ export default function DesignationShow() {
     try {
       await deleteDesignation(item.id)
       router.push('/admin/designations')
-    } catch (err: any) {
+    } catch (err: unknown) {
       alert(err?.message ?? 'Failed to delete designation')
       setDeleting(false)
     }

@@ -22,7 +22,7 @@ async function handleRes(res: Response) {
   const data = await parseJsonSafe(res);
   if (!res.ok) {
     const err = new Error((data && data.message) || `Request failed (${res.status})`);
-    (err as any).response = data;
+    (err as unknown).response = data;
     throw err;
   }
   return data;
@@ -38,7 +38,7 @@ export async function getProtected(path: string, extraHeaders?: HeadersInit) {
   return handleRes(res);
 }
 
-export async function postProtected(path: string, body?: any, extraHeaders?: HeadersInit) {
+export async function postProtected(path: string, body?: unknown, extraHeaders?: HeadersInit) {
   const url = `${API_BASE}${path.startsWith('/') ? path : `/${path}`}`;
   const res = await fetch(url, {
     method: 'POST',
@@ -49,7 +49,7 @@ export async function postProtected(path: string, body?: any, extraHeaders?: Hea
   return handleRes(res);
 }
 
-export async function putProtected(path: string, body?: any, extraHeaders?: HeadersInit) {
+export async function putProtected(path: string, body?: unknown, extraHeaders?: HeadersInit) {
   const url = `${API_BASE}${path.startsWith('/') ? path : `/${path}`}`;
   const res = await fetch(url, {
     method: 'PUT',

@@ -1,29 +1,53 @@
+// /src/app/admin/assemblies/page.tsx
 'use client'
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { fetchAssemblies, deleteAssembly } from '@/lib/adminApi'
 
+type Assembly = {
+  id: number
+  name?: string
+  church?: { name?: string }
+  church_id?: number
+  description?: string
+  members?: Array<{ id: number; first_name?: string; last_name?: string }>
+}
+
+/** Safely unwraps values like `{ data: ... }` returned by some APIs */
+function extractData<T>(val: unknown): T | undefined {
+  if (val && typeof val === 'object') {
+    const obj = val as Record<string, unknown>
+    if ('data' in obj) {
+      return obj['data'] as T
+    }
+  }
+  return val as T | undefined
+}
+
 export default function AssembliesPage() {
-  const [list, setList] = useState<any[]>([])
+  const [list, setList] = useState<Assembly[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     let mounted = true
-    ;(async () => {
-      setLoading(true)
-      try {
-        const body = await fetchAssemblies()
-        const arr = Array.isArray(body) ? body : (body?.data ?? [])
-        if (!mounted) return
-        setList(arr)
-      } catch (err: any) {
-        if (!mounted) return
-        setError(err?.message ?? 'Failed to load assemblies')
-      } finally {
-        if (mounted) setLoading(false)
-      }
-    })()
+      ; (async () => {
+        setLoading(true)
+        try {
+          const body = await fetchAssemblies()
+          const arr = Array.isArray(body)
+            ? (body as Assembly[])
+            : (extractData<Assembly[]>(body) ?? [])
+          if (!mounted) return
+          setList(arr)
+        } catch (err: unknown) {
+          if (!mounted) return
+          const errorMessage = err instanceof Error ? err.message : String(err)
+          setError(errorMessage ?? 'Failed to load assemblies')
+        } finally {
+          if (mounted) setLoading(false)
+        }
+      })()
     return () => { mounted = false }
   }, [])
 
@@ -32,8 +56,10 @@ export default function AssembliesPage() {
     try {
       await deleteAssembly(id)
       setList(prev => prev.filter(x => x.id !== id))
-    } catch (err: any) {
-      alert(err?.message ?? 'Delete failed')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err)
+      // using alert here to match original behaviour -or toast
+      alert(msg ?? 'Delete failed')
     }
   }
 

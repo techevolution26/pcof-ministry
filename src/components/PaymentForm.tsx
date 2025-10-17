@@ -17,13 +17,13 @@ import {
     faCalendar
 } from '@fortawesome/free-solid-svg-icons'
 
-type Props = { initial?: any; onSaved?: (p: any) => void }
+type Props = { initial?: unknown; onSaved?: (p: unknown) => void }
 
 export default function PaymentForm({ initial = {}, onSaved }: Props) {
     const { user, isLoading } = useAdminAuth()
     const churchIdFromUser = user?.church_id
 
-    const [form, setForm] = useState<any>({
+    const [form, setForm] = useState<unknown>({
         church_id: initial.church_id ?? churchIdFromUser ?? '',
         event_id: initial.event_id ?? null,
         member_id: initial.member_id ?? null,
@@ -35,7 +35,7 @@ export default function PaymentForm({ initial = {}, onSaved }: Props) {
         payment_method: initial.payment_method ?? 'in-person',
     })
     const [saving, setSaving] = useState(false)
-    const [toast, setToast] = useState<any>(null)
+    const [toast, setToast] = useState<unknown>(null)
 
     useEffect(() => {
         // if user is church_admin, enforce church_id in the form
@@ -44,12 +44,12 @@ export default function PaymentForm({ initial = {}, onSaved }: Props) {
         }
     }, [user, isLoading])
 
-    function onChange(e: any) {
+    function onChange(e: unknown) {
         const { name, value } = e.target
         setForm(prev => ({ ...prev, [name]: value }))
     }
 
-    async function handleEventSelect(ev: any) {
+    async function handleEventSelect(ev: unknown) {
         // set event and infer church_id if event belongs to a church
         setForm(prev => ({
             ...prev,
@@ -58,7 +58,7 @@ export default function PaymentForm({ initial = {}, onSaved }: Props) {
         }))
     }
 
-    async function handleMemberSelect(member: any) {
+    async function handleMemberSelect(member: unknown) {
         setForm(prev => ({ ...prev, member_id: member?.id ?? null }))
     }
 
@@ -74,7 +74,7 @@ export default function PaymentForm({ initial = {}, onSaved }: Props) {
             const saved = res?.data ?? res
             setToast({ show: true, message: 'Payment recorded successfully!', type: 'success' })
             setTimeout(() => onSaved?.(saved), 1500)
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err)
             setToast({ show: true, message: err?.message ?? 'Failed to save payment', type: 'error' })
         } finally {

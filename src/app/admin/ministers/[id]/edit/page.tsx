@@ -47,7 +47,7 @@ export default function EditMinisterPage() {
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 p-8 text-center">
               <div className="text-red-500 text-lg font-medium">Invalid minister ID</div>
               <p className="text-gray-600 dark:text-gray-400 mt-2">
-                The minister you're trying to edit could not be found.
+                The minister you&apos;re trying to edit could not be found.
               </p>
             </div>
           )}

@@ -7,7 +7,7 @@ export default function DepartmentForm({ departmentId }: { departmentId?: string
   const router = useRouter()
   const [form, setForm] = useState({ name:'', slug:'', description:'', church_id: '' })
   const [loading,setLoading]=useState(Boolean(departmentId))
-  const [churches,setChurches]=useState<any[]>([])
+  const [churches,setChurches]=useState<unknown[]>([])
 
   useEffect(()=>{ let mounted=true; (async()=>{ try{ const ch = await fetchChurchesList(); if(!mounted) return; setChurches(ch); }catch{} })(); return ()=>{ mounted=false } },[])
 

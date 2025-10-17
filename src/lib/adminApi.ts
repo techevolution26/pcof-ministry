@@ -1,5 +1,4 @@
 // src/lib/adminApi.ts
-/* eslint-disable no-console */
 /**
  * Typed admin API helpers.
  * - Avoids `any` usage (uses `unknown`, generics, or Record<string, unknown>).
@@ -182,7 +181,7 @@ export async function createUser(payload: {
     return await apiPost('/api/admin/users', payload, { useCsrf: true });
   } catch (err: unknown) {
     // preserve structured 422 or rethrow
-    if (err && typeof err === 'object' && 'status' in (err as object) && (err as any).status === 422 && 'errors' in (err as object)) {
+    if (err && typeof err === 'object' && 'status' in (err as object) && (err as unknown).status === 422 && 'errors' in (err as object)) {
       throw err;
     }
     throw err;

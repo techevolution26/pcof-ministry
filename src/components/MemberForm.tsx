@@ -27,7 +27,7 @@ type MemberFormShape = {
   church_id?: string | number | null
   member_number?: string
   gender?: 'male' | 'female' | ''
-  [k: string]: any
+  [k: string]: unknown
 }
 
 export default function MemberForm({ memberId }: Props) {
@@ -36,7 +36,7 @@ export default function MemberForm({ memberId }: Props) {
   const [loading, setLoading] = useState<boolean>(Boolean(memberId))
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<Record<string, string[]>>({})
-  const [churches, setChurches] = useState<Array<any>>([])
+  const [churches, setChurches] = useState<Array<unknown>>([])
   const initialLoadedRef = useRef(false)
 
   const empty: MemberFormShape = {
@@ -93,7 +93,7 @@ export default function MemberForm({ memberId }: Props) {
             gender: data?.gender ?? 'male',
           })
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to load member', err)
         if (err?.status === 401 || err?.status === 403) {
           window.location.href = '/admin/login'
@@ -121,7 +121,7 @@ export default function MemberForm({ memberId }: Props) {
     try {
       if (!form) throw new Error('Form not ready')
 
-      const payload: any = { ...form }
+      const payload: unknown = { ...form }
 
       if (memberId) {
         delete payload.member_number
@@ -136,7 +136,7 @@ export default function MemberForm({ memberId }: Props) {
       }
 
       router.push('/admin/members')
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (err?.status === 422 && err.errors) {
         setErrors(err.errors)
       } else {
@@ -314,7 +314,7 @@ export default function MemberForm({ memberId }: Props) {
                     }`}
                 >
                   <option value="">— Select church —</option>
-                  {churches.map((c: any) => (
+                  {churches.map((c: unknown) => (
                     <option key={c.id} value={c.id}>
                       {c.name ?? c.title ?? `Church #${c.id}`}
                     </option>

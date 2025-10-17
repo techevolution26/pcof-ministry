@@ -2,8 +2,7 @@
 import React from 'react'
 import ChurchForm from '@/components/ChurchForm'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChurch, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
-import Link from 'next/link'
+import { faChurch } from '@fortawesome/free-solid-svg-icons'
 
 export default function NewChurchPage() {
   return (

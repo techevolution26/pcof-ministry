@@ -23,11 +23,11 @@ import {
 export default function EventAttendeesPage() {
     const { id } = useParams() as { id?: string }
     const router = useRouter()
-    const [event, setEvent] = useState<any | null>(null)
-    const [rsvps, setRsvps] = useState<any[]>([])
+    const [event, setEvent] = useState<unknown | null>(null)
+    const [rsvps, setRsvps] = useState<unknown[]>([])
     const [loading, setLoading] = useState(true)
     const [exporting, setExporting] = useState(false)
-    const [toast, setToast] = useState<any | null>(null)
+    const [toast, setToast] = useState<unknown | null>(null)
 
     useEffect(() => {
         if (!id) return
@@ -41,8 +41,8 @@ export default function EventAttendeesPage() {
                     const res = await fetchEventRsvps(id)
                     if (!mounted) return
                     const list = Array.isArray(res) ? res : (res?.data ?? [])
-                    setRsvps(list.filter((r: any) => (r.status ?? 'attending') === 'attending'))
-                } catch (err: any) {
+                    setRsvps(list.filter((r: unknown) => (r.status ?? 'attending') === 'attending'))
+                } catch (err: unknown) {
                     console.error(err)
                     router.replace('/admin/events')
                 } finally {
@@ -52,7 +52,7 @@ export default function EventAttendeesPage() {
         return () => { mounted = false }
     }, [id, router])
 
-    function exportCsv(list: any[]) {
+    function exportCsv(list: unknown[]) {
         if (!list || !list.length) {
             setToast({ show: true, message: 'No attendees to export', type: 'warning' })
             return
@@ -110,7 +110,7 @@ export default function EventAttendeesPage() {
                             <FontAwesomeIcon icon={faExclamationTriangle} className="text-red-600 dark:text-red-400 text-2xl" />
                         </div>
                         <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Event Not Found</h3>
-                        <p className="text-gray-600 dark:text-gray-300 mb-6">The event you're looking for doesn't exist.</p>
+                        <p className="text-gray-600 dark:text-gray-300 mb-6">The event you&apos;re looking for doesn&apos;t exist.</p>
                         <Link
                             href="/admin/events"
                             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition-colors duration-200 inline-flex items-center gap-2"

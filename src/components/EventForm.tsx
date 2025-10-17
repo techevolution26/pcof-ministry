@@ -33,7 +33,7 @@ type Props = { eventId?: string | number }
 
 export default function EventForm({ eventId }: Props) {
     const router = useRouter()
-    const [form, setForm] = useState<any>({
+    const [form, setForm] = useState<unknown>({
         title: '',
         description: '',
         church_id: '',
@@ -47,8 +47,8 @@ export default function EventForm({ eventId }: Props) {
     const [loading, setLoading] = useState<boolean>(Boolean(eventId))
     const [saving, setSaving] = useState(false)
     const [errors, setErrors] = useState<Record<string, string[]>>({})
-    const [churches, setChurches] = useState<any[]>([])
-    const [assemblies, setAssemblies] = useState<any[]>([])
+    const [churches, setChurches] = useState<unknown[]>([])
+    const [assemblies, setAssemblies] = useState<unknown[]>([])
     const fileRef = useRef<HTMLInputElement | null>(null)
     const [selectedPreview, setSelectedPreview] = useState<string | null>(null)
     const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null)
@@ -198,7 +198,7 @@ export default function EventForm({ eventId }: Props) {
 
             // Success message could be shown here
             router.push('/admin/events')
-        } catch (err: any) {
+        } catch (err: unknown) {
             if (err?.status === 422 && err.errors) {
                 setErrors(err.errors)
             } else {
@@ -320,7 +320,7 @@ export default function EventForm({ eventId }: Props) {
                             disabled={!!form.is_national}
                         >
                             <option value="">— Select a church —</option>
-                            {churches.map((c: any) => (
+                            {churches.map((c: unknown) => (
                                 <option key={c.id} value={c.id}>{c.name}</option>
                             ))}
                         </select>
@@ -347,7 +347,7 @@ export default function EventForm({ eventId }: Props) {
                         disabled={!!form.is_national || !form.church_id}
                     >
                         <option value="">— No assembly —</option>
-                        {assemblies.map((a: any) => (
+                        {assemblies.map((a: unknown) => (
                             <option key={a.id} value={a.id}>{a.name}</option>
                         ))}
                     </select>

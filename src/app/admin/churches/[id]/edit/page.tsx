@@ -3,7 +3,7 @@ import React from 'react'
 import { useParams } from 'next/navigation'
 import ChurchForm from '@/components/ChurchForm'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChurch, faEdit, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+import { faEdit, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import Link from 'next/link'
 
 export default function EditChurchPage() {
@@ -19,8 +19,8 @@ export default function EditChurchPage() {
             <div className="text-red-600 dark:text-red-400 text-xl font-semibold mb-4">
               Invalid Church ID
             </div>
-            <Link 
-              href="/admin/churches" 
+            <Link
+              href="/admin/churches"
               className="inline-block px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors"
             >
               Back to Churches
@@ -46,8 +46,8 @@ export default function EditChurchPage() {
                 Update church information and configuration settings
               </p>
             </div>
-            <Link 
-              href="/admin/churches" 
+            <Link
+              href="/admin/churches"
               className="px-4 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors flex items-center gap-2"
             >
               <FontAwesomeIcon icon={faArrowLeft} className="text-sm" />

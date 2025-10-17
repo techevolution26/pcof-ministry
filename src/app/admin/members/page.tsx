@@ -28,7 +28,7 @@ import {
   faUserSlash
 } from '@fortawesome/free-solid-svg-icons'
 
-type Member = any
+type Member = unknown
 
 export default function AdminMembersPage() {
   // list state
@@ -53,8 +53,8 @@ export default function AdminMembersPage() {
   const selectedCount = useMemo(() => Object.values(selected).filter(Boolean).length, [selected])
 
   // UI extras
-  const [churches, setChurches] = useState<any[]>([])
-  const [toast, setToast] = useState<any | null>(null)
+  const [churches, setChurches] = useState<unknown[]>([])
+  const [toast, setToast] = useState<unknown | null>(null)
   const searchTimer = useRef<number | null>(null)
 
   // member inspect modal
@@ -115,7 +115,7 @@ export default function AdminMembersPage() {
         setTotal(meta?.total ?? null)
         setLastPage(meta?.last_page ?? meta?.lastPage ?? null)
         setError(null)
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('load members failed', err)
         if (!mounted) return
         setMembers([])
@@ -140,7 +140,7 @@ export default function AdminMembersPage() {
       setSelected(prev => {
         const copy = { ...prev }; delete copy[String(id)]; return copy
       })
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('delete member failed', err)
       setToast({ show: true, message: err?.message ?? 'Delete failed', type: 'error' })
     }
@@ -158,7 +158,7 @@ export default function AdminMembersPage() {
       setMembers(prev => prev.filter(m => !ids.includes(String(m.id))))
       setSelected({})
       setToast({ show: true, message: `Successfully deleted ${ids.length} members`, type: 'success' })
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('bulk delete failed', err)
       setToast({ show: true, message: err?.message ?? 'Bulk delete failed', type: 'error' })
     }
@@ -175,7 +175,7 @@ export default function AdminMembersPage() {
     try {
       const body = await apiGet(`/api/admin/members/${id}`)
       const data = body?.data ?? body
-      let recentPayments: any[] = []
+      let recentPayments: unknown[] = []
       try {
         const rp = await apiGet(`/api/admin/members/${id}/payments?limit=6`)
         recentPayments = Array.isArray(rp) ? rp : (rp?.data ?? [])
@@ -183,7 +183,7 @@ export default function AdminMembersPage() {
 
       setInspectingMember({ ...data, recentPayments })
       setTimeout(() => closeBtnRef.current?.focus(), 50)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('fetch member failed', err)
       setToast({ show: true, message: err?.message ?? 'Failed to load member details', type: 'error' })
       setInspectingMember(null)
@@ -216,7 +216,7 @@ export default function AdminMembersPage() {
       setMembers(prev => prev.map(m => m.id === member.id ? { ...m, is_active: newVal } : m))
       if (inspectingMember?.id === member.id) setInspectingMember(prev => prev ? { ...prev, is_active: newVal } : prev)
       setToast({ show: true, message: `Member ${newVal ? 'activated' : 'deactivated'} successfully`, type: 'success' })
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('toggle active failed', err)
       setToast({ show: true, message: err?.message ?? 'Failed to update member status', type: 'error' })
     }
@@ -350,7 +350,7 @@ export default function AdminMembersPage() {
 
               <select 
                 value={status} 
-                onChange={(e) => { setStatus(e.target.value as any); setPage(1) }} 
+                onChange={(e) => { setStatus(e.target.value as unknown); setPage(1) }} 
                 className="px-4 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">Any status</option>
@@ -712,7 +712,7 @@ export default function AdminMembersPage() {
                           <div className="text-sm font-semibold text-gray-900 dark:text-white">Recent Payments</div>
                         </div>
                         <div className="space-y-2">
-                          {inspectingMember.recentPayments.map((p: any) => (
+                          {inspectingMember.recentPayments.map((p: unknown) => (
                             <div key={p.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                               <div>
                                 <div className="font-medium text-gray-900 dark:text-white text-sm">

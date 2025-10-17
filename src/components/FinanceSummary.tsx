@@ -5,7 +5,7 @@ import { fetchAdminFinanceSummary } from '@/lib/adminApi'
 
 export default function FinanceSummary({ churchId }: { churchId?: string | number }) {
     const [loading, setLoading] = useState(true)
-    const [data, setData] = useState<any>(null)
+    const [data, setData] = useState<unknown>(null)
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
@@ -16,7 +16,7 @@ export default function FinanceSummary({ churchId }: { churchId?: string | numbe
                     const res = await fetchAdminFinanceSummary(churchId)
                     if (!mounted) return
                     setData(res)
-                } catch (err: any) {
+                } catch (err: unknown) {
                     setError(err?.message ?? 'Failed to load summary')
                 } finally {
                     if (mounted) setLoading(false)

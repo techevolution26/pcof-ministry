@@ -10,7 +10,7 @@ export default function AssemblyForm({ assemblyId }: Props) {
     const [form, setForm] = useState({ name: '', church_id: '' })
     const [loading, setLoading] = useState<boolean>(Boolean(assemblyId))
     const [saving, setSaving] = useState(false)
-    const [churches, setChurches] = useState<any[]>([])
+    const [churches, setChurches] = useState<unknown[]>([])
 
     useEffect(() => {
         let mounted = true
@@ -53,7 +53,7 @@ export default function AssemblyForm({ assemblyId }: Props) {
             if (assemblyId) await updateAssembly(assemblyId, form)
             else await createAssembly(form)
             router.push('/admin/assemblies')
-        } catch (err: any) {
+        } catch (err: unknown) {
             alert(err?.message ?? 'Save failed')
         } finally {
             setSaving(false)

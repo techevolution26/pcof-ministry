@@ -1,6 +1,6 @@
 // app/about/page.tsx
 import Link from 'next/link'
-import LeaderCard from '@/components/LeaderCard'
+// import LeaderCard from '@/components/LeaderCard'
 import LeaderGrid from '@/components/LeaderGrid'
 import { fetchLeadership } from '@/lib/api'
 import Image from 'next/image'

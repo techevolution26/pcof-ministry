@@ -19,7 +19,7 @@ type Props = {
 }
 
 export default function ChurchForm({ churchId }: Props) {
-    const [form, setForm] = useState<any>({
+    const [form, setForm] = useState<unknown>({
         name: '',
         branch: '',
         address: '',
@@ -86,7 +86,7 @@ export default function ChurchForm({ churchId }: Props) {
                 setToast({ show: false })
                 router.push('/admin/churches')
             }, 1500)
-        } catch (err: any) {
+        } catch (err: unknown) {
             if (err?.status === 422 && err.errors) {
                 setErrors(err.errors)
                 setToast({ show: true, message: 'Please correct the highlighted fields', type: 'error' })

@@ -19,7 +19,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 
 type AdminEventCardProps = {
-  events: any[]
+  events: unknown[]
   onDelete?: (id: number) => void
   isDeleting?: boolean
 }

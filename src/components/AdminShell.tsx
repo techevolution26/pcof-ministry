@@ -4,7 +4,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import AdminGuard from './AdminGuard'
 import { useAdminAuth } from '@/hooks/useAdminAuth'
 import AdminSidebar from './AdminSidebar'
-import AdminHeader from './AdminHeader'
+// import AdminHeader from './AdminHeader'
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()

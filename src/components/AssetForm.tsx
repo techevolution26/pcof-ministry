@@ -25,13 +25,13 @@ function normalizeFileUrl(url?: string | null) {
 export default function AssetForm({ assetId }: Props) {
     const router = useRouter()
 
-    const [form, setForm] = useState<any>({
+    const [form, setForm] = useState<unknown>({
         name: '',
         description: '',
         church_id: '',
         location: '',
     })
-    const [churches, setChurches] = useState<any[]>([])
+    const [churches, setChurches] = useState<unknown[]>([])
     const [loading, setLoading] = useState<boolean>(Boolean(assetId))
     const [saving, setSaving] = useState<boolean>(false)
     const [errors, setErrors] = useState<Record<string, string[]>>({})
@@ -165,7 +165,7 @@ export default function AssetForm({ assetId }: Props) {
             }
 
             router.push('/admin/assets')
-        } catch (err: any) {
+        } catch (err: unknown) {
             if (err?.status === 422 && err.errors) {
                 setErrors(err.errors)
             } else {

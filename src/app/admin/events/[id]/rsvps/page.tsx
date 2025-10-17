@@ -28,13 +28,13 @@ import {
 export default function EventRsvpsPage() {
     const { id } = useParams() as { id?: string }
     const router = useRouter()
-    const [event, setEvent] = useState<any | null>(null)
-    const [rsvps, setRsvps] = useState<any[]>([])
+    const [event, setEvent] = useState<unknown | null>(null)
+    const [rsvps, setRsvps] = useState<unknown[]>([])
     const [loading, setLoading] = useState(true)
-    const [addingMember, setAddingMember] = useState<any | null>(null)
+    const [addingMember, setAddingMember] = useState<unknown | null>(null)
     const [saving, setSaving] = useState(false)
     const [exporting, setExporting] = useState(false)
-    const [toast, setToast] = useState<any | null>(null)
+    const [toast, setToast] = useState<unknown | null>(null)
 
     useEffect(() => {
         if (!id) return
@@ -48,7 +48,7 @@ export default function EventRsvpsPage() {
                     const res = await fetchEventRsvps(id)
                     if (!mounted) return
                     setRsvps(Array.isArray(res) ? res : (res?.data ?? []))
-                } catch (err: any) {
+                } catch (err: unknown) {
                     console.error(err)
                     router.replace('/admin/events')
                 } finally {
@@ -76,7 +76,7 @@ export default function EventRsvpsPage() {
             setRsvps(prev => [saved, ...prev])
             setAddingMember(null)
             setToast({ show: true, message: 'Attendee added successfully', type: 'success' })
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err)
             setToast({ show: true, message: err?.message ?? 'Failed to add attendee', type: 'error' })
         } finally {
@@ -84,26 +84,26 @@ export default function EventRsvpsPage() {
         }
     }
 
-    async function handleRemove(rsvp: any) {
+    async function handleRemove(rsvp: unknown) {
         if (!confirm('Are you sure you want to remove this attendee?')) return
         try {
             await deleteEventRsvp(rsvp.id)
             setRsvps(prev => prev.filter(x => x.id !== rsvp.id))
             setToast({ show: true, message: 'Attendee removed successfully', type: 'success' })
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err)
             setToast({ show: true, message: err?.message ?? 'Failed to remove attendee', type: 'error' })
         }
     }
 
     // attendee counts
-    const counts = rsvps.reduce((acc: any, r: any) => {
+    const counts = rsvps.reduce((acc: unknown, r: unknown) => {
         const s = r.status ?? 'attending'
         acc[s] = (acc[s] || 0) + 1
         return acc
     }, {} as Record<string, number>)
 
-    function exportCsv(list: any[]) {
+    function exportCsv(list: unknown[]) {
         if (!list || !list.length) {
             setToast({ show: true, message: 'No RSVPs to export', type: 'warning' })
             return
@@ -191,7 +191,7 @@ export default function EventRsvpsPage() {
                             <FontAwesomeIcon icon={faExclamationTriangle} className="text-red-600 dark:text-red-400 text-2xl" />
                         </div>
                         <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Event Not Found</h3>
-                        <p className="text-gray-600 dark:text-gray-300 mb-6">The event you're looking for doesn't exist.</p>
+                        <p className="text-gray-600 dark:text-gray-300 mb-6">The event you&aqout;re looking for doesn&aqou;t exist.</p>
                         <Link
                             href="/admin/events"
                             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition-colors duration-200 inline-flex items-center gap-2"
@@ -371,7 +371,7 @@ export default function EventRsvpsPage() {
                                 </div>
                                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No RSVPs Yet</h3>
                                 <p className="text-gray-500 dark:text-gray-400 mb-6">
-                                    No one has RSVP'd for this event yet. Start by adding attendees above.
+                                    No one has RSVP&aqout;d for this event yet. Start by adding attendees above.
                                 </p>
                             </div>
                         ) : (

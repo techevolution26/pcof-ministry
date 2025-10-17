@@ -22,8 +22,8 @@ import {
 
 export default function ChurchDashboardPage() {
     const { user, isLoading } = useAdminAuth()
-    const [church, setChurch] = useState<any | null>(null)
-    const [summary, setSummary] = useState<any>(null)
+    const [church, setChurch] = useState<unknown | null>(null)
+    const [summary, setSummary] = useState<unknown>(null)
     const [loading, setLoading] = useState(true)
     const churchId = user?.church_id
 
@@ -245,7 +245,7 @@ export default function ChurchDashboardPage() {
                         <div className="p-6">
                             {summary?.recent_payments?.length > 0 ? (
                                 <div className="space-y-4">
-                                    {summary.recent_payments.map((p: any) => (
+                                    {summary.recent_payments.map((p: unknown) => (
                                         <div key={p.id} className="flex items-center justify-between p-4 bg-white/50 dark:bg-gray-700/50 rounded-2xl hover:bg-white dark:hover:bg-gray-700 transition-colors duration-200">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">

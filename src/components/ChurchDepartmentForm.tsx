@@ -16,14 +16,14 @@ import {
 
 type Props = {
     departmentId?: string | number | null
-    initial?: Partial<any>
-    onSaved?: (dep: any) => void
+    initial?: Partial<unknown>
+    onSaved?: (dep: unknown) => void
 }
 
 export default function ChurchDepartmentForm({ departmentId = null, initial = {}, onSaved }: Props) {
     const { user, isLoading } = useAdminAuth()
     const churchId = user?.church_id
-    const [form, setForm] = useState<any>({
+    const [form, setForm] = useState<unknown>({
         name: initial.name ?? '',
         description: initial.description ?? '',
         church_id: initial.church_id ?? churchId ?? ''
@@ -65,7 +65,7 @@ export default function ChurchDepartmentForm({ departmentId = null, initial = {}
             const payload = { ...form, church_id: churchId }
             let saved
             if (departmentId) {
-                const res = await updateDepartment(departmentId as any, payload)
+                const res = await updateDepartment(departmentId as unknown, payload)
                 saved = res?.data ?? res
                 setToast({ show: true, message: 'Department updated successfully!', type: 'success' })
             } else {
@@ -77,7 +77,7 @@ export default function ChurchDepartmentForm({ departmentId = null, initial = {}
             if (!onSaved) {
                 setTimeout(() => router.push('/admin/church/departments'), 1500)
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             if (err?.status === 422 && err.errors) setErrors(err.errors)
             else setToast({ show: true, message: err?.message ?? 'Failed to save department', type: 'error' })
         } finally { setSaving(false) }

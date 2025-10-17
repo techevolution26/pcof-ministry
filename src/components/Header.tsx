@@ -7,7 +7,6 @@ import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-    faHome,
     faBars,
     faTimes,
     faShieldAlt,

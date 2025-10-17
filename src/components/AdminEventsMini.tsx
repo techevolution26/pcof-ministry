@@ -4,7 +4,7 @@ import EventCalendar from './EventCalendar'
 import { fetchAdminEvents } from '@/lib/adminApi'
 
 export default function AdminEventsMini() {
-    const [events, setEvents] = useState<any[]>([])
+    const [events, setEvents] = useState<unknown[]>([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -16,7 +16,7 @@ export default function AdminEventsMini() {
                     // handle paginated or simple list
                     const list = Array.isArray(res) ? res : (res?.data ?? [])
                     if (!mounted) return
-                    setEvents(list.map((e: any) => ({
+                    setEvents(list.map((e: unknown) => ({
                         id: e.id,
                         title: e.title,
                         starts_at: e.starts_at,

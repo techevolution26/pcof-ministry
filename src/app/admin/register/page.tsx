@@ -26,10 +26,10 @@ export default function AdminRegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<Role>('church_admin')
-  const [selectedChurch, setSelectedChurch] = useState<any | null>(null)
+  const [selectedChurch, setSelectedChurch] = useState<unknown | null>(null)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
-  const [errors, setErrors] = useState<any>(null)
+  const [errors, setErrors] = useState<unknown>(null)
   const [showPassword, setShowPassword] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
@@ -39,7 +39,7 @@ export default function AdminRegisterPage() {
     setLoading(true)
 
     try {
-      const payload: any = { name, email, password, role }
+      const payload: unknown = { name, email, password, role }
       if (role === 'church_admin' && selectedChurch?.id) payload.church_id = selectedChurch.id
 
       const res = await register(payload)
@@ -51,7 +51,7 @@ export default function AdminRegisterPage() {
       }
 
       setMessage(res?.message ?? 'Registration successful — awaiting admin approval.')
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (err?.status === 422) setErrors(err.errors)
       else setMessage(err?.message ?? 'Registration failed. Please try again.')
       console.error('Registration error', err)

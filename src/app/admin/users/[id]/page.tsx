@@ -15,14 +15,13 @@ import {
     faEnvelope,
     faCalendar,
     faCheck,
-    faXmark
 } from '@fortawesome/free-solid-svg-icons'
 
 export default function AdminUserShow() {
     const { id } = useParams() as { id?: string }
     const router = useRouter()
-    const [user, setUser] = useState<any | null>(null)
-    const [roles, setRoles] = useState<any[]>([])
+    const [user, setUser] = useState<unknown | null>(null)
+    const [roles, setRoles] = useState<unknown[]>([])
     const [actionLoading, setActionLoading] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
 
@@ -105,7 +104,7 @@ export default function AdminUserShow() {
                     <div className="text-center py-12">
                         <FontAwesomeIcon icon={faUser} className="text-4xl text-gray-400 mb-4" />
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">User Not Found</h2>
-                        <p className="text-gray-600 dark:text-gray-400 mb-6">The user you're looking for doesn't exist.</p>
+                        <p className="text-gray-600 dark:text-gray-400 mb-6">The user you&apos;re looking for doesn&apos;t exist.</p>
                         <Link
                             href="/admin/users"
                             className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center gap-2"
@@ -149,8 +148,8 @@ export default function AdminUserShow() {
                             <div className="hidden sm:block">
                                 <div className="text-sm font-medium text-gray-900 dark:text-white">User Profile</div>
                                 <div className={`text-xs font-medium ${user.is_active
-                                        ? 'text-green-600 dark:text-green-400'
-                                        : 'text-orange-600 dark:text-orange-400'
+                                    ? 'text-green-600 dark:text-green-400'
+                                    : 'text-orange-600 dark:text-orange-400'
                                     }`}>
                                     {user.is_active ? 'Active' : 'Inactive'}
                                 </div>
@@ -188,8 +187,8 @@ export default function AdminUserShow() {
                                     <div>
                                         <div className="text-sm text-gray-500 dark:text-gray-400">Status</div>
                                         <div className={`font-semibold ${user.is_active
-                                                ? 'text-green-600 dark:text-green-400'
-                                                : 'text-orange-600 dark:text-orange-400'
+                                            ? 'text-green-600 dark:text-green-400'
+                                            : 'text-orange-600 dark:text-orange-400'
                                             }`}>
                                             {user.is_active ? 'Active' : 'Pending Approval'}
                                         </div>
@@ -216,29 +215,29 @@ export default function AdminUserShow() {
                                             onClick={() => handleRoleToggle(r.name, hasRole)}
                                             disabled={actionLoading === r.name}
                                             className={`p-4 rounded-2xl transition-all duration-200 flex items-center justify-between group ${hasRole
-                                                    ? 'bg-indigo-50 border-2 border-indigo-200 dark:bg-indigo-900/20 dark:border-indigo-700'
-                                                    : 'bg-gray-50 border-2 border-gray-200 dark:bg-gray-700/50 dark:border-gray-600'
+                                                ? 'bg-indigo-50 border-2 border-indigo-200 dark:bg-indigo-900/20 dark:border-indigo-700'
+                                                : 'bg-gray-50 border-2 border-gray-200 dark:bg-gray-700/50 dark:border-gray-600'
                                                 } ${actionLoading === r.name ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}`}
                                         >
                                             <div className="flex items-center gap-3">
                                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${hasRole
-                                                        ? 'bg-indigo-500 text-white'
-                                                        : 'bg-gray-300 text-gray-600 dark:bg-gray-600 dark:text-gray-300'
+                                                    ? 'bg-indigo-500 text-white'
+                                                    : 'bg-gray-300 text-gray-600 dark:bg-gray-600 dark:text-gray-300'
                                                     }`}>
                                                     <FontAwesomeIcon icon={faShield} />
                                                 </div>
                                                 <div className="text-left">
                                                     <div className={`font-semibold ${hasRole
-                                                            ? 'text-indigo-700 dark:text-indigo-300'
-                                                            : 'text-gray-700 dark:text-gray-300'
+                                                        ? 'text-indigo-700 dark:text-indigo-300'
+                                                        : 'text-gray-700 dark:text-gray-300'
                                                         }`}>
                                                         {r.name}
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${hasRole
-                                                    ? 'bg-indigo-500 border-indigo-500 text-white'
-                                                    : 'border-gray-300 dark:border-gray-500'
+                                                ? 'bg-indigo-500 border-indigo-500 text-white'
+                                                : 'border-gray-300 dark:border-gray-500'
                                                 }`}>
                                                 {hasRole && <FontAwesomeIcon icon={faCheck} className="text-xs" />}
                                             </div>
@@ -255,8 +254,8 @@ export default function AdminUserShow() {
                         <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl shadow-xl border border-white/50 dark:border-gray-700/50 p-6">
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">User Status</h3>
                             <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold mb-4 ${user.is_active
-                                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
-                                    : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'
+                                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                                : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'
                                 }`}>
                                 <FontAwesomeIcon icon={user.is_active ? faCheckCircle : faTimesCircle} />
                                 {user.is_active ? 'Active User' : 'Pending Approval'}
@@ -271,8 +270,8 @@ export default function AdminUserShow() {
                                 onClick={handleStatusToggle}
                                 disabled={actionLoading === 'status'}
                                 className={`w-full py-3 px-4 rounded-2xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${user.is_active
-                                        ? 'bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30'
-                                        : 'bg-green-50 text-green-600 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400 dark:hover:bg-green-900/30'
+                                    ? 'bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30'
+                                    : 'bg-green-50 text-green-600 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400 dark:hover:bg-green-900/30'
                                     } ${actionLoading === 'status' ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-lg'}`}
                             >
                                 {actionLoading === 'status' ? (

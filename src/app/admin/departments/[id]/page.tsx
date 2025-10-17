@@ -11,8 +11,8 @@ export default function DepartmentShowPage() {
     const id = params?.id
     const router = useRouter()
 
-    const [department, setDepartment] = useState<any | null>(null)
-    const [ministers, setMinisters] = useState<any[]>([])
+    const [department, setDepartment] = useState<unknown | null>(null)
+    const [ministers, setMinisters] = useState<unknown[]>([])
     const [loading, setLoading] = useState(true)
     const [minLoading, setMinLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -31,7 +31,7 @@ export default function DepartmentShowPage() {
                 if (!mounted) return
                 const dep = depRes?.data ?? depRes
                 setDepartment(dep)
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error('Failed to load department', err)
                 setError(err?.message ?? 'Failed to load department')
             } finally {

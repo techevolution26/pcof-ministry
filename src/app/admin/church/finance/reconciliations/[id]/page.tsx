@@ -27,7 +27,7 @@ export default function ReconciliationShowPage() {
     const router = useRouter()
     const { user, isLoading } = useAdminAuth()
 
-    const [rec, setRec] = useState<any>(null)
+    const [rec, setRec] = useState<unknown>(null)
     const [loading, setLoading] = useState(true)
     const [editing, setEditing] = useState(false)
 

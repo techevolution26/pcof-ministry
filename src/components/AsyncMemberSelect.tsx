@@ -30,7 +30,7 @@ export default function AsyncMemberSelect({ value = null, onChange, churchId, pl
         async function load() {
             if (!value) { setSelected(null); return }
             try {
-                const body = await fetchMemberById(value as any)
+                const body = await fetchMemberById(value as unknown)
                 const data = body?.data ?? body
                 if (!mounted) return
                 setSelected({ id: data.id, first_name: data.first_name, last_name: data.last_name, phone: data.phone, email: data.email })
@@ -141,7 +141,7 @@ export default function AsyncMemberSelect({ value = null, onChange, churchId, pl
                             Type at least 2 characters to search
                         </div>
                     )}
-                    {!loading && options.map((o: any) => (
+                    {!loading && options.map((o: unknown) => (
                         <button
                             key={o.id}
                             type="button"

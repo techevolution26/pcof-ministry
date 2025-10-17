@@ -1,12 +1,59 @@
+// /src/app/admin/assets/page.tsx
 'use client'
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { fetchAssets, deleteAsset } from '@/lib/adminApi'
 import { useRouter } from 'next/navigation'
 
+type Asset = {
+    id: number | string
+    name?: string | null
+    asset_tag?: string | null
+    church?: { name?: string } | null
+    church_id?: number | string | null
+    location?: string | null
+    file_url?: string | null
+}
+
+/** Meta shape we expect (may come from different APIs) */
+type Meta = {
+    total?: number | string
+    last_page?: number | string
+    lastPage?: number | string
+    per_page?: number | string
+}
+
+/** Safely unwraps values like `{ data: ... }` returned by some APIs */
+function extractData<T>(val: unknown): T | undefined {
+    if (!val || typeof val !== 'object') return val as T | undefined
+    const obj = val as Record<string, unknown>
+    if ('data' in obj) {
+        const d = obj['data']
+        return d as T | undefined
+    }
+    return val as T | undefined
+}
+
+/** Safely extract meta/pagination object from API response */
+function extractMeta(val: unknown): Meta | null {
+    if (!val || typeof val !== 'object') return null
+    const obj = val as Record<string, unknown>
+    const metaCandidate = obj['meta'] ?? obj['pagination']
+    if (metaCandidate && typeof metaCandidate === 'object') {
+        return metaCandidate as Meta
+    }
+    return null
+}
+
+/** safe number coercion */
+function toNumber(v: unknown, fallback = 0) {
+    const n = Number(v)
+    return Number.isFinite(n) ? n : fallback
+}
+
 export default function AdminAssetsPage() {
     const router = useRouter()
-    const [items, setItems] = useState<any[]>([])
+    const [items, setItems] = useState<Asset[]>([])
     const [loading, setLoading] = useState(true)
     const [q, setQ] = useState('')
     const [debouncedQ, setDebouncedQ] = useState('')
@@ -24,25 +71,36 @@ export default function AdminAssetsPage() {
     useEffect(() => {
         let mounted = true
         async function load() {
-            setLoading(true); setError(null)
+            setLoading(true)
+            setError(null)
             try {
                 const body = await fetchAssets({ q: debouncedQ || undefined, page, per_page: perPage })
-                const list = Array.isArray(body) ? body : (body?.data ?? [])
+
+                // API may return an array or an object like { data: [...], meta: {...} }
+                const list = Array.isArray(body) ? (body as Asset[]) : (extractData<Asset[]>(body) ?? [])
                 if (!mounted) return
-                setItems(list)
-                const meta = body?.meta ?? body?.pagination ?? null
-                setTotal(meta?.total ?? (Array.isArray(list) ? list.length : 0))
-                setLastPage(meta?.last_page ?? meta?.lastPage ?? Math.ceil((meta?.total ?? 0) / (meta?.per_page ?? perPage)))
-            } catch (err: any) {
+                setItems(Array.isArray(list) ? list : [])
+
+                const meta = extractMeta(body)
+                const computedTotal = meta?.total ?? (Array.isArray(list) ? list.length : 0)
+                setTotal(toNumber(computedTotal, Array.isArray(list) ? list.length : 0))
+
+                const lpCandidate = meta?.last_page ?? meta?.lastPage
+                const perPageCandidate = meta?.per_page ?? perPage
+                const lp = lpCandidate ?? Math.ceil((toNumber(meta?.total ?? 0) || 0) / (toNumber(perPageCandidate, perPage) || perPage))
+                setLastPage(Math.max(1, toNumber(lp, 1)))
+            } catch (err: unknown) {
                 if (!mounted) return
+                // keep console for dev debugging
                 console.error(err)
-                setError(err?.message ?? 'Failed to load assets')
+                setError((err as { message?: string })?.message ?? 'Failed to load assets')
             } finally {
                 if (mounted) setLoading(false)
             }
         }
         load()
         return () => { mounted = false }
+        // router included intentionally to avoid stale navigation references if used elsewhere
     }, [debouncedQ, page, perPage, router])
 
     async function handleDelete(id: number | string) {
@@ -51,14 +109,19 @@ export default function AdminAssetsPage() {
             await deleteAsset(id)
             setItems(prev => prev.filter(x => String(x.id) !== String(id)))
             setTotal(t => Math.max(0, t - 1))
-        } catch (err: any) {
-            alert(err?.message ?? 'Delete failed')
+        } catch (err: unknown) {
+            alert((err as { message?: string })?.message ?? 'Delete failed')
         }
     }
 
     function gotoPage(p: number) {
         setPage(p < 1 ? 1 : p > lastPage ? lastPage : p)
-        window.scrollTo({ top: 0, behavior: 'smooth' })
+        if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
+    // show error if present (prevents "assigned but never used")
+    if (error) {
+        return <div className="text-red-600 p-4">{error}</div>
     }
 
     return (
@@ -104,8 +167,8 @@ export default function AdminAssetsPage() {
                             ))
                         ) : (
                             <>
-                                {items.map(a => (
-                                    <tr key={a.id} className="border-t last:border-b">
+                                {items.map((a) => (
+                                    <tr key={String(a.id)} className="border-t last:border-b">
                                         <td className="p-3">
                                             <div className="font-medium">{a.name}</div>
                                             {a.asset_tag && <div className="text-xs text-gray-400">{a.asset_tag}</div>}

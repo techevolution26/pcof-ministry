@@ -21,7 +21,7 @@ export default function ChurchDepartmentsPage() {
     const router = useRouter()
     const { user, isLoading } = useAdminAuth()
     const churchId = user?.church_id
-    const [rows, setRows] = useState<any[]>([])
+    const [rows, setRows] = useState<unknown[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
@@ -36,7 +36,7 @@ export default function ChurchDepartmentsPage() {
                     const list = Array.isArray(body) ? body : (body?.data ?? [])
                     setRows(list)
                     setError(null)
-                } catch (err: any) {
+                } catch (err: unknown) {
                     if (!mounted) return
                     setError(err?.message ?? 'Failed to load departments')
                 } finally {

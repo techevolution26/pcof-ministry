@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
     faArrowLeft,
-    faCalendar,
     faEdit,
     faTimesCircle
 } from '@fortawesome/free-solid-svg-icons'

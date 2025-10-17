@@ -14,14 +14,14 @@ import {
   faCalendarAlt
 } from '@fortawesome/free-solid-svg-icons'
 
-type Props = { churchId?: string | number; onSelect: (e: any) => void; value?: any; placeholder?: string }
+type Props = { churchId?: string | number; onSelect: (e: unknown) => void; value?: unknown; placeholder?: string }
 
 export default function EventTypeahead({ churchId, onSelect, value, placeholder = "Search events by title, location, or description..." }: Props) {
   const [q, setQ] = useState('')
-  const [suggestions, setSuggestions] = useState<any[]>([])
+  const [suggestions, setSuggestions] = useState<unknown[]>([])
   const [loading, setLoading] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
-  const [selectedEvent, setSelectedEvent] = useState<any>(value)
+  const [selectedEvent, setSelectedEvent] = useState<unknown>(value)
 
   useEffect(() => {
     setSelectedEvent(value)
@@ -57,7 +57,7 @@ export default function EventTypeahead({ churchId, onSelect, value, placeholder 
     return () => { mounted = false }
   }, [q, churchId])
 
-  const handleSelect = (event: any) => {
+  const handleSelect = (event: unknown) => {
     onSelect(event)
     setSelectedEvent(event)
     setQ('')
@@ -82,7 +82,7 @@ export default function EventTypeahead({ churchId, onSelect, value, placeholder 
     })
   }
 
-  const getEventScope = (event: any) => {
+  const getEventScope = (event: unknown) => {
     return event.scope ?? (event.church_id ? 'church' : 'national')
   }
 
@@ -200,7 +200,7 @@ export default function EventTypeahead({ churchId, onSelect, value, placeholder 
             <div className="p-8 text-center text-gray-500 dark:text-gray-400">
               <FontAwesomeIcon icon={faCalendar} className="text-3xl mb-3 opacity-30" />
               <div className="font-medium text-gray-900 dark:text-gray-100 mb-1">No events found</div>
-              <div className="text-sm">No results for "{q}"</div>
+              <div className="text-sm">No results for &aquot;{q}&aquot;</div>
             </div>
           ) : null}
         </div>

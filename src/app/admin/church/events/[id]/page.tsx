@@ -35,13 +35,13 @@ export default function EventDetailsPage() {
     const router = useRouter()
     const { user, isLoading } = useAdminAuth()
 
-    const [event, setEvent] = useState<any | null>(null)
+    const [event, setEvent] = useState<unknown | null>(null)
     const [loading, setLoading] = useState(true)
-    const [rsvps, setRsvps] = useState<any[]>([])
-    const [attendingMember, setAttendingMember] = useState<any | null>(null)
+    const [rsvps, setRsvps] = useState<unknown[]>([])
+    const [attendingMember, setAttendingMember] = useState<unknown | null>(null)
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [toast, setToast] = useState<any>(null)
+    const [toast, setToast] = useState<unknown>(null)
 
     useEffect(() => {
         let mounted = true
@@ -57,7 +57,7 @@ export default function EventDetailsPage() {
                 const r = await fetchEventRsvps(id)
                 if (!mounted) return
                 setRsvps(Array.isArray(r) ? r : (r?.data ?? []))
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error(err)
                 if (!mounted) return
                 setError(err?.message ?? 'Failed to load event')
@@ -112,7 +112,7 @@ export default function EventDetailsPage() {
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <FontAwesomeIcon icon={faCalendar} className="text-4xl text-gray-400 mb-4" />
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Event Not Found</h2>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6">The event you're looking for doesn't exist.</p>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">The event you&apos;re looking for doesn&apos;t exist.</p>
                     <Link
                         href="/admin/church/events"
                         className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center gap-2"
@@ -143,7 +143,7 @@ export default function EventDetailsPage() {
             setRsvps(prev => [saved, ...prev])
             setAttendingMember(null)
             setToast({ show: true, message: 'Attendee added successfully', type: 'success' })
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err)
             setToast({ show: true, message: err?.message ?? 'Failed to add attendee', type: 'error' })
         } finally {
@@ -151,13 +151,13 @@ export default function EventDetailsPage() {
         }
     }
 
-    async function handleRemoveAttendee(rsvp: any) {
+    async function handleRemoveAttendee(rsvp: unknown) {
         if (!window.confirm(`Remove attendee ${rsvp.member?.first_name ?? ''} ${rsvp.member?.last_name ?? ''}?`)) return
         try {
             await deleteEventRsvp(rsvp.id)
             setRsvps(prev => prev.filter(x => x.id !== rsvp.id))
             setToast({ show: true, message: 'Attendee removed successfully', type: 'success' })
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err)
             setToast({ show: true, message: err?.message ?? 'Failed to remove attendee', type: 'error' })
         }
@@ -216,7 +216,7 @@ export default function EventDetailsPage() {
                                         alt={event.title ?? 'Event image'}
                                         loading="lazy"
                                         className="w-full h-full object-cover"
-                                        onError={(e: any) => { e.currentTarget.src = placeholder }}
+                                        onError={(e: unknown) => { e.currentTarget.src = placeholder }}
                                     />
                                 </div>
                             )}

@@ -29,10 +29,10 @@ import {
 export default function EventShow() {
     const { id } = useParams() as { id?: string }
     const router = useRouter()
-    const [event, setEvent] = useState<any | null>(null)
+    const [event, setEvent] = useState<unknown | null>(null)
     const [loading, setLoading] = useState(true)
     const [deleting, setDeleting] = useState(false)
-    const [toast, setToast] = useState<any | null>(null)
+    const [toast, setToast] = useState<unknown | null>(null)
 
     useEffect(() => {
         if (!id) return
@@ -43,7 +43,7 @@ export default function EventShow() {
                     const body = await fetchAdminEventById(id)
                     if (!mounted) return
                     setEvent(body?.data ?? body)
-                } catch (err: any) {
+                } catch (err: unknown) {
                     console.error('fetch event failed', err)
                     router.replace('/admin/events')
                 } finally {
@@ -61,7 +61,7 @@ export default function EventShow() {
             await deleteAdminEvent(event.id)
             setToast({ show: true, message: 'Event deleted successfully', type: 'success' })
             setTimeout(() => router.push('/admin/events'), 1000)
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('delete failed', err)
             setToast({ show: true, message: err?.message ?? 'Failed to delete event', type: 'error' })
         } finally {
@@ -95,7 +95,7 @@ export default function EventShow() {
                             <FontAwesomeIcon icon={faExclamationTriangle} className="text-red-600 dark:text-red-400 text-2xl" />
                         </div>
                         <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Event Not Found</h3>
-                        <p className="text-gray-600 dark:text-gray-300 mb-6">The event you're looking for doesn't exist or has been removed.</p>
+                        <p className="text-gray-600 dark:text-gray-300 mb-6">The event you&apos;re looking for doesn&apos;t exist or has been removed.</p>
                         <Link
                             href="/admin/events"
                             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition-colors duration-200 inline-flex items-center gap-2"

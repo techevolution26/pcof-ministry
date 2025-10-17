@@ -15,12 +15,12 @@ import {
     faChurch
 } from '@fortawesome/free-solid-svg-icons'
 
-type Props = { designationId?: string | number | null; initial?: any; onSaved?: (d: any) => void }
+type Props = { designationId?: string | number | null; initial?: unknown; onSaved?: (d: unknown) => void }
 
 export default function ChurchDesignationForm({ designationId = null, initial = {}, onSaved }: Props) {
     const { user, isLoading } = useAdminAuth()
     const churchId = user?.church_id
-    const [form, setForm] = useState<any>({
+    const [form, setForm] = useState<unknown>({
         name: initial.name ?? '',
         description: initial.description ?? '',
         church_id: initial.church_id ?? churchId ?? ''
@@ -51,7 +51,7 @@ export default function ChurchDesignationForm({ designationId = null, initial = 
             const payload = { ...form, church_id: churchId }
             let saved
             if (designationId) {
-                const res = await updateDesignation(designationId as any, payload)
+                const res = await updateDesignation(designationId as unknown, payload)
                 saved = res?.data ?? res
                 setToast({ show: true, message: 'Designation updated successfully!', type: 'success' })
             } else {
@@ -63,7 +63,7 @@ export default function ChurchDesignationForm({ designationId = null, initial = 
             if (!onSaved) {
                 setTimeout(() => router.push('/admin/church/designations'), 1500)
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             if (err?.status === 422 && err.errors) setErrors(err.errors)
             else setToast({ show: true, message: err?.message ?? 'Failed to save designation', type: 'error' })
         } finally { setSaving(false) }

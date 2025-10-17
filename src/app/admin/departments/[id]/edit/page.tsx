@@ -2,7 +2,7 @@
 'use client'
 
 import React from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, } from 'next/navigation'
 import DepartmentForm from '@/components/DepartmentForm'
 import Link from 'next/link'
 
@@ -10,7 +10,7 @@ export default function EditDepartmentPage() {
   const params = useParams() as { id?: string }
   const rawId = params?.id
   const id = Array.isArray(rawId) ? rawId[0] : rawId
-  const router = useRouter()
+  // const router = useRouter()
 
   if (!id) {
     return (

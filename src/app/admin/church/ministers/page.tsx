@@ -2,10 +2,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useAdminAuth } from '@/hooks/useAdminAuth'
-import { fetchMinistersList, deleteMinister, bulkDeleteMinisters } from '@/lib/adminApi'
+import { fetchMinistersList, deleteMinister } from '@/lib/adminApi'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-    faUsers,
     faUserPlus,
     faSearch,
     faEye,
@@ -24,14 +23,14 @@ type Minister = {
     active?: boolean
     started_at?: string
     ended_at?: string
-    member?: any
-    designation?: any
-    department?: any
-    [k: string]: any
+    member?: unknown
+    designation?: unknown
+    department?: unknown
+    [k: string]: unknown
 }
 
 export default function MinistersListPage() {
-    const { user, isLoading } = useAdminAuth()
+    const { user } = useAdminAuth()
     const churchId = user?.church_id
 
     // list + meta
@@ -92,7 +91,7 @@ export default function MinistersListPage() {
                     per_page: Number(pagination.per_page ?? perPage),
                     total: Number(pagination.total ?? (Array.isArray(list) ? list.length : 0)),
                 })
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error('Failed loading ministers', err)
                 if (!mounted) return
                 setError(err?.message ?? 'Failed to load ministers')
@@ -152,7 +151,7 @@ export default function MinistersListPage() {
 
             try {
                 await Promise.all(ministerIds.map(id => deleteMinister(id)))
-            } catch (err: any) {
+            } catch (err: unknown) {
                 // Restore on failure
                 console.error('Bulk delete failed', err)
                 setMinisters(prevMinisters)
@@ -181,7 +180,7 @@ export default function MinistersListPage() {
 
         try {
             await deleteMinister(minister.id)
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Delete failed', err)
             setMinisters(prev)
             setMeta(prevMeta => ({ ...prevMeta, total: Number(prevMeta.total ?? 0) + 1 }))
@@ -422,8 +421,8 @@ export default function MinistersListPage() {
                                                         onClick={() => { window.location.href = `/admin/church/ministers/${m.id}` }}
                                                     >
                                                         <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${m.active
-                                                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                                                                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                                                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                                                             }`}>
                                                             {m.active ? 'Active' : 'Inactive'}
                                                         </div>

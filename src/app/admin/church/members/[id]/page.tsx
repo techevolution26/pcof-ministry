@@ -19,7 +19,6 @@ import {
     faSpinner,
     faTimesCircle,
     faChurch,
-    faMapMarkerAlt
 } from '@fortawesome/free-solid-svg-icons'
 
 export default function MemberShowPage() {
@@ -29,7 +28,7 @@ export default function MemberShowPage() {
     const router = useRouter()
     const { user, isLoading } = useAdminAuth()
 
-    const [member, setMember] = useState<any | null>(null)
+    const [member, setMember] = useState<unknown | null>(null)
     const [loading, setLoading] = useState(true)
     const [editing, setEditing] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -45,7 +44,7 @@ export default function MemberShowPage() {
                 if (!id) {
                     setError('Invalid member id'); return
                 }
-                const body = await fetchMemberById(id as any)
+                const body = await fetchMemberById(id as unknown)
                 if (!mounted) return
                 const data = body?.data ?? body
                 setMember(data)
@@ -54,7 +53,7 @@ export default function MemberShowPage() {
                 if (user?.role === 'church_admin' && user?.church_id && data?.church_id && String(data.church_id) !== String(user.church_id)) {
                     setUnauthorized(true)
                 }
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error(err)
                 // server responses from fetchWithAuth come through as { status, message, response }
                 if (err?.status === 403) {
@@ -135,7 +134,7 @@ export default function MemberShowPage() {
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <FontAwesomeIcon icon={faUser} className="text-4xl text-gray-400 mb-4" />
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Member Not Found</h2>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6">The member you're looking for doesn't exist.</p>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">The member you&apos;re looking for doesn&apos;t exist.</p>
                     <Link
                         href="/admin/church/members"
                         className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center gap-2"

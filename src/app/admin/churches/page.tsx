@@ -13,7 +13,6 @@ import {
   faTrash,
   faUsers,
   faUserTie,
-  faSpinner,
   faArrowLeft,
   faArrowRight,
   faAngleDoubleLeft,
@@ -23,7 +22,7 @@ import {
 export default function AdminChurchesPage() {
   const router = useRouter()
 
-  const [items, setItems] = useState<any[]>([])
+  const [items, setItems] = useState<unknown[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -95,7 +94,7 @@ export default function AdminChurchesPage() {
         setTotal(Number.isFinite(total) ? total : (Array.isArray(list) ? list.length : 0))
         setLastPage(Number.isFinite(last) ? last : 1)
         if (current && current !== page) setPage(current)
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!mounted) return
         console.error('Failed to load churches', err)
         setError(err?.message ?? 'Failed to load churches')
@@ -120,7 +119,7 @@ export default function AdminChurchesPage() {
         setItems(prev => prev.filter(c => String(c.id) !== String(id)))
         setTotal(t => Math.max(0, t - 1))
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err)
       alert(err?.message ?? 'Delete failed')
     }

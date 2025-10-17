@@ -34,7 +34,7 @@ export default function ChurchFinanceDashboard() {
     const router = useRouter()
     const { user, isLoading } = useAdminAuth()
     const churchId = user?.church_id
-    const [summary, setSummary] = useState<any | null>(null)
+    const [summary, setSummary] = useState<unknown | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [refreshKey, setRefreshKey] = useState(0)
@@ -52,7 +52,7 @@ export default function ChurchFinanceDashboard() {
                 const s = await fetchChurchFinanceSummary(churchId)
                 if (!mounted) return
                 setSummary(s)
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error('finance summary load failed', err)
                 if (!mounted) return
                 setError(err?.message ?? 'Failed to load finance summary')
@@ -304,7 +304,7 @@ export default function ChurchFinanceDashboard() {
                                     No recent payments
                                 </div>
                             ) : (
-                                recent.slice(0, 8).map((p: any) => (
+                                recent.slice(0, 8).map((p: unknown) => (
                                     <div 
                                         key={p.id} 
                                         className="flex items-center justify-between p-3 rounded-xl bg-white/50 dark:bg-gray-700/50 border border-white/50 dark:border-gray-600/50 hover:bg-white dark:hover:bg-gray-700 transition-colors duration-200"

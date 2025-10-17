@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Toast from '@/components/Toast'
 import { useAdminAuth } from '@/hooks/useAdminAuth'
-import { fetchPaymentById, approvePayment, createReconciliation } from '@/lib/adminApi'
+import { fetchPaymentById, approvePayment } from '@/lib/adminApi'
 import ReconciliationForm from '@/components/ReconciliationForm'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -23,10 +23,8 @@ import {
     faReceipt,
     faDownload,
     faShare,
-    faEllipsisVertical,
     faSpinner,
     faExclamationTriangle,
-    faCheck,
     faClock,
     faHashtag,
     faPlus,
@@ -41,12 +39,12 @@ export default function PaymentDetailsPage() {
     const rawId = Array.isArray(params?.id) ? params?.id[0] : params?.id
     const id = rawId ?? null
     const router = useRouter()
-    const { user, isLoading } = useAdminAuth()
+    const { isLoading } = useAdminAuth()
 
-    const [payment, setPayment] = useState<any | null>(null)
+    const [payment, setPayment] = useState<unknown | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const [toast, setToast] = useState<any>(null)
+    const [toast, setToast] = useState<unknown>(null)
     const [approving, setApproving] = useState(false)
     const [refreshing, setRefreshing] = useState(false)
     const [showReconciliationForm, setShowReconciliationForm] = useState(false)
@@ -61,7 +59,7 @@ export default function PaymentDetailsPage() {
                 if (!mounted) return
                 const p = body?.data ?? body
                 setPayment(p)
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error(err)
                 if (!mounted) return
                 setError(err?.message ?? 'Failed to load payment details')
@@ -80,7 +78,7 @@ export default function PaymentDetailsPage() {
             const body = await fetchPaymentById(id)
             const p = body?.data ?? body
             setPayment(p)
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Failed to refresh payment', err)
         } finally {
             setRefreshing(false)
@@ -96,7 +94,7 @@ export default function PaymentDetailsPage() {
             const p = body?.data ?? body
             setPayment(p)
             setToast({ show: true, message: 'Payment approved successfully', type: 'success' })
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err)
             setToast({ show: true, message: err?.message ?? 'Failed to approve payment', type: 'error' })
         } finally {
@@ -104,7 +102,7 @@ export default function PaymentDetailsPage() {
         }
     }
 
-    async function handleReconciliationCreated(rec: any) {
+    async function handleReconciliationCreated(rec: unknown) {
         try {
             await refreshPayment()
             setShowReconciliationForm(false)
@@ -115,7 +113,7 @@ export default function PaymentDetailsPage() {
     }
 
     const getStatusIcon = (status: string) => {
-        const statusIcons: Record<string, any> = {
+        const statusIcons: Record<string, unknown> = {
             completed: faCheckCircle,
             pending: faHourglassHalf,
             failed: faTimesCircle,
@@ -139,7 +137,7 @@ export default function PaymentDetailsPage() {
     }
 
     const getTypeIcon = (type: string) => {
-        const typeIcons: Record<string, any> = {
+        const typeIcons: Record<string, unknown> = {
             tithe: faMoneyBillWave,
             offering: faFileInvoice,
             collection: faMoneyBillWave,
@@ -480,16 +478,16 @@ export default function PaymentDetailsPage() {
                                 {/* Show reconciliations if included on payment.reconciliations */}
                                 {Array.isArray(payment.reconciliations) && payment.reconciliations.length > 0 ? (
                                     <div className="space-y-4">
-                                        {payment.reconciliations.map((r: any) => (
+                                        {payment.reconciliations.map((r: unknown) => (
                                             <div key={r.id} className="border border-gray-200 dark:border-gray-600 rounded-xl p-4 bg-gray-50/50 dark:bg-gray-700/30 hover:bg-white dark:hover:bg-gray-700/50 transition-colors">
                                                 <div className="flex items-center justify-between mb-2">
                                                     <div className="font-medium text-gray-900 dark:text-white text-sm">
                                                         {r.statement_reference ?? `Rec-${r.id}`}
                                                     </div>
                                                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${r.status === 'reconciled' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
-                                                            r.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' :
-                                                                r.status === 'disputed' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
-                                                                    'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+                                                        r.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' :
+                                                            r.status === 'disputed' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
+                                                                'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
                                                         }`}>
                                                         {r.status}
                                                     </span>

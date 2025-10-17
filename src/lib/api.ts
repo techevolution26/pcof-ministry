@@ -10,15 +10,15 @@ async function serverFetch<T>(path: string, revalidateSeconds = 60): Promise<T> 
   return (await res.json()) as T;
 }
 
-export async function fetchChurches() { return serverFetch<any[]>('/api/admin/churches', 60); }
-export async function fetchSermons() { return serverFetch<any[]>('/api/admin/sermons', 60); }
-export async function fetchEvents() { return serverFetch<any[]>('/api/admin/events', 60); }
-export async function fetchMembers() { return serverFetch<any[]>('/api/admin/members', 60); }
-export async function fetchMember(id: string | number) { return serverFetch<any>(`/api/admin/members/${id}`, 60); }
-export async function fetchFinanceSummary() { return serverFetch<any>('/api/admin/finance/summary', 300); }
-export async function fetchAdminSummary() { return serverFetch<any>('/api/admin/summary', 300); }  //here
-export async function fetchAdminUserProfile() { return serverFetch<any>('/api/admin/profile', 300); }
-export async function fetchAdminUsers(filter = 'all') { return serverFetch<any[]>(`/api/admin/users?filter=${filter}`, 60); }
+export async function fetchChurches() { return serverFetch<unknown[]>('/api/admin/churches', 60); }
+export async function fetchSermons() { return serverFetch<unknown[]>('/api/admin/sermons', 60); }
+export async function fetchEvents() { return serverFetch<unknown[]>('/api/admin/events', 60); }
+export async function fetchMembers() { return serverFetch<unknown[]>('/api/admin/members', 60); }
+export async function fetchMember(id: string | number) { return serverFetch<unknown>(`/api/admin/members/${id}`, 60); }
+export async function fetchFinanceSummary() { return serverFetch<unknown>('/api/admin/finance/summary', 300); }
+export async function fetchAdminSummary() { return serverFetch<unknown>('/api/admin/summary', 300); }  //here
+export async function fetchAdminUserProfile() { return serverFetch<unknown>('/api/admin/profile', 300); }
+export async function fetchAdminUsers(filter = 'all') { return serverFetch<unknown[]>(`/api/admin/users?filter=${filter}`, 60); }
 
 export async function fetchLeadership() {
   // server: read from file system (fast, reliable during SSR)
@@ -32,4 +32,4 @@ export async function fetchLeadership() {
       return []
     }
   }
-
+}

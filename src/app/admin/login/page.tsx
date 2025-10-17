@@ -58,7 +58,7 @@ export default function AdminLoginPage() {
       }
 
       setError(res?.message ?? 'Your account is pending approval.')
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err?.message ?? 'Sign in failed. Please check your credentials.')
     } finally {
       setLoading(false)
@@ -177,7 +177,7 @@ export default function AdminLoginPage() {
             {/* Register Link */}
             <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-700">
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Don't have an account?{' '}
+                Don&apos;t have an account?{' '}
                 <Link
                   href="/admin/register"
                   className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition-colors"

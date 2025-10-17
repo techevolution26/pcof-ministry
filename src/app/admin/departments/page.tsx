@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { fetchDepartments, deleteDepartment } from '@/lib/adminApi'
 
 export default function DepartmentsPage() {
-  const [items, setItems] = useState<any[]>([])
+  const [items, setItems] = useState<unknown[]>([])
   const [loading, setLoading] = useState(true)
   useEffect(() => {
     let mounted = true

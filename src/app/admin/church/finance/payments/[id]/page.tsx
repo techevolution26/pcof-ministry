@@ -27,10 +27,10 @@ export default function PaymentShowPage() {
     const router = useRouter()
     const { user, isLoading } = useAdminAuth()
 
-    const [payment, setPayment] = useState<any | null>(null)
+    const [payment, setPayment] = useState<unknown | null>(null)
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
-    const [toast, setToast] = useState<any>(null)
+    const [toast, setToast] = useState<unknown>(null)
     const [error, setError] = useState<string | null>(null)
     const [reconNotes, setReconNotes] = useState('')
     const [reconRef, setReconRef] = useState('')
@@ -46,7 +46,7 @@ export default function PaymentShowPage() {
                 const data = body?.data ?? body
                 if (!mounted) return
                 setPayment(data)
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error('Failed to load payment', err)
                 if (!mounted) return
                 setError(err?.message ?? 'Failed to load payment')
@@ -111,7 +111,7 @@ export default function PaymentShowPage() {
             const resData = res?.data ?? res
             setPayment(resData)
             setToast({ show: true, message: 'Payment approved successfully', type: 'success' })
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err)
             setToast({ show: true, message: err?.message ?? 'Failed to approve payment', type: 'error' })
         } finally { setSaving(false) }
@@ -124,7 +124,7 @@ export default function PaymentShowPage() {
             await deletePayment(payment.id)
             setToast({ show: true, message: 'Payment deleted successfully', type: 'success' })
             setTimeout(() => router.push('/admin/church/finance'), 1500)
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err)
             setToast({ show: true, message: err?.message ?? 'Failed to delete payment', type: 'error' })
         } finally { setSaving(false) }
@@ -145,10 +145,10 @@ export default function PaymentShowPage() {
             }
             const res = await createReconciliation(payload)
             const saved = res?.data ?? res
-            setPayment((p: any) => ({ ...p, reconciliations: [...(p.reconciliations ?? []), saved] }))
+            setPayment((p: unknown) => ({ ...p, reconciliations: [...(p.reconciliations ?? []), saved] }))
             setReconNotes(''); setReconRef(''); setReconDate('')
             setToast({ show: true, message: 'Reconciliation created successfully', type: 'success' })
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error(err)
             setToast({ show: true, message: err?.message ?? 'Failed to create reconciliation', type: 'error' })
         } finally { setSaving(false) }
@@ -308,7 +308,7 @@ export default function PaymentShowPage() {
                                     No reconciliations yet
                                 </div>
                             ) : (
-                                (payment.reconciliations ?? []).map((r: any) => (
+                                (payment.reconciliations ?? []).map((r: unknown) => (
                                     <div key={r.id} className="p-3 bg-white/50 dark:bg-gray-700/50 rounded-xl border border-gray-200/50 dark:border-gray-600/50">
                                         <div className="flex items-center justify-between mb-2">
                                             <div className="font-medium text-gray-900 dark:text-white">

@@ -106,7 +106,7 @@ function QuickActionCard({
   href: string
   title: string
   description: string
-  icon: any
+  icon: unknown
   color: 'blue' | 'green' | 'purple'
 }) {
   const colorClasses = {

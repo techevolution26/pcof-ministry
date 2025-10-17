@@ -2,20 +2,19 @@
 
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { fetchRoles, createRole, updateRole, deleteRole } from '@/lib/adminApi'
+import { fetchRoles, createRole, deleteRole } from '@/lib/adminApi'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
     faUsersCog,
     faPlus,
     faTrash,
-    faEdit,
     faSpinner,
     faArrowLeft,
     faShield
 } from '@fortawesome/free-solid-svg-icons'
 
 export default function AdminRolesPage() {
-    const [roles, setRoles] = useState<any[]>([])
+    const [roles, setRoles] = useState<unknown[]>([])
     const [loading, setLoading] = useState(true)
     const [name, setName] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -162,7 +161,7 @@ export default function AdminRolesPage() {
                             </div>
                         ) : (
                             <div className="divide-y divide-gray-100 dark:divide-gray-700">
-                                {roles.map((role, index) => (
+                                {roles.map((role) => (
                                     <div
                                         key={role.id}
                                         className="p-6 hover:bg-white/50 dark:hover:bg-gray-700/50 transition-colors duration-200 group"

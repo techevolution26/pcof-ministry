@@ -1,4 +1,4 @@
-// app/admin/church/assets/page.tsx
+// /src/app/admin/church/assets/page.tsx
 'use client'
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -19,13 +19,29 @@ import {
     faIdCard
 } from '@fortawesome/free-solid-svg-icons'
 
+type ChurchAsset = {
+    id: number | string
+    name?: string | null
+    asset_tag?: string | null
+    church?: { name?: string } | null
+    church_id?: number | string | null
+    location?: string | null
+    category?: string | null
+    description?: string | null
+    purchase_date?: string | null
+    file_url?: string | null
+}
+
 export default function ChurchAssetsPage() {
     const router = useRouter()
     const { user, isLoading } = useAdminAuth()
-    const [items, setItems] = useState<any[]>([])
+
+    // narrow user to an object that may have church_id (safe cast)
+    const churchId = (user as { church_id?: string | number | null } | null | undefined)?.church_id
+
+    const [items, setItems] = useState<ChurchAsset[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const churchId = user?.church_id
 
     useEffect(() => {
         let mounted = true
@@ -34,16 +50,26 @@ export default function ChurchAssetsPage() {
             setError(null)
             try {
                 if (!churchId) {
-                    setItems([]);
+                    if (mounted) setItems([])
                     return
                 }
                 const body = await fetchChurchAssets(churchId)
                 if (!mounted) return
-                setItems(Array.isArray(body) ? body : (body?.data ?? []))
-            } catch (err: any) {
+
+                // API may return array or { data: [...] }, so handle both shapes safely
+                let list: ChurchAsset[] = []
+                if (Array.isArray(body)) {
+                    list = body as ChurchAsset[]
+                } else if (body && typeof body === 'object') {
+                    // ts-ignore accessing possible data property (unknown shape)
+                    const d = (body as Record<string, unknown>)['data']
+                    if (Array.isArray(d)) list = d as ChurchAsset[]
+                }
+                setItems(list)
+            } catch (err: unknown) {
                 console.error(err)
                 if (!mounted) return
-                setError(err?.message ?? 'Failed to load assets')
+                setError((err as { message?: string })?.message ?? 'Failed to load assets')
             } finally {
                 if (mounted) setLoading(false)
             }
@@ -101,7 +127,7 @@ export default function ChurchAssetsPage() {
                             Church Assets
                         </h1>
                         <p className="text-gray-600 dark:text-gray-300">
-                            Manage and track your church's physical assets and equipment
+                            Manage and track your church&apos;s physical assets and equipment
                         </p>
                     </div>
 
@@ -120,7 +146,7 @@ export default function ChurchAssetsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {items.map((asset) => (
                         <div
-                            key={asset.id}
+                            key={String(asset.id)}
                             className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 dark:border-gray-700/50 p-6 hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300"
                         >
                             <div className="flex items-start justify-between mb-4">
@@ -130,7 +156,7 @@ export default function ChurchAssetsPage() {
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-gray-900 dark:text-white text-lg">
-                                            {asset.name || 'Unnamed Asset'}
+                                            {asset.name ?? 'Unnamed Asset'}
                                         </h3>
                                         <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mt-1">
                                             <FontAwesomeIcon icon={faBuilding} className="text-xs" />
@@ -218,7 +244,7 @@ export default function ChurchAssetsPage() {
                                 <FontAwesomeIcon icon={faBox} className="text-4xl mb-4 text-gray-300 dark:text-gray-600" />
                                 <div className="text-lg font-medium mb-2">No assets yet</div>
                                 <div className="text-sm mb-6 max-w-md">
-                                    Track your church's physical assets like equipment, furniture, and other property to maintain proper inventory.
+                                    Track your church&apos;s physical assets like equipment, furniture, and other property to maintain proper inventory.
                                 </div>
                                 <Link
                                     href="/admin/church/assets/new"

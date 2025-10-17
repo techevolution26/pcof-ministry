@@ -9,7 +9,7 @@ export function useAdminAuth(options?: { requireRole?: string }) {
   const router = useRouter()
 
   // hydrate from localStorage to avoid flash
-  const [user, setUser] = useState<any | null>(() => {
+  const [user, setUser] = useState<unknown | null>(() => {
     try { return typeof window !== 'undefined' ? getAdminUser() : null } catch { return null }
   })
   const [isLoading, setIsLoading] = useState<boolean>(true)

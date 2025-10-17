@@ -24,7 +24,7 @@ export default function DepartmentShowPage() {
     const router = useRouter()
     const { user, isLoading } = useAdminAuth()
 
-    const [department, setDepartment] = useState<any | null>(null)
+    const [department, setDepartment] = useState<unknown | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
@@ -43,7 +43,7 @@ export default function DepartmentShowPage() {
                     return
                 }
                 setDepartment(data)
-            } catch (err: any) {
+            } catch (err: unknown) {
                 setError(err?.message ?? 'Failed to load department')
             } finally {
                 if (mounted) setLoading(false)

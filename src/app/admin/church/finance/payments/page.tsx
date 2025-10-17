@@ -13,7 +13,6 @@ import {
     faCheck,
     faSpinner,
     faReceipt,
-    faMoneyBillWave,
     faClock,
     faCheckCircle,
     faFileInvoice
@@ -24,8 +23,8 @@ export default function PaymentsList() {
     const { user, isLoading } = useAdminAuth()
     const [q, setQ] = useState('')
     const [page, setPage] = useState(1)
-    const [items, setItems] = useState<any[]>([])
-    const [meta, setMeta] = useState<any>({})
+    const [items, setItems] = useState<unknown[]>([])
+    const [meta, setMeta] = useState<unknown>({})
     const [loading, setLoading] = useState(true)
     const [approvingId, setApprovingId] = useState<string | number | null>(null)
     const churchId = user?.church_id
@@ -54,7 +53,7 @@ export default function PaymentsList() {
             await approvePayment(id)
             // optimistic: update state
             setItems(prev => prev.map(i => i.id == id ? { ...i, status: 'approved' } : i))
-        } catch (err: any) {
+        } catch (err: unknown) {
             alert(err?.message ?? 'Approve failed')
         } finally {
             setApprovingId(null)

@@ -8,12 +8,12 @@ import { useRouter } from 'next/navigation'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSpinner, faSave, faPlus } from '@fortawesome/free-solid-svg-icons'
 
-type Props = { ministerId?: string | number | null; initial?: any; onSaved?: (m: any) => void }
+type Props = { ministerId?: string | number | null; initial?: unknown; onSaved?: (m: unknown) => void }
 
 export default function MinisterForm({ ministerId = null, initial = {}, onSaved }: Props) {
     const { user, isLoading } = useAdminAuth()
     const churchId = user?.church_id
-    const [form, setForm] = useState<any>({
+    const [form, setForm] = useState<unknown>({
         member_id: initial.member_id ?? '',
         department_id: initial.department_id ?? '',
         designation_id: initial.designation_id ?? '',
@@ -26,8 +26,8 @@ export default function MinisterForm({ ministerId = null, initial = {}, onSaved 
     })
     const [loading, setLoading] = useState<boolean>(Boolean(ministerId) || isLoading)
     const [saving, setSaving] = useState(false)
-    const [departments, setDepartments] = useState<any[]>([])
-    const [designations, setDesignations] = useState<any[]>([])
+    const [departments, setDepartments] = useState<unknown[]>([])
+    const [designations, setDesignations] = useState<unknown[]>([])
     const [toast, setToast] = useState<{ show: boolean; message?: string; type?: 'success' | 'error' } | null>(null)
     const router = useRouter()
 
@@ -56,7 +56,7 @@ export default function MinisterForm({ ministerId = null, initial = {}, onSaved 
         async function load() {
             if (!ministerId) { setLoading(false); return }
             try {
-                const res = await fetchMinisterById(ministerId as any)
+                const res = await fetchMinisterById(ministerId as unknown)
                 const data = res?.data ?? res
                 if (!mounted) return
                 setForm({
@@ -81,7 +81,7 @@ export default function MinisterForm({ ministerId = null, initial = {}, onSaved 
     }, [ministerId, churchId])
 
     function onChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
-        const { name, value, type } = e.target as any
+        const { name, value, type } = e.target as unknown
         setForm(prev => ({
             ...prev,
             [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
@@ -94,7 +94,7 @@ export default function MinisterForm({ ministerId = null, initial = {}, onSaved 
         try {
             const payload = { ...form, church_id: churchId }
             let res
-            if (ministerId) res = await updateMinister(ministerId as any, payload)
+            if (ministerId) res = await updateMinister(ministerId as unknown, payload)
             else res = await createMinister(payload)
             const saved = res?.data ?? res
             setToast({ show: true, message: ministerId ? 'Minister updated successfully' : 'Minister created successfully', type: 'success' })
@@ -104,7 +104,7 @@ export default function MinisterForm({ ministerId = null, initial = {}, onSaved 
                     router.push('/admin/church/ministers')
                 }, 1000)
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             setToast({ show: true, message: err?.message ?? 'Save failed', type: 'error' })
             console.error(err)
         } finally {
